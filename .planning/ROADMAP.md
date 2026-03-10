@@ -46,7 +46,12 @@ Plans:
   3. A consumer can search listings by make, model, and year; filter by make, year range, price range, mileage range, and condition; sort by price, mileage, and newest; and paginate through results
   4. A consumer can view a vehicle detail page with a full-screen lightbox photo gallery and access uploaded documents
   5. The storefront is fully usable on mobile devices
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Foundation: install packages, FTS migration, NuqsAdapter, middleware role check, Wave 0 test stubs
+- [ ] 02-02-PLAN.md — Wholesaler: listing creation wizard (VIN lookup, photos, documents), seller dashboard, Server Actions
+- [ ] 02-03-PLAN.md — Consumer storefront: search/filter grid, listing cards, vehicle detail page with lightbox gallery
 
 ### Phase 3: Transactions
 **Goal**: A consumer can purchase a vehicle via Stripe, receive all legally required documents for e-signing, and track order and document status entirely within the platform.
