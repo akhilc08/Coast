@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 2 context gathered
-last_updated: "2026-03-10T19:30:35.583Z"
-last_activity: 2026-03-10 — Plan 01-01 complete (scaffold + Supabase clients + test infra)
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-03-10T20:00:00.000Z"
+last_activity: 2026-03-10 — Plan 02-01 complete (Phase 2 infra + FTS + Wave 0 test stubs)
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 3
-  completed_plans: 3
-  percent: 33
+  completed_plans: 4
+  percent: 36
 ---
 
 # Project State
@@ -21,32 +21,33 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** A buyer can find, purchase, and fully complete paperwork for a wholesale vehicle entirely online — no offline steps required.
-**Current focus:** Phase 1 — Foundation
+**Current focus:** Phase 2 — Inventory
 
 ## Current Position
 
-Phase: 1 of 4 (Foundation)
-Plan: 1 of 3 in current phase (01-01 complete)
+Phase: 2 of 4 (Inventory)
+Plan: 1 of 3 in current phase (02-01 complete)
 Status: In Progress
-Last activity: 2026-03-10 — Plan 01-01 complete (scaffold + Supabase clients + test infra)
+Last activity: 2026-03-10 — Plan 02-01 complete (Phase 2 infra + FTS + Wave 0 test stubs)
 
-Progress: [███░░░░░░░] 33%
+Progress: [████░░░░░░] 36%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 8 min
-- Total execution time: 8 min
+- Total plans completed: 4
+- Average duration: 11 min
+- Total execution time: 33 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-foundation | 1/3 | 8 min | 8 min |
+| 01-foundation | 3/3 | 25 min | 8 min |
+| 02-inventory | 1/3 | 25 min | 25 min |
 
 **Recent Trend:**
-- Last 5 plans: 8 min
+- Last 5 plans: 25 min
 - Trend: —
 
 *Updated after each plan completion*
@@ -66,6 +67,10 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: vitest include pattern restricted to *.test.ts to prevent Playwright spec pickup
 - [Phase 01-foundation]: form.tsx hand-written without @radix-ui/react-slot — base-nova shadcn style lacks this component; used React.cloneElement in FormControl instead
 - [Phase 01-foundation]: SMTP deferred — no Resend account; Supabase default email used for development (2/hour limit)
+- [Phase 02-inventory]: FTS uses 'simple' dictionary (not 'english') for case-insensitive make/model/year search without stemming side effects
+- [Phase 02-inventory]: playwright.config.ts restricted to *.spec.ts — vitest .test.ts files must not be in Playwright scope
+- [Phase 02-inventory]: E2E stubs use test.fixme() not test.todo() — Playwright 1.58 does not support test.todo() inside describe blocks
+- [Phase 02-inventory]: FTS migration applied manually via Supabase SQL Editor (checkpoint approved)
 
 ### Pending Todos
 
@@ -79,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T19:30:35.571Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-inventory/02-CONTEXT.md
+Last session: 2026-03-10T20:00:00.000Z
+Stopped at: Completed 02-01-PLAN.md
+Resume file: .planning/phases/02-inventory/02-02-PLAN.md

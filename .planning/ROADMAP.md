@@ -84,6 +84,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 1/3 | In Progress|  |
-| 2. Inventory | 0/TBD | Not started | - |
+| 2. Inventory | 1/3 | In Progress|  |
 | 3. Transactions | 0/TBD | Not started | - |
 | 4. Admin and Grading Scaffold | 0/TBD | Not started | - |

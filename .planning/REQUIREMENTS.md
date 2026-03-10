@@ -15,21 +15,21 @@
 
 ### Listings
 
-- [ ] **LIST-01**: Wholesaler can create a listing with core details (VIN, make, model, year, mileage, color, price, condition notes)
-- [ ] **LIST-02**: VIN auto-fill via NHTSA API populates vehicle details when VIN is entered
-- [ ] **LIST-03**: Wholesaler can upload multiple photos per listing
-- [ ] **LIST-04**: Wholesaler can upload documents to a listing (Carfax, service history, title)
-- [ ] **LIST-05**: Wholesaler can save a listing as draft before publishing
-- [ ] **LIST-06**: Wholesaler can edit and remove their own listings
+- [x] **LIST-01**: Wholesaler can create a listing with core details (VIN, make, model, year, mileage, color, price, condition notes)
+- [x] **LIST-02**: VIN auto-fill via NHTSA API populates vehicle details when VIN is entered
+- [x] **LIST-03**: Wholesaler can upload multiple photos per listing
+- [x] **LIST-04**: Wholesaler can upload documents to a listing (Carfax, service history, title)
+- [x] **LIST-05**: Wholesaler can save a listing as draft before publishing
+- [x] **LIST-06**: Wholesaler can edit and remove their own listings
 
 ### Storefront
 
-- [ ] **STOR-01**: Consumer can search listings by make, model, and year via full-text search
-- [ ] **STOR-02**: Consumer can filter listings by make, year range, price range, mileage range, and condition
-- [ ] **STOR-03**: Consumer can sort listings by price, mileage, and newest first
-- [ ] **STOR-04**: Consumer can browse a paginated listing grid
-- [ ] **STOR-05**: Consumer can view a vehicle detail page with full-screen lightbox photo gallery
-- [ ] **STOR-06**: Platform is fully mobile-responsive
+- [x] **STOR-01**: Consumer can search listings by make, model, and year via full-text search
+- [x] **STOR-02**: Consumer can filter listings by make, year range, price range, mileage range, and condition
+- [x] **STOR-03**: Consumer can sort listings by price, mileage, and newest first
+- [x] **STOR-04**: Consumer can browse a paginated listing grid
+- [x] **STOR-05**: Consumer can view a vehicle detail page with full-screen lightbox photo gallery
+- [x] **STOR-06**: Platform is fully mobile-responsive
 
 ### Purchase
 
@@ -63,8 +63,8 @@
 
 ### Grading Scaffold
 
-- [ ] **GRADE-01**: Car photos are stored in Supabase Storage and served with optimized delivery
-- [ ] **GRADE-02**: Vehicle detail page shows a "Grade Pending" placeholder where the condition grade will display
+- [x] **GRADE-01**: Car photos are stored in Supabase Storage and served with optimized delivery
+- [x] **GRADE-02**: Vehicle detail page shows a "Grade Pending" placeholder where the condition grade will display
 - [x] **GRADE-03**: Listings table includes grade, grade_source, and graded_at columns (nullable)
 - [ ] **GRADE-04**: /api/grading/callback endpoint is scaffolded and ready to receive grade results from future AI service
 
@@ -111,20 +111,20 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-04 | Phase 1 | Complete |
 | AUTH-05 | Phase 1 | Complete |
 | GRADE-03 | Phase 1 | Complete |
-| LIST-01 | Phase 2 | Pending |
-| LIST-02 | Phase 2 | Pending |
-| LIST-03 | Phase 2 | Pending |
-| LIST-04 | Phase 2 | Pending |
-| LIST-05 | Phase 2 | Pending |
-| LIST-06 | Phase 2 | Pending |
-| STOR-01 | Phase 2 | Pending |
-| STOR-02 | Phase 2 | Pending |
-| STOR-03 | Phase 2 | Pending |
-| STOR-04 | Phase 2 | Pending |
-| STOR-05 | Phase 2 | Pending |
-| STOR-06 | Phase 2 | Pending |
-| GRADE-01 | Phase 2 | Pending |
-| GRADE-02 | Phase 2 | Pending |
+| LIST-01 | Phase 2 | Complete |
+| LIST-02 | Phase 2 | Complete |
+| LIST-03 | Phase 2 | Complete |
+| LIST-04 | Phase 2 | Complete |
+| LIST-05 | Phase 2 | Complete |
+| LIST-06 | Phase 2 | Complete |
+| STOR-01 | Phase 2 | Complete |
+| STOR-02 | Phase 2 | Complete |
+| STOR-03 | Phase 2 | Complete |
+| STOR-04 | Phase 2 | Complete |
+| STOR-05 | Phase 2 | Complete |
+| STOR-06 | Phase 2 | Complete |
+| GRADE-01 | Phase 2 | Complete |
+| GRADE-02 | Phase 2 | Complete |
 | PURCH-01 | Phase 3 | Pending |
 | PURCH-02 | Phase 3 | Pending |
 | PURCH-03 | Phase 3 | Pending |
