@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Completed 01-foundation/01-01-PLAN.md
-last_updated: "2026-03-10T17:44:57.714Z"
-last_activity: 2026-03-09 — Roadmap created
+status: executing
+stopped_at: "Checkpoint: 01-03 auth UI built, awaiting human verification"
+last_updated: "2026-03-10T18:19:11.350Z"
+last_activity: 2026-03-10 — Plan 01-01 complete (scaffold + Supabase clients + test infra)
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 3
   percent: 33
 ---
 
@@ -64,6 +64,8 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: Manually bootstrapped Next.js instead of create-next-app (directory name 'Coast' rejected by npm due to capital letters)
 - [Phase 01-foundation]: shadcn base-nova style used (current default; plan referenced old 'new-york' naming)
 - [Phase 01-foundation]: vitest include pattern restricted to *.test.ts to prevent Playwright spec pickup
+- [Phase 01-foundation]: form.tsx hand-written without @radix-ui/react-slot — base-nova shadcn style lacks this component; used React.cloneElement in FormControl instead
+- [Phase 01-foundation]: SMTP deferred — no Resend account; Supabase default email used for development (2/hour limit)
 
 ### Pending Todos
 
@@ -77,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T17:44:57.706Z
-Stopped at: Completed 01-foundation/01-01-PLAN.md
+Last session: 2026-03-10T18:19:04.022Z
+Stopped at: Checkpoint: 01-03 auth UI built, awaiting human verification
 Resume file: None
