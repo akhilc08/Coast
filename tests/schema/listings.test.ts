@@ -18,20 +18,15 @@ describe('listings schema (GRADE-03)', () => {
 
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Query information_schema to check column existence
-    const { data, error } = await supabase
-      .from('information_schema.columns')
-      .select('column_name')
-      .eq('table_schema', 'public')
-      .eq('table_name', 'listings')
-      .in('column_name', ['grade', 'grade_source', 'graded_at'])
+    // Verify grade columns exist by selecting them directly with limit(0).
+    // PostgREST validates column names against the schema before applying RLS,
+    // so a missing column produces an error, and existing columns return [].
+    // information_schema is not accessible via PostgREST (public schema only).
+    const { error } = await supabase
+      .from('listings')
+      .select('grade, grade_source, graded_at')
+      .limit(0)
 
     expect(error).toBeNull()
-    expect(data).toBeDefined()
-
-    const columnNames = (data ?? []).map((row: { column_name: string }) => row.column_name)
-    expect(columnNames).toContain('grade')
-    expect(columnNames).toContain('grade_source')
-    expect(columnNames).toContain('graded_at')
   })
 })
