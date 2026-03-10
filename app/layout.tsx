@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Geist } from 'next/font/google'
 import { Toaster } from 'sonner'
 import { Analytics } from '@vercel/analytics/react'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import './globals.css'
 import { cn } from "@/lib/utils";
 
@@ -25,7 +26,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("font-sans", geist.variable)}>
       <body className="font-sans antialiased">
-        {children}
+        <NuqsAdapter>
+          {children}
+        </NuqsAdapter>
         <Toaster richColors position="top-right" />
         <Analytics />
       </body>

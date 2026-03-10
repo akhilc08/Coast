@@ -33,8 +33,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  if (!user && request.nextUrl.pathname.startsWith('/seller')) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  if (request.nextUrl.pathname.startsWith('/seller')) {
+    if (!user) return NextResponse.redirect(new URL('/login', request.url))
+    const role = user.app_metadata?.role
+    if (role !== 'wholesaler' && role !== 'admin') {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
   }
 
   if (!user && request.nextUrl.pathname.startsWith('/admin')) {
