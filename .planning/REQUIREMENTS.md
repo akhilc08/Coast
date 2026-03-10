@@ -7,11 +7,11 @@
 
 ### Authentication
 
-- [ ] **AUTH-01**: Consumer can create an account with email and password
-- [ ] **AUTH-02**: Consumer receives email verification after signup and must verify before purchasing
-- [ ] **AUTH-03**: Consumer can reset password via email link
-- [ ] **AUTH-04**: Wholesaler can log in with admin-provided credentials
-- [ ] **AUTH-05**: User session persists across browser refresh
+- [x] **AUTH-01**: Consumer can create an account with email and password
+- [x] **AUTH-02**: Consumer receives email verification after signup and must verify before purchasing
+- [x] **AUTH-03**: Consumer can reset password via email link
+- [x] **AUTH-04**: Wholesaler can log in with admin-provided credentials
+- [x] **AUTH-05**: User session persists across browser refresh
 
 ### Listings
 
@@ -65,7 +65,7 @@
 
 - [ ] **GRADE-01**: Car photos are stored in Supabase Storage and served with optimized delivery
 - [ ] **GRADE-02**: Vehicle detail page shows a "Grade Pending" placeholder where the condition grade will display
-- [ ] **GRADE-03**: Listings table includes grade, grade_source, and graded_at columns (nullable)
+- [x] **GRADE-03**: Listings table includes grade, grade_source, and graded_at columns (nullable)
 - [ ] **GRADE-04**: /api/grading/callback endpoint is scaffolded and ready to receive grade results from future AI service
 
 ## v2 Requirements
@@ -105,12 +105,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
-| AUTH-04 | Phase 1 | Pending |
-| AUTH-05 | Phase 1 | Pending |
-| GRADE-03 | Phase 1 | Pending |
+| AUTH-01 | Phase 1 | Complete |
+| AUTH-02 | Phase 1 | Complete |
+| AUTH-03 | Phase 1 | Complete |
+| AUTH-04 | Phase 1 | Complete |
+| AUTH-05 | Phase 1 | Complete |
+| GRADE-03 | Phase 1 | Complete |
 | LIST-01 | Phase 2 | Pending |
 | LIST-02 | Phase 2 | Pending |
 | LIST-03 | Phase 2 | Pending |

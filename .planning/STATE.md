@@ -1,3 +1,19 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: planning
+stopped_at: Completed 01-foundation/01-01-PLAN.md
+last_updated: "2026-03-10T17:44:57.714Z"
+last_activity: 2026-03-09 — Roadmap created
+progress:
+  total_phases: 4
+  completed_phases: 0
+  total_plans: 3
+  completed_plans: 1
+  percent: 33
+---
+
 # Project State
 
 ## Project Reference
@@ -10,27 +26,27 @@ See: .planning/PROJECT.md (updated 2026-03-09)
 ## Current Position
 
 Phase: 1 of 4 (Foundation)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-09 — Roadmap created
+Plan: 1 of 3 in current phase (01-01 complete)
+Status: In Progress
+Last activity: 2026-03-10 — Plan 01-01 complete (scaffold + Supabase clients + test infra)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [███░░░░░░░] 33%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: —
-- Total execution time: —
+- Total plans completed: 1
+- Average duration: 8 min
+- Total execution time: 8 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 01-foundation | 1/3 | 8 min | 8 min |
 
 **Recent Trend:**
-- Last 5 plans: —
+- Last 5 plans: 8 min
 - Trend: —
 
 *Updated after each plan completion*
@@ -45,6 +61,9 @@ Recent decisions affecting current work:
 - Roadmap: Coarse granularity — 4 phases instead of research-suggested 8; storefront collapsed into Phase 2, documents and notifications collapsed into Phase 3
 - Architecture: Stripe webhook (not redirect) is the single authoritative fulfillment signal — must be designed in from Phase 3 start
 - Architecture: Document generation must be async (background job) to avoid blocking Stripe webhook 5-second window
+- [Phase 01-foundation]: Manually bootstrapped Next.js instead of create-next-app (directory name 'Coast' rejected by npm due to capital letters)
+- [Phase 01-foundation]: shadcn base-nova style used (current default; plan referenced old 'new-york' naming)
+- [Phase 01-foundation]: vitest include pattern restricted to *.test.ts to prevent Playwright spec pickup
 
 ### Pending Todos
 
@@ -58,6 +77,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09
-Stopped at: Roadmap written — ready to begin Phase 1 planning
+Last session: 2026-03-10T17:44:57.706Z
+Stopped at: Completed 01-foundation/01-01-PLAN.md
 Resume file: None
