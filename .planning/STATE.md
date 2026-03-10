@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-03-10T20:00:00.000Z"
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-03-10T23:41:45.965Z"
 last_activity: 2026-03-10 — Plan 02-01 complete (Phase 2 infra + FTS + Wave 0 test stubs)
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 4
+  total_plans: 6
+  completed_plans: 5
   percent: 36
 ---
 
@@ -51,6 +51,7 @@ Progress: [████░░░░░░] 36%
 - Trend: —
 
 *Updated after each plan completion*
+| Phase 02-inventory P02 | 18 | 2 tasks | 22 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,7 @@ Recent decisions affecting current work:
 - [Phase 02-inventory]: playwright.config.ts restricted to *.spec.ts — vitest .test.ts files must not be in Playwright scope
 - [Phase 02-inventory]: E2E stubs use test.fixme() not test.todo() — Playwright 1.58 does not support test.todo() inside describe blocks
 - [Phase 02-inventory]: FTS migration applied manually via Supabase SQL Editor (checkpoint approved)
+- [Phase 02-inventory]: Dashboard uses two-section table layout (Published/Drafts) — simpler RSC approach
 
 ### Pending Todos
 
@@ -84,6 +86,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T20:00:00.000Z
-Stopped at: Completed 02-01-PLAN.md
-Resume file: .planning/phases/02-inventory/02-02-PLAN.md
+Last session: 2026-03-10T23:41:45.962Z
+Stopped at: Completed 02-02-PLAN.md
+Resume file: None
