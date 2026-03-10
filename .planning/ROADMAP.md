@@ -29,7 +29,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. A wholesaler can log in with admin-provided credentials and access the seller portal
   4. All three roles (consumer, wholesaler, admin) are enforced at the database layer via RLS — no cross-role data access is possible
   5. Storage buckets exist with correct public/private configuration and the listings schema includes grade scaffold columns
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Project scaffold: Next.js 15, Supabase clients, middleware, Zod schemas, Wave 0 tests
+- [ ] 01-02-PLAN.md — Database migrations: full schema with RLS, Custom Access Token Hook, storage buckets
+- [ ] 01-03-PLAN.md — Auth UI: signup, login, password reset, email verification, home page placeholder
 
 ### Phase 2: Inventory
 **Goal**: Wholesalers can create and manage fully-detailed vehicle listings, and consumers can browse, search, and view those listings on a polished storefront.
@@ -73,7 +78,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 0/3 | Not started | - |
 | 2. Inventory | 0/TBD | Not started | - |
 | 3. Transactions | 0/TBD | Not started | - |
 | 4. Admin and Grading Scaffold | 0/TBD | Not started | - |
