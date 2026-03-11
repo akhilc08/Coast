@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-04-PLAN.md
-last_updated: "2026-03-11T02:11:47.091Z"
+stopped_at: Completed 03-03-PLAN.md
+last_updated: "2026-03-11T02:17:06.075Z"
 last_activity: 2026-03-10 — Plan 03-04 complete (consumer order history, order detail, signed-URL document downloads)
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 10
-  completed_plans: 8
-  percent: 70
+  completed_plans: 9
+  percent: 80
 ---
 
 # Project State
@@ -55,6 +55,7 @@ Progress: [████████░░] 80%
 | Phase 03-transactions P01 | 4 | 2 tasks | 11 files |
 | Phase 03-transactions P02 | 8min | 2 tasks | 10 files |
 | Phase 03-transactions P04 | 4min | 2 tasks | 5 files |
+| Phase 03-transactions P03 | 8min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,8 @@ Recent decisions affecting current work:
 - [Phase 03-transactions]: NextRedirectError mock pattern — redirect() must throw to halt execution in tests matching Next.js runtime behavior
 - [Phase 03-transactions]: DownloadDocumentButton isolated as client component — RSC page stays fully server-rendered
 - [Phase 03-transactions]: Server action verifies buyer ownership via order join before issuing signed URLs (defense in depth)
+- [Phase 03-transactions]: RequestDetailedFile used for Dropbox Sign file uploads — Buffer not directly assignable to RequestFile (ReadStream | RequestDetailedFile)
+- [Phase 03-transactions]: after() used in Stripe webhook for document pipeline — long-running PDF gen + Dropbox Sign API deferred post-response
 
 ### Pending Todos
 
@@ -93,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T02:11:47.087Z
-Stopped at: Completed 03-04-PLAN.md
+Last session: 2026-03-11T02:17:06.072Z
+Stopped at: Completed 03-03-PLAN.md
 Resume file: None

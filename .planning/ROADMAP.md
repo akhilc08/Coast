@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Foundation** - Auth, roles, database schema, and storage architecture
 - [ ] **Phase 2: Inventory** - Wholesaler listing management and public storefront
-- [ ] **Phase 3: Transactions** - Purchase flow, document pipeline, and notifications
+- [x] **Phase 3: Transactions** - Purchase flow, document pipeline, and notifications (completed 2026-03-11)
 - [ ] **Phase 4: Admin and Grading Scaffold** - Admin panel and grading callback activation
 
 ## Phase Details
@@ -91,5 +91,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete | 2026-03-09 |
 | 2. Inventory | 1/3 | In Progress|  |
-| 3. Transactions | 3/4 | In Progress|  |
+| 3. Transactions | 4/4 | Complete   | 2026-03-11 |
 | 4. Admin and Grading Scaffold | 0/TBD | Not started | - |

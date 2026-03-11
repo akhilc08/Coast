@@ -42,7 +42,7 @@
 
 - [x] **DOC-01**: Purchase agreement PDF is generated server-side after payment completes
 - [x] **DOC-02**: Title transfer document is generated server-side after payment completes
-- [ ] **DOC-03**: Buyer receives e-signing request for both documents via Dropbox Sign
+- [x] **DOC-03**: Buyer receives e-signing request for both documents via Dropbox Sign
 - [x] **DOC-04**: Buyer can access their signed documents from their account
 - [x] **DOC-05**: Document completion status is tracked per order (pending → signed → delivered)
 
@@ -131,7 +131,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PURCH-04 | Phase 3 | Complete |
 | DOC-01 | Phase 3 | Complete |
 | DOC-02 | Phase 3 | Complete |
-| DOC-03 | Phase 3 | Pending |
+| DOC-03 | Phase 3 | Complete |
 | DOC-04 | Phase 3 | Complete |
 | DOC-05 | Phase 3 | Complete |
 | NOTF-01 | Phase 3 | Complete |
