@@ -36,6 +36,32 @@ describe('email templates', () => {
     expect(html).toContain('2020 Toyota Camry')
   })
 
-  it.todo('SigningRequestEmail renders without errors')
-  it.todo('DocumentsCompleteEmail renders without errors')
+  it('SigningRequestEmail renders without errors', async () => {
+    const { SigningRequestEmail } = await import('@/lib/email/signing-request')
+    const html = await render(
+      SigningRequestEmail({
+        buyerName: 'Test Buyer',
+        vehicleTitle: '2020 Toyota Camry',
+        orderNumber: 'ABCD1234',
+        orderUrl: 'https://coastautos.com/account/orders/test-order-id',
+      })
+    )
+    expect(typeof html).toBe('string')
+    expect(html.length).toBeGreaterThan(0)
+    expect(html.toLowerCase()).toContain('ready to sign')
+  })
+
+  it('DocumentsCompleteEmail renders without errors', async () => {
+    const { DocumentsCompleteEmail } = await import('@/lib/email/documents-complete')
+    const html = await render(
+      DocumentsCompleteEmail({
+        buyerName: 'Test Buyer',
+        vehicleTitle: '2020 Toyota Camry',
+        orderNumber: 'ABCD1234',
+      })
+    )
+    expect(typeof html).toBe('string')
+    expect(html.length).toBeGreaterThan(0)
+    expect(html.toLowerCase()).toContain('documents are complete')
+  })
 })
