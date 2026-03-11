@@ -4,6 +4,8 @@ import { resend, FROM_EMAIL, ADMIN_EMAIL } from '@/lib/resend'
 import { OrderConfirmationEmail } from '@/lib/email/order-confirmation'
 import { AdminOrderAlertEmail } from '@/lib/email/admin-order-alert'
 import { render } from '@react-email/components'
+import { after } from 'next/server'
+import { generateAndSendDocuments } from '@/lib/fulfillment'
 
 /**
  * Stripe webhook handler for checkout.session.completed.
@@ -155,8 +157,11 @@ export async function POST(request: Request) {
       }),
     ])
 
-    // TODO Plan 03: use after() to trigger async document pipeline
-    // after(() => { void generateAndSendDocuments(orderId) })
+    // Trigger async document pipeline after webhook response is sent
+    // after() ensures this runs within Vercel's extended execution window
+    after(async () => {
+      await generateAndSendDocuments(orderId)
+    })
   }
 
   return new Response('OK', { status: 200 })

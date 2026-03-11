@@ -1,5 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+// Mock next/server — after() is a Next.js request-context API that fails in unit tests
+vi.mock('next/server', () => ({
+  after: vi.fn((fn: () => Promise<void>) => {
+    // In tests, invoke immediately so we can still exercise the code path
+    void fn()
+  }),
+}))
+
+// Mock fulfillment to prevent actual PDF/Dropbox Sign work in webhook tests
+vi.mock('@/lib/fulfillment', () => ({
+  generateAndSendDocuments: vi.fn(() => Promise.resolve()),
+}))
+
 // Mock Stripe
 const mockConstructEvent = vi.fn()
 vi.mock('@/lib/stripe', () => ({
