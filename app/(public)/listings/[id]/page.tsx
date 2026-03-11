@@ -97,9 +97,9 @@ export default async function ListingDetailPage({
             <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
               <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500">Documents</p>
               <ul className="space-y-2">
-                {listing.listing_documents.map((doc: { id: string; original_name: string | null; document_type: string }) => (
+                {listing.listing_documents.map((doc: { id: string; file_name: string | null; document_type: string }) => (
                   <li key={doc.id} className="flex items-center gap-2 text-sm">
-                    <span className="text-zinc-400">{doc.original_name ?? doc.document_type}</span>
+                    <span className="text-zinc-400">{doc.file_name ?? doc.document_type}</span>
                     {user ? (
                       <span className="text-xs text-zinc-600">(available after purchase)</span>
                     ) : (

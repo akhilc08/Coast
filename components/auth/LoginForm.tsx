@@ -37,7 +37,16 @@ export function LoginForm() {
       return
     }
 
-    router.push('/')
+    // Redirect based on role
+    const { data: { user: loggedInUser } } = await supabase.auth.getUser()
+    const role = loggedInUser?.app_metadata?.role
+    if (role === 'admin') {
+      router.push('/admin')
+    } else if (role === 'wholesaler') {
+      router.push('/seller')
+    } else {
+      router.push('/')
+    }
     router.refresh()
   }
 

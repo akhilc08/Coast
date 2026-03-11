@@ -60,7 +60,7 @@ export async function getListing(id: string) {
   const { data, error } = await supabase
     .from('listings')
     .select(
-      '*, listing_photos(id, storage_key, position), listing_documents(id, storage_key, document_type, original_name)'
+      '*, listing_photos(id, storage_key, position), listing_documents(id, storage_key, document_type, file_name)'
     )
     .eq('id', id)
     .eq('status', 'active')
