@@ -80,7 +80,12 @@ Plans:
   2. Admin can view all listings with status filter (draft, active, sold) and all orders with status filter
   3. Admin can view an analytics dashboard showing total revenue, listing count, and order count
   4. The /api/grading/callback endpoint is deployed, validates an API key, and writes a grade to the listing — the vehicle detail page displays the real grade when populated
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Foundation: Zod schemas, Wave 0 tests, admin layout + role guard, middleware fix, grading callback endpoint, server actions
+- [ ] 04-02-PLAN.md — Dashboard + Users: analytics stat cards, recent orders feed, user table with filter tabs, create wholesaler form, ban/unban toggle
+- [ ] 04-03-PLAN.md — Data tables: listings table with status filter tabs + grade display, orders table with status filter tabs
 
 ## Progress
 
@@ -92,4 +97,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Foundation | 3/3 | Complete | 2026-03-09 |
 | 2. Inventory | 1/3 | In Progress|  |
 | 3. Transactions | 4/4 | Complete   | 2026-03-11 |
-| 4. Admin and Grading Scaffold | 0/TBD | Not started | - |
+| 4. Admin and Grading Scaffold | 0/3 | Not started | - |
