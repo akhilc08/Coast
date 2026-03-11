@@ -18,7 +18,7 @@ export function PhotoGallery({ photos }: { photos: Photo[] }) {
 
   if (photos.length === 0) {
     return (
-      <div className="flex h-48 items-center justify-center rounded-xl bg-zinc-900 text-sm text-zinc-600">
+      <div className="flex h-48 items-center justify-center rounded-xl bg-[#f5f5f4] text-sm text-[#a8a29e]">
         No photos available
       </div>
     )
@@ -43,7 +43,7 @@ export function PhotoGallery({ photos }: { photos: Photo[] }) {
               sizes={i === 0 ? '100vw' : '33vw'}
             />
             {i === 0 && (
-              <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-xs text-white">
+              <span className="absolute left-2 top-2 rounded-full bg-[#1c1917]/70 px-2 py-0.5 text-xs text-white">
                 {photos.length} photos
               </span>
             )}

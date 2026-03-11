@@ -28,7 +28,7 @@ export function DownloadDocumentButton({ documentId }: Props) {
       <button
         onClick={handleDownload}
         disabled={isPending}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-100 transition-colors hover:bg-zinc-600 disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-[#1c1917] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#292524] disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isPending ? 'Generating\u2026' : 'Download'}
       </button>

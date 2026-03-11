@@ -46,10 +46,10 @@ export default async function ListingDetailPage({
         <div className="lg:col-span-2 space-y-6">
           {/* Title and price */}
           <div>
-            <h1 className="text-2xl font-bold text-zinc-100">
+            <h1 className="text-2xl font-bold text-[#1c1917]">
               {listing.year} {listing.make} {listing.model}
             </h1>
-            <p className="mt-1 text-3xl font-semibold text-zinc-100">
+            <p className="mt-1 text-3xl font-semibold text-[#1c1917]">
               {listing.price_cents != null
                 ? `$${(listing.price_cents / 100).toLocaleString()}`
                 : 'Call for price'}
@@ -57,19 +57,19 @@ export default async function ListingDetailPage({
           </div>
 
           {/* Grade section — GRADE-02 placeholder */}
-          <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-            <p className="mb-2 text-xs font-medium uppercase tracking-wider text-zinc-500">Condition Grade</p>
+          <div className="rounded-lg border border-[#e7e5e4] bg-white p-4">
+            <p className="mb-2 text-xs font-medium uppercase tracking-wider text-[#a8a29e]">Condition Grade</p>
             <GradeBadge grade={listing.grade} />
             {!listing.grade && (
-              <p className="mt-2 text-xs text-zinc-600">
+              <p className="mt-2 text-xs text-[#a8a29e]">
                 AI condition grade will appear here once analysis is complete.
               </p>
             )}
           </div>
 
           {/* Vehicle details */}
-          <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 space-y-3">
-            <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">Details</p>
+          <div className="rounded-lg border border-[#e7e5e4] bg-white p-4 space-y-3">
+            <p className="text-xs font-medium uppercase tracking-wider text-[#a8a29e]">Details</p>
             {[
               ['VIN', listing.vin],
               ['Mileage', listing.mileage != null ? `${listing.mileage.toLocaleString()} miles` : null],
@@ -78,32 +78,32 @@ export default async function ListingDetailPage({
               ['Body Style', listing.body_class],
             ].filter(([, v]) => v).map(([label, value]) => (
               <div key={label} className="flex justify-between text-sm">
-                <span className="text-zinc-500">{label}</span>
-                <span className="text-zinc-200">{value}</span>
+                <span className="text-[#a8a29e]">{label}</span>
+                <span className="text-[#1c1917]">{value}</span>
               </div>
             ))}
           </div>
 
           {/* Condition notes */}
           {listing.condition_notes && (
-            <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-              <p className="mb-2 text-xs font-medium uppercase tracking-wider text-zinc-500">Condition Notes</p>
-              <p className="text-sm text-zinc-300 leading-relaxed">{listing.condition_notes}</p>
+            <div className="rounded-lg border border-[#e7e5e4] bg-white p-4">
+              <p className="mb-2 text-xs font-medium uppercase tracking-wider text-[#a8a29e]">Condition Notes</p>
+              <p className="text-sm text-[#57534e] leading-relaxed">{listing.condition_notes}</p>
             </div>
           )}
 
           {/* Documents section — visible to all, links gated */}
           {listing.listing_documents && listing.listing_documents.length > 0 && (
-            <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-              <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500">Documents</p>
+            <div className="rounded-lg border border-[#e7e5e4] bg-white p-4">
+              <p className="mb-3 text-xs font-medium uppercase tracking-wider text-[#a8a29e]">Documents</p>
               <ul className="space-y-2">
                 {listing.listing_documents.map((doc: { id: string; file_name: string | null; document_type: string }) => (
                   <li key={doc.id} className="flex items-center gap-2 text-sm">
-                    <span className="text-zinc-400">{doc.file_name ?? doc.document_type}</span>
+                    <span className="text-[#78716c]">{doc.file_name ?? doc.document_type}</span>
                     {user ? (
-                      <span className="text-xs text-zinc-600">(available after purchase)</span>
+                      <span className="text-xs text-[#a8a29e]">(available after purchase)</span>
                     ) : (
-                      <Link href="/login" className="text-xs text-blue-400 hover:text-blue-300">Log in to access</Link>
+                      <Link href="/login" className="text-xs text-blue-600 hover:text-blue-500">Log in to access</Link>
                     )}
                   </li>
                 ))}
@@ -113,7 +113,7 @@ export default async function ListingDetailPage({
 
           {/* Buy CTA — STOR-05 requirement: visible only to authenticated consumers */}
           {isSold ? (
-            <div className="w-full rounded-xl border border-zinc-700 bg-zinc-900 py-3 text-center text-base font-semibold text-zinc-500">
+            <div className="w-full rounded-xl border border-[#e7e5e4] bg-[#f5f5f4] py-3 text-center text-base font-semibold text-[#a8a29e]">
               Sold
             </div>
           ) : canBuy ? (
@@ -123,7 +123,7 @@ export default async function ListingDetailPage({
           ) : !user ? (
             <Link
               href="/login"
-              className="block w-full rounded-xl border border-zinc-700 py-3 text-center text-sm text-zinc-400 transition-colors hover:border-zinc-500 hover:text-zinc-200"
+              className="block w-full rounded-xl border border-[#e7e5e4] py-3 text-center text-sm text-[#78716c] transition-colors hover:border-[#a8a29e] hover:text-[#1c1917]"
             >
               Log in to purchase
             </Link>

@@ -14,13 +14,13 @@ interface Props {
 
 function OrderStatusBadge({ status }: { status: OrderStatus }) {
   const config: Record<OrderStatus, { label: string; className: string }> = {
-    pending_payment: { label: 'Pending Payment', className: 'bg-zinc-700 text-zinc-300' },
-    paid:             { label: 'Paid', className: 'bg-yellow-500/20 text-yellow-300 ring-1 ring-yellow-500/30' },
-    documents_sent:   { label: 'Documents Sent', className: 'bg-blue-500/20 text-blue-300 ring-1 ring-blue-500/30' },
-    documents_signed: { label: 'Signed', className: 'bg-green-500/20 text-green-300 ring-1 ring-green-500/30' },
-    complete:         { label: 'Complete', className: 'bg-green-500/20 text-green-300 ring-1 ring-green-500/30' },
-    cancelled:        { label: 'Cancelled', className: 'bg-red-500/20 text-red-300 ring-1 ring-red-500/30' },
-    refunded:         { label: 'Refunded', className: 'bg-orange-500/20 text-orange-300 ring-1 ring-orange-500/30' },
+    pending_payment: { label: 'Pending Payment', className: 'bg-[#f5f5f4] text-[#78716c]' },
+    paid:             { label: 'Paid', className: 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200' },
+    documents_sent:   { label: 'Documents Sent', className: 'bg-blue-50 text-blue-700 ring-1 ring-blue-200' },
+    documents_signed: { label: 'Signed', className: 'bg-green-50 text-green-700 ring-1 ring-green-200' },
+    complete:         { label: 'Complete', className: 'bg-green-50 text-green-700 ring-1 ring-green-200' },
+    cancelled:        { label: 'Cancelled', className: 'bg-red-50 text-red-700 ring-1 ring-red-200' },
+    refunded:         { label: 'Refunded', className: 'bg-orange-50 text-orange-700 ring-1 ring-orange-200' },
   }
   const { label, className } = config[status] ?? config.pending_payment
   return (
@@ -32,10 +32,10 @@ function OrderStatusBadge({ status }: { status: OrderStatus }) {
 
 function DocumentStatusBadge({ status }: { status: DocumentStatus }) {
   const config: Record<DocumentStatus, { label: string; className: string }> = {
-    pending: { label: 'Being Prepared', className: 'bg-zinc-700 text-zinc-400' },
-    sent:    { label: 'Awaiting Signature', className: 'bg-blue-500/20 text-blue-300 ring-1 ring-blue-500/30' },
-    signed:  { label: 'Signed', className: 'bg-green-500/20 text-green-300 ring-1 ring-green-500/30' },
-    voided:  { label: 'Voided', className: 'bg-red-500/20 text-red-300 ring-1 ring-red-500/30' },
+    pending: { label: 'Being Prepared', className: 'bg-[#f5f5f4] text-[#78716c]' },
+    sent:    { label: 'Awaiting Signature', className: 'bg-blue-50 text-blue-700 ring-1 ring-blue-200' },
+    signed:  { label: 'Signed', className: 'bg-green-50 text-green-700 ring-1 ring-green-200' },
+    voided:  { label: 'Voided', className: 'bg-red-50 text-red-700 ring-1 ring-red-200' },
   }
   const { label, className } = config[status] ?? config.pending
   return (
@@ -147,7 +147,7 @@ export default async function OrderDetailPage({ params }: Props) {
       {/* Back link */}
       <Link
         href="/account/orders"
-        className="inline-flex items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-zinc-100"
+        className="inline-flex items-center gap-1.5 text-sm text-[#78716c] transition-colors hover:text-[#1c1917]"
       >
         <span aria-hidden>&#8592;</span> My Orders
       </Link>
@@ -155,8 +155,8 @@ export default async function OrderDetailPage({ params }: Props) {
       {/* Order header */}
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Order</p>
-          <h1 className="font-mono text-2xl font-bold text-zinc-100">#{orderNumber}</h1>
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#a8a29e]">Order</p>
+          <h1 className="font-mono text-2xl font-bold text-[#1c1917]">#{orderNumber}</h1>
         </div>
         <OrderStatusBadge status={typedOrder.status} />
       </div>
@@ -164,69 +164,69 @@ export default async function OrderDetailPage({ params }: Props) {
       <div className="mt-8 space-y-4">
 
         {/* Vehicle section */}
-        <section className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">Vehicle</p>
+        <section className="rounded-xl border border-[#e7e5e4] bg-white p-6">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-[#a8a29e]">Vehicle</p>
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
-              <span className="text-zinc-500">Vehicle</span>
-              <span className="font-medium text-zinc-100">{vehicleLabel || '—'}</span>
+              <span className="text-[#a8a29e]">Vehicle</span>
+              <span className="font-medium text-[#1c1917]">{vehicleLabel || '—'}</span>
             </div>
             {listing?.vin && (
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-500">VIN</span>
-                <span className="font-mono text-zinc-300">{listing.vin}</span>
+                <span className="text-[#a8a29e]">VIN</span>
+                <span className="font-mono text-[#57534e]">{listing.vin}</span>
               </div>
             )}
             {listing?.mileage != null && (
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-500">Mileage</span>
-                <span className="text-zinc-300">
+                <span className="text-[#a8a29e]">Mileage</span>
+                <span className="text-[#57534e]">
                   {new Intl.NumberFormat('en-US').format(listing.mileage)} mi
                 </span>
               </div>
             )}
             {listing?.exterior_color && (
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-500">Color</span>
-                <span className="text-zinc-300">{listing.exterior_color}</span>
+                <span className="text-[#a8a29e]">Color</span>
+                <span className="text-[#57534e]">{listing.exterior_color}</span>
               </div>
             )}
             {seller?.business_name && (
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-500">Seller</span>
-                <span className="text-zinc-300">{seller.business_name}</span>
+                <span className="text-[#a8a29e]">Seller</span>
+                <span className="text-[#57534e]">{seller.business_name}</span>
               </div>
             )}
           </div>
         </section>
 
         {/* Payment section */}
-        <section className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">Payment</p>
+        <section className="rounded-xl border border-[#e7e5e4] bg-white p-6">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-[#a8a29e]">Payment</p>
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
-              <span className="text-zinc-500">Amount Paid</span>
-              <span className="text-lg font-semibold text-zinc-100">{formattedPrice}</span>
+              <span className="text-[#a8a29e]">Amount Paid</span>
+              <span className="text-lg font-semibold text-[#1c1917]">{formattedPrice}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-zinc-500">Date</span>
-              <span className="text-zinc-300">{formattedDate}</span>
+              <span className="text-[#a8a29e]">Date</span>
+              <span className="text-[#57534e]">{formattedDate}</span>
             </div>
           </div>
         </section>
 
         {/* Documents section */}
         {docs.length > 0 && (
-          <section className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">Documents</p>
+          <section className="rounded-xl border border-[#e7e5e4] bg-white p-6">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-[#a8a29e]">Documents</p>
             <div className="space-y-3">
               {docs.map((doc) => (
                 <div
                   key={doc.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 px-4 py-3"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#e7e5e4] bg-[#faf9f6] px-4 py-3"
                 >
                   <div className="flex flex-col gap-1.5">
-                    <span className="text-sm font-medium text-zinc-200">
+                    <span className="text-sm font-medium text-[#1c1917]">
                       {documentTypeLabel(doc.document_type)}
                     </span>
                     <DocumentStatusBadge status={doc.status} />
@@ -234,7 +234,7 @@ export default async function OrderDetailPage({ params }: Props) {
 
                   <div className="flex items-center gap-2">
                     {doc.status === 'sent' && (
-                      <span className="flex items-center gap-1.5 text-xs text-blue-400">
+                      <span className="flex items-center gap-1.5 text-xs text-blue-600">
                         <span className="relative flex h-2 w-2">
                           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75" />
                           <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-500" />
@@ -246,7 +246,7 @@ export default async function OrderDetailPage({ params }: Props) {
                       <DownloadDocumentButton documentId={doc.id} />
                     )}
                     {doc.status === 'pending' && (
-                      <span className="text-xs text-zinc-500">Being prepared&hellip;</span>
+                      <span className="text-xs text-[#a8a29e]">Being prepared&hellip;</span>
                     )}
                   </div>
                 </div>
@@ -257,9 +257,9 @@ export default async function OrderDetailPage({ params }: Props) {
 
         {/* Signing notice */}
         {hasPendingSignature && (
-          <section className="rounded-xl border border-blue-500/30 bg-blue-500/10 p-6">
-            <p className="mb-2 text-sm font-semibold text-blue-200">Documents ready to sign</p>
-            <p className="text-sm text-blue-300/80">
+          <section className="rounded-xl border border-blue-200 bg-blue-50 p-6">
+            <p className="mb-2 text-sm font-semibold text-blue-800">Documents ready to sign</p>
+            <p className="text-sm text-blue-700">
               Your documents are ready for your signature. Check your email for the signing link,
               or it will appear here once the link is available.
             </p>
