@@ -6,6 +6,8 @@ export default async function PublicLayout({ children }: { children: React.React
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
+  const role = user?.app_metadata?.role as string | undefined
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50">
       <header className="sticky top-0 z-40 border-b border-zinc-800 bg-zinc-950/95 backdrop-blur">
@@ -21,6 +23,11 @@ export default async function PublicLayout({ children }: { children: React.React
           <div className="flex items-center gap-3">
             {user ? (
               <>
+                {role === 'consumer' && (
+                  <Link href="/account/orders" className="text-sm text-zinc-400 transition-colors hover:text-zinc-100">
+                    My Orders
+                  </Link>
+                )}
                 <Link href="/account" className="text-sm text-zinc-400 transition-colors hover:text-zinc-100">
                   Account
                 </Link>
