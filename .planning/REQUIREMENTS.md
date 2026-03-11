@@ -55,11 +55,11 @@
 
 ### Admin
 
-- [ ] **ADMIN-01**: Admin can create wholesale partner accounts (set email, password, role)
-- [ ] **ADMIN-02**: Admin can view and disable user accounts
+- [x] **ADMIN-01**: Admin can create wholesale partner accounts (set email, password, role)
+- [x] **ADMIN-02**: Admin can view and disable user accounts
 - [ ] **ADMIN-03**: Admin can view all listings with status filter (draft, active, sold)
 - [ ] **ADMIN-04**: Admin can view all orders with status filter
-- [ ] **ADMIN-05**: Admin can view an analytics dashboard showing revenue, listing count, and order count
+- [x] **ADMIN-05**: Admin can view an analytics dashboard showing revenue, listing count, and order count
 
 ### Grading Scaffold
 
@@ -138,11 +138,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NOTF-02 | Phase 3 | Complete |
 | NOTF-03 | Phase 3 | Complete |
 | NOTF-04 | Phase 3 | Complete |
-| ADMIN-01 | Phase 4 | Pending |
-| ADMIN-02 | Phase 4 | Pending |
+| ADMIN-01 | Phase 4 | Complete |
+| ADMIN-02 | Phase 4 | Complete |
 | ADMIN-03 | Phase 4 | Pending |
 | ADMIN-04 | Phase 4 | Pending |
-| ADMIN-05 | Phase 4 | Pending |
+| ADMIN-05 | Phase 4 | Complete |
 | GRADE-04 | Phase 4 | Complete |
 
 **Coverage:**

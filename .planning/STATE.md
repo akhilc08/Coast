@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-03-11T03:30:43.800Z"
-last_activity: 2026-03-10 — Plan 04-01 complete (admin foundation: grading callback, layout, middleware, server actions)
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-03-11T03:37:14.887Z"
+last_activity: "2026-03-10 — Plan 04-01 complete (admin foundation: grading callback, layout, middleware, server actions)"
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 13
-  completed_plans: 10
-  percent: 80
+  completed_plans: 11
+  percent: 77
 ---
 
 # Project State
@@ -57,6 +57,7 @@ Progress: [████████░░] 77%
 | Phase 03-transactions P04 | 4min | 2 tasks | 5 files |
 | Phase 03-transactions P03 | 8min | 2 tasks | 11 files |
 | Phase 04-admin-and-grading-scaffold P01 | 5min | 2 tasks | 12 files |
+| Phase 04-admin-and-grading-scaffold P02 | 6min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,8 @@ Recent decisions affecting current work:
 - [Phase 03-transactions]: after() used in Stripe webhook for document pipeline — long-running PDF gen + Dropbox Sign API deferred post-response
 - [Phase 04-admin-and-grading-scaffold]: AdminNav isolated as client component — RSC layout stays server-rendered while active link detection uses usePathname()
 - [Phase 04-admin-and-grading-scaffold]: ZodError uses .issues not .errors — TypeScript build correctly flags this; affects all Zod error handling in project
+- [Phase 04-admin-and-grading-scaffold]: BanToggleButton isolated as client component for useTransition — page stays server-rendered
+- [Phase 04-admin-and-grading-scaffold]: Filter tabs use ?status= search params — RSC-friendly, shareable URL state, no client state
 
 ### Pending Todos
 
@@ -99,6 +102,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T03:30:43.797Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-03-11T03:37:14.883Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
