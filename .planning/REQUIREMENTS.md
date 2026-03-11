@@ -33,25 +33,25 @@
 
 ### Purchase
 
-- [ ] **PURCH-01**: Consumer can purchase a vehicle via Stripe Checkout
-- [ ] **PURCH-02**: Listing is atomically marked as sold when payment completes (via Stripe webhook, not redirect)
+- [x] **PURCH-01**: Consumer can purchase a vehicle via Stripe Checkout
+- [x] **PURCH-02**: Listing is atomically marked as sold when payment completes (via Stripe webhook, not redirect)
 - [ ] **PURCH-03**: Consumer sees an order confirmation page after successful purchase
 - [ ] **PURCH-04**: Consumer can view their purchase history
 
 ### Documents
 
-- [ ] **DOC-01**: Purchase agreement PDF is generated server-side after payment completes
-- [ ] **DOC-02**: Title transfer document is generated server-side after payment completes
+- [x] **DOC-01**: Purchase agreement PDF is generated server-side after payment completes
+- [x] **DOC-02**: Title transfer document is generated server-side after payment completes
 - [ ] **DOC-03**: Buyer receives e-signing request for both documents via Dropbox Sign
 - [ ] **DOC-04**: Buyer can access their signed documents from their account
-- [ ] **DOC-05**: Document completion status is tracked per order (pending → signed → delivered)
+- [x] **DOC-05**: Document completion status is tracked per order (pending → signed → delivered)
 
 ### Notifications
 
-- [ ] **NOTF-01**: Buyer receives order confirmation email after payment
-- [ ] **NOTF-02**: Admin receives order alert email when a sale occurs
-- [ ] **NOTF-03**: Buyer receives document signing request email (via Dropbox Sign)
-- [ ] **NOTF-04**: Buyer receives completed document delivery email (via Dropbox Sign)
+- [x] **NOTF-01**: Buyer receives order confirmation email after payment
+- [x] **NOTF-02**: Admin receives order alert email when a sale occurs
+- [x] **NOTF-03**: Buyer receives document signing request email (via Dropbox Sign)
+- [x] **NOTF-04**: Buyer receives completed document delivery email (via Dropbox Sign)
 
 ### Admin
 
@@ -125,19 +125,19 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STOR-06 | Phase 2 | Complete |
 | GRADE-01 | Phase 2 | Complete |
 | GRADE-02 | Phase 2 | Complete |
-| PURCH-01 | Phase 3 | Pending |
-| PURCH-02 | Phase 3 | Pending |
+| PURCH-01 | Phase 3 | Complete |
+| PURCH-02 | Phase 3 | Complete |
 | PURCH-03 | Phase 3 | Pending |
 | PURCH-04 | Phase 3 | Pending |
-| DOC-01 | Phase 3 | Pending |
-| DOC-02 | Phase 3 | Pending |
+| DOC-01 | Phase 3 | Complete |
+| DOC-02 | Phase 3 | Complete |
 | DOC-03 | Phase 3 | Pending |
 | DOC-04 | Phase 3 | Pending |
-| DOC-05 | Phase 3 | Pending |
-| NOTF-01 | Phase 3 | Pending |
-| NOTF-02 | Phase 3 | Pending |
-| NOTF-03 | Phase 3 | Pending |
-| NOTF-04 | Phase 3 | Pending |
+| DOC-05 | Phase 3 | Complete |
+| NOTF-01 | Phase 3 | Complete |
+| NOTF-02 | Phase 3 | Complete |
+| NOTF-03 | Phase 3 | Complete |
+| NOTF-04 | Phase 3 | Complete |
 | ADMIN-01 | Phase 4 | Pending |
 | ADMIN-02 | Phase 4 | Pending |
 | ADMIN-03 | Phase 4 | Pending |

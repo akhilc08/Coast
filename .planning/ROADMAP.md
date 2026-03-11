@@ -66,7 +66,7 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Foundation: install packages, service client singletons (Stripe, Dropbox Sign, Resend), order schemas, Wave 0 test stubs
+- [x] 03-01-PLAN.md — Foundation: install packages, service client singletons (Stripe, Dropbox Sign, Resend), order schemas, Wave 0 test stubs
 - [ ] 03-02-PLAN.md — Checkout flow: Stripe Checkout Server Action, webhook handler, confirmation page, Buy Now wiring, NOTF-01/NOTF-02 emails
 - [ ] 03-03-PLAN.md — Document pipeline: PDF generation (PDFKit), fulfillment orchestrator, Dropbox Sign integration, callback handler, NOTF-03/NOTF-04 emails
 - [ ] 03-04-PLAN.md — Consumer account: purchase history page, order detail page, document access with signed URLs
@@ -89,7 +89,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 1/3 | In Progress|  |
+| 1. Foundation | 3/3 | Complete | 2026-03-09 |
 | 2. Inventory | 1/3 | In Progress|  |
-| 3. Transactions | 0/4 | Not started | - |
+| 3. Transactions | 1/4 | In Progress | - |
 | 4. Admin and Grading Scaffold | 0/TBD | Not started | - |
