@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 03-01-PLAN.md"
-last_updated: "2026-03-11T01:52:00Z"
-last_activity: 2026-03-10 — Plan 03-01 complete (Phase 3 service clients, order schemas, Wave 0 test stubs)
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-03-11T02:04:29.835Z"
+last_activity: 2026-03-10 — Plan 03-02 complete (Stripe checkout flow, webhook, confirmation page, emails)
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 10
-  completed_plans: 6
-  percent: 42
+  completed_plans: 7
+  percent: 70
 ---
 
 # Project State
@@ -26,18 +26,18 @@ See: .planning/PROJECT.md (updated 2026-03-09)
 ## Current Position
 
 Phase: 3 of 4 (Transactions)
-Plan: 1 of 4 in current phase (03-01 complete)
+Plan: 2 of 4 in current phase (03-02 complete)
 Status: In Progress
-Last activity: 2026-03-10 — Plan 03-01 complete (Phase 3 service clients, order schemas, Wave 0 test stubs)
+Last activity: 2026-03-10 — Plan 03-02 complete (Stripe checkout flow, webhook, confirmation page, emails)
 
-Progress: [█████░░░░░] 42%
+Progress: [███████░░░] 70%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
+- Total plans completed: 7
 - Average duration: 10 min
-- Total execution time: 37 min
+- Total execution time: 45 min
 
 **By Phase:**
 
@@ -45,14 +45,15 @@ Progress: [█████░░░░░] 42%
 |-------|-------|-------|----------|
 | 01-foundation | 3/3 | 25 min | 8 min |
 | 02-inventory | 1/3 | 25 min | 25 min |
-| 03-transactions | 1/4 | 4 min | 4 min |
+| 03-transactions | 2/4 | 12 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 4 min (03-01)
-- Trend: faster
+- Last 5 plans: 8 min avg (03-02: 8 min, 03-01: 4 min)
+- Trend: steady
 
 *Updated after each plan completion*
 | Phase 03-transactions P01 | 4 | 2 tasks | 11 files |
+| Phase 03-transactions P02 | 8min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -75,6 +76,9 @@ Recent decisions affecting current work:
 - [Phase 02-inventory]: FTS migration applied manually via Supabase SQL Editor (checkpoint approved)
 - [Phase 02-inventory]: Dashboard uses two-section table layout (Published/Drafts) — simpler RSC approach
 - [Phase 03-transactions]: Stripe API version pinned to 2026-02-25.clover (installed package version — plan referenced outdated 2024-11-20.acacia)
+- [Phase 03-transactions]: Emails sent synchronously in webhook body (not after()) — fits 5-second Stripe window and simplifies testing
+- [Phase 03-transactions]: orderId generated client-side via crypto.randomUUID() — avoids insert().select().single() round-trip
+- [Phase 03-transactions]: NextRedirectError mock pattern — redirect() must throw to halt execution in tests matching Next.js runtime behavior
 
 ### Pending Todos
 
@@ -86,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T01:52:00Z
-Stopped at: Completed 03-01-PLAN.md
-Resume file: .planning/phases/03-transactions/03-02-PLAN.md
+Last session: 2026-03-11T02:04:29.811Z
+Stopped at: Completed 03-02-PLAN.md
+Resume file: None

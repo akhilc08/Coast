@@ -35,7 +35,7 @@
 
 - [x] **PURCH-01**: Consumer can purchase a vehicle via Stripe Checkout
 - [x] **PURCH-02**: Listing is atomically marked as sold when payment completes (via Stripe webhook, not redirect)
-- [ ] **PURCH-03**: Consumer sees an order confirmation page after successful purchase
+- [x] **PURCH-03**: Consumer sees an order confirmation page after successful purchase
 - [ ] **PURCH-04**: Consumer can view their purchase history
 
 ### Documents
@@ -127,7 +127,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GRADE-02 | Phase 2 | Complete |
 | PURCH-01 | Phase 3 | Complete |
 | PURCH-02 | Phase 3 | Complete |
-| PURCH-03 | Phase 3 | Pending |
+| PURCH-03 | Phase 3 | Complete |
 | PURCH-04 | Phase 3 | Pending |
 | DOC-01 | Phase 3 | Complete |
 | DOC-02 | Phase 3 | Complete |
