@@ -66,7 +66,7 @@
 - [x] **GRADE-01**: Car photos are stored in Supabase Storage and served with optimized delivery
 - [x] **GRADE-02**: Vehicle detail page shows a "Grade Pending" placeholder where the condition grade will display
 - [x] **GRADE-03**: Listings table includes grade, grade_source, and graded_at columns (nullable)
-- [ ] **GRADE-04**: /api/grading/callback endpoint is scaffolded and ready to receive grade results from future AI service
+- [x] **GRADE-04**: /api/grading/callback endpoint is scaffolded and ready to receive grade results from future AI service
 
 ## v2 Requirements
 
@@ -143,7 +143,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ADMIN-03 | Phase 4 | Pending |
 | ADMIN-04 | Phase 4 | Pending |
 | ADMIN-05 | Phase 4 | Pending |
-| GRADE-04 | Phase 4 | Pending |
+| GRADE-04 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 39 total

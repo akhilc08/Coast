@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 4 context gathered
-last_updated: "2026-03-11T03:10:22.938Z"
-last_activity: 2026-03-10 — Plan 03-04 complete (consumer order history, order detail, signed-URL document downloads)
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-03-11T03:30:43.800Z"
+last_activity: 2026-03-10 — Plan 04-01 complete (admin foundation: grading callback, layout, middleware, server actions)
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 10
-  completed_plans: 9
+  total_plans: 13
+  completed_plans: 10
   percent: 80
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** A buyer can find, purchase, and fully complete paperwork for a wholesale vehicle entirely online — no offline steps required.
-**Current focus:** Phase 3 — Transactions
+**Current focus:** Phase 4 — Admin and Grading Scaffold
 
 ## Current Position
 
-Phase: 3 of 4 (Transactions)
-Plan: 4 of 4 in current phase (03-04 complete)
+Phase: 4 of 4 (Admin and Grading Scaffold)
+Plan: 1 of 3 in current phase (04-01 complete)
 Status: In Progress
-Last activity: 2026-03-10 — Plan 03-04 complete (consumer order history, order detail, signed-URL document downloads)
+Last activity: 2026-03-10 — Plan 04-01 complete (admin foundation: grading callback, layout, middleware, server actions)
 
-Progress: [████████░░] 80%
+Progress: [████████░░] 77%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [████████░░] 80%
 | Phase 03-transactions P02 | 8min | 2 tasks | 10 files |
 | Phase 03-transactions P04 | 4min | 2 tasks | 5 files |
 | Phase 03-transactions P03 | 8min | 2 tasks | 11 files |
+| Phase 04-admin-and-grading-scaffold P01 | 5min | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,8 @@ Recent decisions affecting current work:
 - [Phase 03-transactions]: Server action verifies buyer ownership via order join before issuing signed URLs (defense in depth)
 - [Phase 03-transactions]: RequestDetailedFile used for Dropbox Sign file uploads — Buffer not directly assignable to RequestFile (ReadStream | RequestDetailedFile)
 - [Phase 03-transactions]: after() used in Stripe webhook for document pipeline — long-running PDF gen + Dropbox Sign API deferred post-response
+- [Phase 04-admin-and-grading-scaffold]: AdminNav isolated as client component — RSC layout stays server-rendered while active link detection uses usePathname()
+- [Phase 04-admin-and-grading-scaffold]: ZodError uses .issues not .errors — TypeScript build correctly flags this; affects all Zod error handling in project
 
 ### Pending Todos
 
@@ -96,6 +99,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T03:10:22.826Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-admin-and-grading-scaffold/04-CONTEXT.md
+Last session: 2026-03-11T03:30:43.797Z
+Stopped at: Completed 04-01-PLAN.md
+Resume file: None

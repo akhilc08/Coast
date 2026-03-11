@@ -97,4 +97,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Foundation | 3/3 | Complete | 2026-03-09 |
 | 2. Inventory | 1/3 | In Progress|  |
 | 3. Transactions | 4/4 | Complete   | 2026-03-11 |
-| 4. Admin and Grading Scaffold | 0/3 | Not started | - |
+| 4. Admin and Grading Scaffold | 1/3 | In Progress|  |
