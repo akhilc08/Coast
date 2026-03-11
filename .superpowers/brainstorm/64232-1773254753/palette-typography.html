@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coast — Design Direction</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <script src="helper.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0f0f13;
+      color: #fff;
+      padding: 32px 24px 80px;
+      min-height: 100vh;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .page-header h1 {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 12px;
+    }
+    .page-header p {
+      font-size: 22px;
+      font-weight: 600;
+      color: #f9fafb;
+    }
+    .page-header .sub {
+      font-size: 14px;
+      color: #9ca3af;
+      margin-top: 8px;
+    }
+
+    .cards-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1160px;
+      margin: 0 auto;
+    }
+
+    .design-card {
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .design-card:hover { transform: translateY(-4px); }
+    .design-card.selected { border-color: #3b82f6 !important; }
+    .design-card.selected::after {
+      content: '✓ Selected';
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #3b82f6;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 99px;
+      letter-spacing: 0.04em;
+    }
+
+    /* --- OPTION A: Deep Navy + Electric Blue --- */
+    .card-a {
+      background: #0a1628;
+      border-color: #1e3a5f;
+    }
+    .card-a .hero-strip {
+      background: linear-gradient(135deg, #0a1628 0%, #0d2247 60%, #0e2f5e 100%);
+      padding: 32px 28px 28px;
+    }
+    .card-a .brand {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    .card-a .hero-h {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: #fff;
+      letter-spacing: -0.03em;
+      margin-bottom: 10px;
+    }
+    .card-a .hero-h span { color: #3b82f6; }
+    .card-a .hero-sub {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .card-a .cta-row { display: flex; gap: 10px; }
+    .card-a .btn-primary {
+      background: #2563eb;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: none;
+    }
+    .card-a .btn-secondary {
+      background: transparent;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: 1px solid #1e3a5f;
+    }
+    .card-a .palette-row {
+      display: flex;
+      gap: 8px;
+      padding: 20px 28px;
+      background: #0d1f3c;
+      align-items: center;
+    }
+    .card-a .swatch { width: 32px; height: 32px; border-radius: 8px; }
+    .card-a .palette-label {
+      font-size: 11px;
+      color: #64748b;
+      margin-left: 4px;
+    }
+    .card-a .type-sample {
+      padding: 20px 28px;
+      background: #0a1628;
+      border-top: 1px solid #1e3a5f;
+    }
+    .card-a .type-label {
+      font-size: 10px;
+      color: #4b5563;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .card-a .type-h { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: #f1f5f9; letter-spacing: -0.03em; }
+    .card-a .type-body { font-family: 'Inter', sans-serif; font-size: 12px; color: #64748b; margin-top: 6px; line-height: 1.6; }
+    .card-a .option-name {
+      padding: 16px 28px;
+      background: #0d1f3c;
+      border-top: 1px solid #1e3a5f;
+    }
+    .card-a .option-name h3 { font-size: 14px; font-weight: 600; color: #f1f5f9; margin-bottom: 3px; }
+    .card-a .option-name p { font-size: 11px; color: #64748b; line-height: 1.5; }
+
+    /* --- OPTION B: White + Slate + Amber --- */
+    .card-b {
+      background: #fff;
+      border-color: #e5e7eb;
+    }
+    .card-b .hero-strip {
+      background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+      padding: 32px 28px 28px;
+    }
+    .card-b .brand {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #0f172a;
+      margin-bottom: 20px;
+    }
+    .card-b .hero-h {
+      font-family: 'Syne', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.15;
+      color: #0f172a;
+      letter-spacing: -0.03em;
+      margin-bottom: 10px;
+    }
+    .card-b .hero-h span { color: #f59e0b; }
+    .card-b .hero-sub {
+      font-size: 13px;
+      color: #64748b;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .card-b .cta-row { display: flex; gap: 10px; }
+    .card-b .btn-primary {
+      background: #0f172a;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: none;
+    }
+    .card-b .btn-secondary {
+      background: transparent;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+    .card-b .palette-row {
+      display: flex;
+      gap: 8px;
+      padding: 20px 28px;
+      background: #f8fafc;
+      align-items: center;
+      border-top: 1px solid #f1f5f9;
+    }
+    .card-b .swatch { width: 32px; height: 32px; border-radius: 8px; }
+    .card-b .palette-label { font-size: 11px; color: #94a3b8; margin-left: 4px; }
+    .card-b .type-sample {
+      padding: 20px 28px;
+      background: #fff;
+      border-top: 1px solid #f1f5f9;
+    }
+    .card-b .type-label {
+      font-size: 10px;
+      color: #cbd5e1;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .card-b .type-h { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: #0f172a; letter-spacing: -0.03em; }
+    .card-b .type-body { font-family: 'Inter', sans-serif; font-size: 12px; color: #94a3b8; margin-top: 6px; line-height: 1.6; }
+    .card-b .option-name {
+      padding: 16px 28px;
+      background: #f8fafc;
+      border-top: 1px solid #f1f5f9;
+    }
+    .card-b .option-name h3 { font-size: 14px; font-weight: 600; color: #0f172a; margin-bottom: 3px; }
+    .card-b .option-name p { font-size: 11px; color: #94a3b8; line-height: 1.5; }
+
+    /* --- OPTION C: Dark Gradient + Teal/Indigo --- */
+    .card-c {
+      background: #080b14;
+      border-color: #1a1f35;
+    }
+    .card-c .hero-strip {
+      background: linear-gradient(135deg, #080b14 0%, #0d1030 60%, #0a0e2a 100%);
+      padding: 32px 28px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-c .hero-strip::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 180px; height: 180px;
+      background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .card-c .hero-strip::after {
+      content: '';
+      position: absolute;
+      bottom: -20px; left: 20px;
+      width: 120px; height: 120px;
+      background: radial-gradient(circle, rgba(20,184,166,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .card-c .brand {
+      font-family: 'Inter', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: #fff;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .card-c .hero-h {
+      font-family: 'Inter', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+      position: relative;
+      background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .card-c .hero-sub {
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .card-c .cta-row { display: flex; gap: 10px; position: relative; }
+    .card-c .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: none;
+    }
+    .card-c .btn-secondary {
+      background: rgba(255,255,255,0.04);
+      color: #9ca3af;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .card-c .palette-row {
+      display: flex;
+      gap: 8px;
+      padding: 20px 28px;
+      background: #0d1030;
+      align-items: center;
+    }
+    .card-c .swatch { width: 32px; height: 32px; border-radius: 8px; }
+    .card-c .palette-label { font-size: 11px; color: #4b5563; margin-left: 4px; }
+    .card-c .type-sample {
+      padding: 20px 28px;
+      background: #080b14;
+      border-top: 1px solid #1a1f35;
+    }
+    .card-c .type-label {
+      font-size: 10px;
+      color: #374151;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .card-c .type-h {
+      font-family: 'Inter', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .card-c .type-body { font-family: 'Inter', sans-serif; font-size: 12px; color: #4b5563; margin-top: 6px; line-height: 1.6; }
+    .card-c .option-name {
+      padding: 16px 28px;
+      background: #0d1030;
+      border-top: 1px solid #1a1f35;
+    }
+    .card-c .option-name h3 { font-size: 14px; font-weight: 600; color: #e5e7eb; margin-bottom: 3px; }
+    .card-c .option-name p { font-size: 11px; color: #4b5563; line-height: 1.5; }
+
+    .selection-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      padding: 16px 24px;
+      background: rgba(15,15,19,0.95);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid #1f2937;
+      text-align: center;
+      font-size: 13px;
+      color: #6b7280;
+      z-index: 100;
+    }
+    .selection-bar span { color: #3b82f6; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <h1>Coast Landing Page — Design Direction</h1>
+    <p>Which visual direction feels right for Coast?</p>
+    <div class="sub">Click a card to select. Each shows a mini hero mockup, palette, and font pairing.</div>
+  </div>
+
+  <div class="cards-row">
+    <!-- OPTION A -->
+    <div class="design-card card-a" data-choice="a" onclick="selectCard(this)">
+      <div class="hero-strip">
+        <div class="brand">Coast</div>
+        <div class="hero-h">Wholesale vehicles,<br/><span>bought smarter.</span></div>
+        <div class="hero-sub">Browse AI-graded inventory. Buy online. Get delivered. No auctions, no dealer visits.</div>
+        <div class="cta-row">
+          <button class="btn-primary">Browse Inventory</button>
+          <button class="btn-secondary">Create Account</button>
+        </div>
+      </div>
+      <div class="palette-row">
+        <div class="swatch" style="background:#0a1628;border:1px solid #1e3a5f;"></div>
+        <div class="swatch" style="background:#0d2247;"></div>
+        <div class="swatch" style="background:#2563eb;"></div>
+        <div class="swatch" style="background:#93c5fd;"></div>
+        <div class="swatch" style="background:#f1f5f9;border:1px solid #1e3a5f;"></div>
+        <div class="palette-label">Navy · Sapphire · Ice</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-label">Font Pairing</div>
+        <div class="type-h">Space Grotesk 700</div>
+        <div class="type-body">Inter 400 for body — confident, technical, modern. Like a Bloomberg terminal that went to design school.</div>
+      </div>
+      <div class="option-name">
+        <h3>A — Navy Command</h3>
+        <p>Premium automotive feel. Deep navy base, electric blue accent. Trustworthy like a regulated financial platform. ACV + Mercury vibes.</p>
+      </div>
+    </div>
+
+    <!-- OPTION B -->
+    <div class="design-card card-b" data-choice="b" onclick="selectCard(this)">
+      <div class="hero-strip">
+        <div class="brand">Coast</div>
+        <div class="hero-h">The wholesale market,<br/><span>finally online.</span></div>
+        <div class="hero-sub">Browse AI-graded inventory. Buy online. Get delivered. No auctions, no dealer visits.</div>
+        <div class="cta-row">
+          <button class="btn-primary">Browse Inventory</button>
+          <button class="btn-secondary">Create Account</button>
+        </div>
+      </div>
+      <div class="palette-row">
+        <div class="swatch" style="background:#0f172a;"></div>
+        <div class="swatch" style="background:#1e40af;"></div>
+        <div class="swatch" style="background:#f59e0b;"></div>
+        <div class="swatch" style="background:#f8fafc;border:1px solid #e2e8f0;"></div>
+        <div class="swatch" style="background:#94a3b8;"></div>
+        <div class="palette-label">Slate · Amber · White</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-label" style="color:#e2e8f0">Font Pairing</div>
+        <div class="type-h">Syne 800</div>
+        <div class="type-body">Inter 400 for body — editorial, punchy, startup energy. Like Ramp or Linear on a light background.</div>
+      </div>
+      <div class="option-name">
+        <h3>B — Clean Disruptor</h3>
+        <p>Light background, editorial typography. Amber accent adds warmth. High contrast, modern. Ramp + Vroom energy on a white canvas.</p>
+      </div>
+    </div>
+
+    <!-- OPTION C -->
+    <div class="design-card card-c" data-choice="c" onclick="selectCard(this)">
+      <div class="hero-strip">
+        <div class="brand">Coast</div>
+        <div class="hero-h">The wholesale market,<br/>reimagined.</div>
+        <div class="hero-sub">Browse AI-graded inventory. Buy online. Get delivered. No auctions, no dealer visits.</div>
+        <div class="cta-row">
+          <button class="btn-primary">Browse Inventory</button>
+          <button class="btn-secondary">Create Account</button>
+        </div>
+      </div>
+      <div class="palette-row">
+        <div class="swatch" style="background:#080b14;border:1px solid #1a1f35;"></div>
+        <div class="swatch" style="background:#0d1030;"></div>
+        <div class="swatch" style="background:#6366f1;"></div>
+        <div class="swatch" style="background:#14b8a6;"></div>
+        <div class="swatch" style="background:#a5b4fc;"></div>
+        <div class="palette-label">Void · Indigo · Teal</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-label">Font Pairing</div>
+        <div class="type-h">Inter 800 + Gradient</div>
+        <div class="type-body">Inter across the board — ultra tight tracking, gradient text on headlines. Linear + Vercel energy.</div>
+      </div>
+      <div class="option-name">
+        <h3>C — Deep Space</h3>
+        <p>Deep dark background, indigo + teal gradient accents. Near-black canvas with atmospheric glow. Linear + Vercel meets automotive.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="selection-bar" id="sel-bar">
+    Click a card to pick your direction — or tell me in the terminal if you want a variation.
+  </div>
+
+  <script>
+    let selected = null;
+    function selectCard(el) {
+      document.querySelectorAll('.design-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selected = el.dataset.choice;
+      const names = { a: 'A — Navy Command', b: 'B — Clean Disruptor', c: 'C — Deep Space' };
+      document.getElementById('sel-bar').innerHTML = '<span>Selected: ' + names[selected] + '</span> — Let me know in the terminal when ready to continue.';
+      if (window.__recordChoice) window.__recordChoice(selected, el.querySelector('.option-name h3').textContent);
+    }
+  </script>
+</body>
+</html>

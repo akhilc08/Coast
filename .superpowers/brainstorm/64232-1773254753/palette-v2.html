@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coast — Design Direction v2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=Bricolage+Grotesque:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <script src="helper.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #111318;
+      color: #fff;
+      padding: 32px 24px 80px;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .page-header .eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #4b5563;
+      margin-bottom: 10px;
+    }
+    .page-header h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #f3f4f6;
+      margin-bottom: 6px;
+    }
+    .page-header p {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1180px;
+      margin: 0 auto 48px;
+    }
+
+    .card {
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      outline: 2px solid transparent;
+      outline-offset: 2px;
+      transition: transform 0.15s ease, outline-color 0.15s ease;
+      position: relative;
+    }
+    .card:hover { transform: translateY(-3px); }
+    .card.selected { outline-color: #3b82f6; }
+    .card.selected .badge { display: block; }
+    .badge {
+      display: none;
+      position: absolute;
+      top: 10px; right: 10px;
+      background: #3b82f6;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 3px 9px;
+      border-radius: 99px;
+      z-index: 10;
+    }
+
+    /* ========================
+       CARD A — Clean White
+       Plus Jakarta Sans
+    ======================== */
+    .a-hero {
+      background: #ffffff;
+      padding: 28px 24px 24px;
+    }
+    .a-logo {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+    }
+    .a-h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.15;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+    }
+    .a-h1 em { color: #2563eb; font-style: normal; }
+    .a-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      color: #64748b;
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+    .a-btns { display: flex; gap: 8px; }
+    .a-btn1 {
+      background: #2563eb;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: 7px;
+      border: none;
+      cursor: pointer;
+    }
+    .a-btn2 {
+      background: transparent;
+      color: #475569;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 9px 16px;
+      border-radius: 7px;
+      border: 1px solid #e2e8f0;
+      cursor: pointer;
+    }
+    .a-stat-bar {
+      background: #f8fafc;
+      border-top: 1px solid #f1f5f9;
+      display: flex;
+      gap: 0;
+    }
+    .a-stat {
+      flex: 1;
+      padding: 14px 16px;
+      border-right: 1px solid #f1f5f9;
+    }
+    .a-stat:last-child { border-right: none; }
+    .a-stat-num {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.03em;
+    }
+    .a-stat-label {
+      font-size: 10px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+    .a-palette {
+      background: #fff;
+      border-top: 1px solid #f1f5f9;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .swatch { width: 22px; height: 22px; border-radius: 5px; flex-shrink: 0; }
+    .palette-note { font-size: 11px; color: #94a3b8; margin-left: 4px; }
+    .a-footer {
+      background: #f8fafc;
+      border-top: 1px solid #f1f5f9;
+      padding: 14px 24px;
+    }
+    .card-label { font-size: 13px; font-weight: 600; color: #0f172a; margin-bottom: 3px; }
+    .card-desc { font-size: 11px; color: #94a3b8; line-height: 1.55; }
+
+    /* ========================
+       CARD B — Editorial Cream
+       DM Serif Display + DM Sans
+    ======================== */
+    .b-hero {
+      background: #faf9f6;
+      padding: 28px 24px 24px;
+    }
+    .b-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: #1c1917;
+      letter-spacing: -0.01em;
+      margin-bottom: 24px;
+    }
+    .b-h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      font-weight: 400;
+      color: #1c1917;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .b-h1 em {
+      font-style: italic;
+      color: #1d4ed8;
+    }
+    .b-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12.5px;
+      color: #78716c;
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+    .b-btns { display: flex; gap: 8px; }
+    .b-btn1 {
+      background: #1c1917;
+      color: #faf9f6;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 9px 16px;
+      border-radius: 7px;
+      border: none;
+      cursor: pointer;
+    }
+    .b-btn2 {
+      background: transparent;
+      color: #78716c;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      padding: 9px 16px;
+      border-radius: 7px;
+      border: 1px solid #e7e5e4;
+      cursor: pointer;
+    }
+    .b-stat-bar {
+      background: #f5f4f0;
+      border-top: 1px solid #e7e5e4;
+      display: flex;
+    }
+    .b-stat {
+      flex: 1;
+      padding: 14px 16px;
+      border-right: 1px solid #e7e5e4;
+    }
+    .b-stat:last-child { border-right: none; }
+    .b-stat-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: #1c1917;
+    }
+    .b-stat-label { font-size: 10px; color: #a8a29e; margin-top: 2px; }
+    .b-palette {
+      background: #faf9f6;
+      border-top: 1px solid #e7e5e4;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .b-footer {
+      background: #f5f4f0;
+      border-top: 1px solid #e7e5e4;
+      padding: 14px 24px;
+    }
+    .b-card-label { font-size: 13px; font-weight: 600; color: #1c1917; margin-bottom: 3px; font-family: 'DM Sans', sans-serif; }
+    .b-card-desc { font-size: 11px; color: #a8a29e; line-height: 1.55; }
+
+    /* ========================
+       CARD C — Dark Navy (flat)
+       Bricolage Grotesque + Inter
+    ======================== */
+    .c-hero {
+      background: #0b1120;
+      padding: 28px 24px 24px;
+    }
+    .c-logo {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #e2e8f0;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+    }
+    .c-h1 {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: #f1f5f9;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 10px;
+    }
+    .c-h1 em { color: #60a5fa; font-style: normal; }
+    .c-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      color: #64748b;
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+    .c-btns { display: flex; gap: 8px; }
+    .c-btn1 {
+      background: #2563eb;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: 7px;
+      border: none;
+      cursor: pointer;
+    }
+    .c-btn2 {
+      background: transparent;
+      color: #64748b;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 9px 16px;
+      border-radius: 7px;
+      border: 1px solid #1e293b;
+      cursor: pointer;
+    }
+    .c-stat-bar {
+      background: #0f172a;
+      border-top: 1px solid #1e293b;
+      display: flex;
+    }
+    .c-stat {
+      flex: 1;
+      padding: 14px 16px;
+      border-right: 1px solid #1e293b;
+    }
+    .c-stat:last-child { border-right: none; }
+    .c-stat-num {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #f1f5f9;
+      letter-spacing: -0.03em;
+    }
+    .c-stat-label { font-size: 10px; color: #475569; margin-top: 2px; }
+    .c-palette {
+      background: #0b1120;
+      border-top: 1px solid #1e293b;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .c-footer {
+      background: #0f172a;
+      border-top: 1px solid #1e293b;
+      padding: 14px 24px;
+    }
+    .c-card-label { font-size: 13px; font-weight: 600; color: #e2e8f0; margin-bottom: 3px; }
+    .c-card-desc { font-size: 11px; color: #475569; line-height: 1.55; }
+
+    .footer-note {
+      text-align: center;
+      font-size: 12px;
+      color: #4b5563;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .sel-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(17,19,24,0.96);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid #1f2937;
+      text-align: center;
+      padding: 14px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+    .sel-bar b { color: #60a5fa; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="eyebrow">Coast — Design Direction v2</div>
+  <h2>New directions — no gradients, new fonts</h2>
+  <p>Each shows a mini hero mockup with stat bar, color palette, and typography. Click to select.</p>
+</div>
+
+<div class="grid">
+
+  <!-- CARD A -->
+  <div class="card" data-choice="a" onclick="pick(this)">
+    <span class="badge">Selected</span>
+    <div class="a-hero">
+      <div class="a-logo">Coast</div>
+      <div class="a-h1">The wholesale market,<br/><em>finally online.</em></div>
+      <div class="a-sub">Browse AI-graded inventory, buy online, and get vehicles delivered — no auctions, no wasted trips.</div>
+      <div class="a-btns">
+        <button class="a-btn1">Browse Inventory</button>
+        <button class="a-btn2">Create Account →</button>
+      </div>
+    </div>
+    <div class="a-stat-bar">
+      <div class="a-stat">
+        <div class="a-stat-num">2,400+</div>
+        <div class="a-stat-label">vehicles listed</div>
+      </div>
+      <div class="a-stat">
+        <div class="a-stat-num">500+</div>
+        <div class="a-stat-label">active dealers</div>
+      </div>
+      <div class="a-stat">
+        <div class="a-stat-num">100%</div>
+        <div class="a-stat-label">online transactions</div>
+      </div>
+    </div>
+    <div class="a-palette">
+      <div class="swatch" style="background:#0f172a"></div>
+      <div class="swatch" style="background:#2563eb"></div>
+      <div class="swatch" style="background:#dbeafe"></div>
+      <div class="swatch" style="background:#f8fafc; border:1px solid #e2e8f0"></div>
+      <div class="swatch" style="background:#64748b"></div>
+      <span class="palette-note">Ink · Blue · Sky · White · Slate</span>
+    </div>
+    <div class="a-footer">
+      <div class="card-label">A — Clean White · Plus Jakarta Sans</div>
+      <div class="card-desc">White background, ink-dark text, blue as a single accent. High-contrast, sharp. Like Linear or Ramp if it sold cars.</div>
+    </div>
+  </div>
+
+  <!-- CARD B -->
+  <div class="card" data-choice="b" onclick="pick(this)">
+    <span class="badge">Selected</span>
+    <div class="b-hero">
+      <div class="b-logo">Coast</div>
+      <div class="b-h1">Wholesale vehicles,<br/><em>bought smarter.</em></div>
+      <div class="b-sub">Browse AI-graded inventory, buy online, and get vehicles delivered — no auctions, no wasted trips.</div>
+      <div class="b-btns">
+        <button class="b-btn1">Browse Inventory</button>
+        <button class="b-btn2">Create Account →</button>
+      </div>
+    </div>
+    <div class="b-stat-bar">
+      <div class="b-stat">
+        <div class="b-stat-num">2,400+</div>
+        <div class="b-stat-label">vehicles listed</div>
+      </div>
+      <div class="b-stat">
+        <div class="b-stat-num">500+</div>
+        <div class="b-stat-label">active dealers</div>
+      </div>
+      <div class="b-stat">
+        <div class="b-stat-num">100%</div>
+        <div class="b-stat-label">online transactions</div>
+      </div>
+    </div>
+    <div class="b-palette">
+      <div class="swatch" style="background:#1c1917"></div>
+      <div class="swatch" style="background:#1d4ed8"></div>
+      <div class="swatch" style="background:#faf9f6; border:1px solid #e7e5e4"></div>
+      <div class="swatch" style="background:#e7e5e4"></div>
+      <div class="swatch" style="background:#78716c"></div>
+      <span class="palette-note" style="color:#78716c">Espresso · Blue · Cream · Stone · Mist</span>
+    </div>
+    <div class="b-footer">
+      <div class="b-card-label">B — Warm Editorial · DM Serif + DM Sans</div>
+      <div class="b-card-desc">Cream background, serif headlines, sans body. Feels authoritative and editorial — like the WSJ launched a vehicle marketplace.</div>
+    </div>
+  </div>
+
+  <!-- CARD C -->
+  <div class="card" data-choice="c" onclick="pick(this)">
+    <span class="badge">Selected</span>
+    <div class="c-hero">
+      <div class="c-logo">Coast</div>
+      <div class="c-h1">Wholesale vehicles,<br/><em>100% online.</em></div>
+      <div class="c-sub">Browse AI-graded inventory, buy online, and get vehicles delivered — no auctions, no wasted trips.</div>
+      <div class="c-btns">
+        <button class="c-btn1">Browse Inventory</button>
+        <button class="c-btn2">Create Account →</button>
+      </div>
+    </div>
+    <div class="c-stat-bar">
+      <div class="c-stat">
+        <div class="c-stat-num">2,400+</div>
+        <div class="c-stat-label">vehicles listed</div>
+      </div>
+      <div class="c-stat">
+        <div class="c-stat-num">500+</div>
+        <div class="c-stat-label">active dealers</div>
+      </div>
+      <div class="c-stat">
+        <div class="c-stat-num">100%</div>
+        <div class="c-stat-label">online transactions</div>
+      </div>
+    </div>
+    <div class="c-palette">
+      <div class="swatch" style="background:#0b1120"></div>
+      <div class="swatch" style="background:#0f172a"></div>
+      <div class="swatch" style="background:#2563eb"></div>
+      <div class="swatch" style="background:#60a5fa"></div>
+      <div class="swatch" style="background:#f1f5f9"></div>
+      <span class="palette-note">Midnight · Navy · Blue · Sky · Snow</span>
+    </div>
+    <div class="c-footer">
+      <div class="c-card-label">C — Dark Navy (flat) · Bricolage Grotesque + Inter</div>
+      <div class="c-card-desc">Solid dark navy — no gradients. Blue accent stays single-tone. Bricolage headlines have character without being gimmicky. Bloomberg meets YC.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-note">
+  Don't love any of these? Tell me what you're drawn to — a specific site, a feeling, a color you keep coming back to — and I'll iterate.
+</div>
+
+<div class="sel-bar" id="sel">Click a card to select, or describe what you want in the terminal.</div>
+
+<script>
+  function pick(el) {
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    const labels = { a: 'A — Clean White · Plus Jakarta Sans', b: 'B — Warm Editorial · DM Serif + DM Sans', c: 'C — Dark Navy · Bricolage Grotesque' };
+    document.getElementById('sel').innerHTML = '<b>Selected: ' + labels[el.dataset.choice] + '</b> — reply in the terminal when ready.';
+    if (window.__recordChoice) window.__recordChoice(el.dataset.choice, labels[el.dataset.choice]);
+  }
+</script>
+
+</body>
+</html>
