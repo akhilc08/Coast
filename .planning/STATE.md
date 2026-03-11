@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-03-11T03:37:14.887Z"
+stopped_at: Completed 04-03-PLAN.md
+last_updated: "2026-03-11T03:38:20.153Z"
 last_activity: "2026-03-10 — Plan 04-01 complete (admin foundation: grading callback, layout, middleware, server actions)"
 progress:
   total_phases: 4
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 13
-  completed_plans: 11
+  completed_plans: 12
   percent: 77
 ---
 
@@ -58,6 +58,7 @@ Progress: [████████░░] 77%
 | Phase 03-transactions P03 | 8min | 2 tasks | 11 files |
 | Phase 04-admin-and-grading-scaffold P01 | 5min | 2 tasks | 12 files |
 | Phase 04-admin-and-grading-scaffold P02 | 6min | 2 tasks | 4 files |
+| Phase 04-admin-and-grading-scaffold P03 | 5 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,7 @@ Recent decisions affecting current work:
 - [Phase 04-admin-and-grading-scaffold]: ZodError uses .issues not .errors — TypeScript build correctly flags this; affects all Zod error handling in project
 - [Phase 04-admin-and-grading-scaffold]: BanToggleButton isolated as client component for useTransition — page stays server-rendered
 - [Phase 04-admin-and-grading-scaffold]: Filter tabs use ?status= search params — RSC-friendly, shareable URL state, no client state
+- [Phase 04-admin-and-grading-scaffold]: Orders 'complete' filter tab maps to both documents_signed and complete statuses via .in() — captures full done funnel in one view
 
 ### Pending Todos
 
@@ -102,6 +104,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T03:37:14.883Z
-Stopped at: Completed 04-02-PLAN.md
+Last session: 2026-03-11T03:38:20.150Z
+Stopped at: Completed 04-03-PLAN.md
 Resume file: None
