@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-02-PLAN.md
-last_updated: "2026-03-11T02:04:29.835Z"
-last_activity: 2026-03-10 — Plan 03-02 complete (Stripe checkout flow, webhook, confirmation page, emails)
+stopped_at: Completed 03-04-PLAN.md
+last_updated: "2026-03-11T02:11:47.091Z"
+last_activity: 2026-03-10 — Plan 03-04 complete (consumer order history, order detail, signed-URL document downloads)
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 10
-  completed_plans: 7
+  completed_plans: 8
   percent: 70
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-09)
 ## Current Position
 
 Phase: 3 of 4 (Transactions)
-Plan: 2 of 4 in current phase (03-02 complete)
+Plan: 4 of 4 in current phase (03-04 complete)
 Status: In Progress
-Last activity: 2026-03-10 — Plan 03-02 complete (Stripe checkout flow, webhook, confirmation page, emails)
+Last activity: 2026-03-10 — Plan 03-04 complete (consumer order history, order detail, signed-URL document downloads)
 
-Progress: [███████░░░] 70%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Progress: [███████░░░] 70%
 *Updated after each plan completion*
 | Phase 03-transactions P01 | 4 | 2 tasks | 11 files |
 | Phase 03-transactions P02 | 8min | 2 tasks | 10 files |
+| Phase 03-transactions P04 | 4min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,8 @@ Recent decisions affecting current work:
 - [Phase 03-transactions]: Emails sent synchronously in webhook body (not after()) — fits 5-second Stripe window and simplifies testing
 - [Phase 03-transactions]: orderId generated client-side via crypto.randomUUID() — avoids insert().select().single() round-trip
 - [Phase 03-transactions]: NextRedirectError mock pattern — redirect() must throw to halt execution in tests matching Next.js runtime behavior
+- [Phase 03-transactions]: DownloadDocumentButton isolated as client component — RSC page stays fully server-rendered
+- [Phase 03-transactions]: Server action verifies buyer ownership via order join before issuing signed URLs (defense in depth)
 
 ### Pending Todos
 
@@ -90,6 +93,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T02:04:29.811Z
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-03-11T02:11:47.087Z
+Stopped at: Completed 03-04-PLAN.md
 Resume file: None
