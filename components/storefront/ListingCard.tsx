@@ -22,9 +22,9 @@ export function ListingCard({ id, make, model, year, mileage, price_cents, grade
 
   return (
     <Link href={`/listings/${id}`} className="group block">
-      <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 transition-colors hover:border-zinc-700">
+      <div className="overflow-hidden rounded-xl border border-[#e7e5e4] bg-white transition-shadow hover:shadow-md">
         {/* Hero photo */}
-        <div className="relative aspect-[4/3] bg-zinc-800">
+        <div className="relative aspect-[4/3] bg-[#f5f5f4]">
           {heroUrl ? (
             <Image
               src={heroUrl}
@@ -34,24 +34,24 @@ export function ListingCard({ id, make, model, year, mileage, price_cents, grade
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-zinc-600">No photo</div>
+            <div className="flex h-full items-center justify-center text-sm text-[#a8a29e]">No photo</div>
           )}
         </div>
 
         {/* Card details */}
         <div className="space-y-2 p-3">
-          <p className="font-medium leading-tight text-zinc-100">
+          <p className="font-medium leading-tight text-[#1c1917]">
             {year} {make} {model}
           </p>
 
           <div className="flex items-center justify-between">
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-[#78716c]">
               {mileage != null ? `${mileage.toLocaleString()} mi` : 'Mileage N/A'}
             </p>
             <GradeBadge grade={grade} />
           </div>
 
-          <p className="text-base font-semibold text-zinc-100">
+          <p className="text-base font-semibold text-[#1c1917]">
             {price_cents != null ? `$${(price_cents / 100).toLocaleString()}` : 'Call for price'}
           </p>
         </div>
