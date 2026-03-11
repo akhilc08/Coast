@@ -3,6 +3,8 @@ import { getListing } from '@/lib/queries/listings'
 import { createClient } from '@/lib/supabase/server'
 import { PhotoGallery } from '@/components/storefront/PhotoGallery'
 import { GradeBadge } from '@/components/ui/GradeBadge'
+import { BuyNowButton } from '@/components/storefront/BuyNowButton'
+import { createCheckoutSession } from '@/app/actions/checkout'
 import Link from 'next/link'
 
 export default async function ListingDetailPage({
@@ -21,6 +23,7 @@ export default async function ListingDetailPage({
   // Check role — consumers can buy, wholesalers cannot
   const role = user?.app_metadata?.role
   const canBuy = !!user && role === 'consumer'
+  const isSold = listing.status === 'sold'
 
   // Construct photo URLs from storage keys (server-side, avoiding client hydration mismatch)
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -109,24 +112,22 @@ export default async function ListingDetailPage({
           )}
 
           {/* Buy CTA — STOR-05 requirement: visible only to authenticated consumers */}
-          {canBuy && (
-            <button
-              className="w-full rounded-xl bg-blue-600 py-3 text-base font-semibold text-white transition-colors hover:bg-blue-500"
-              disabled
-              title="Purchase flow coming in Phase 3"
-            >
-              Buy Now — ${listing.price_cents != null ? (listing.price_cents / 100).toLocaleString() : '—'}
-            </button>
-          )}
-
-          {!user && (
+          {isSold ? (
+            <div className="w-full rounded-xl border border-zinc-700 bg-zinc-900 py-3 text-center text-base font-semibold text-zinc-500">
+              Sold
+            </div>
+          ) : canBuy ? (
+            <form action={createCheckoutSession.bind(null, listing.id)}>
+              <BuyNowButton priceCents={listing.price_cents} />
+            </form>
+          ) : !user ? (
             <Link
               href="/login"
               className="block w-full rounded-xl border border-zinc-700 py-3 text-center text-sm text-zinc-400 transition-colors hover:border-zinc-500 hover:text-zinc-200"
             >
               Log in to purchase
             </Link>
-          )}
+          ) : null}
         </div>
       </div>
     </main>

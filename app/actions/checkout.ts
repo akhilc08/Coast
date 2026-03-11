@@ -44,7 +44,7 @@ export async function createCheckoutSession(listingId: string) {
           currency: 'usd',
           unit_amount: listing.price_cents,
           product_data: {
-            name: listing.title ?? `${listing.year ?? ''} Vehicle`.trim(),
+            name: listing.title ?? 'Vehicle',
           },
         },
         quantity: 1,
