@@ -41,8 +41,10 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (!user && request.nextUrl.pathname.startsWith('/admin')) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    if (!user) return NextResponse.redirect(new URL('/login', request.url))
+    const role = user.app_metadata?.role
+    if (role !== 'admin') return NextResponse.redirect(new URL('/', request.url))
   }
 
   return supabaseResponse
