@@ -24,8 +24,8 @@ export function AdminNav() {
             href={href}
             className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
               isActive
-                ? 'bg-zinc-800 text-zinc-50'
-                : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-50'
+                ? 'bg-[#faf9f6] text-[#1c1917] font-semibold'
+                : 'text-[#78716c] hover:bg-[#faf9f6] hover:text-[#1c1917]'
             }`}
           >
             <Icon className="h-4 w-4 flex-shrink-0" />

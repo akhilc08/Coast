@@ -26,31 +26,21 @@ export default async function AdminUsersPage({
   const { status } = await searchParams
   const admin = createAdminClient()
 
-  // Fetch auth users and profiles in parallel
-  const [{ data: authData }, { data: profileRows }] = await Promise.all([
-    admin.auth.admin.listUsers({ perPage: 50 }),
-    admin.from('profiles').select('id, role, company, created_at'),
-  ])
+  // Fetch users via RPC (joins auth.users + profiles server-side)
+  const { data: rows, error } = await admin.rpc('get_admin_users')
 
-  const authUsers = authData?.users ?? []
-  const profileMap = new Map(
-    (profileRows ?? []).map((p) => [p.id, p])
-  )
+  if (error) {
+    console.error('get_admin_users error:', error)
+  }
 
-  // Merge auth users with profile data
-  const mergedUsers: MergedUser[] = authUsers
-    .filter((u) => profileMap.has(u.id))
-    .map((u) => {
-      const profile = profileMap.get(u.id)!
-      return {
-        id: u.id,
-        email: u.email ?? '',
-        role: (profile.role as UserRole) ?? 'consumer',
-        company: profile.company ?? null,
-        isBanned: !!u.banned_until && new Date(u.banned_until) > new Date(),
-        createdAt: profile.created_at ?? u.created_at,
-      }
-    })
+  const mergedUsers: MergedUser[] = (rows ?? []).map((row: { id: string; email: string; role: string; company: string | null; banned_until: string | null; created_at: string }) => ({
+    id: row.id,
+    email: row.email ?? '',
+    role: (row.role as UserRole) ?? 'consumer',
+    company: row.company ?? null,
+    isBanned: !!row.banned_until && new Date(row.banned_until) > new Date(),
+    createdAt: row.created_at,
+  }))
 
   // Filter by role tab
   const filtered =
@@ -67,8 +57,8 @@ export default async function AdminUsersPage({
   const activeTab = status || 'all'
 
   return (
-    <div className="bg-zinc-950 min-h-full text-zinc-50 space-y-8">
-      <h1 className="text-2xl font-bold text-zinc-50">Users</h1>
+    <div className="min-h-full space-y-8">
+      <h1 className="text-2xl font-bold text-[#1c1917]">Users</h1>
 
       {/* Create Wholesaler form */}
       <div className="max-w-md">
@@ -76,7 +66,7 @@ export default async function AdminUsersPage({
       </div>
 
       {/* Filter tabs */}
-      <div className="border-b border-zinc-800">
+      <div className="border-b border-[#e7e5e4]">
         <nav className="flex gap-6">
           {tabs.map((tab) => (
             <Link
@@ -84,8 +74,8 @@ export default async function AdminUsersPage({
               href={`/admin/users?status=${tab.value}`}
               className={
                 activeTab === tab.value
-                  ? 'pb-3 text-sm font-medium text-zinc-50 border-b-2 border-blue-500'
-                  : 'pb-3 text-sm font-medium text-zinc-500 hover:text-zinc-300'
+                  ? 'pb-3 text-sm font-medium text-[#1c1917] border-b-2 border-[#1d4ed8]'
+                  : 'pb-3 text-sm font-medium text-[#78716c] hover:text-[#1c1917]'
               }
             >
               {tab.label}
@@ -95,26 +85,26 @@ export default async function AdminUsersPage({
       </div>
 
       {/* User table */}
-      <div className="rounded-lg border border-zinc-800 bg-zinc-900 overflow-hidden">
+      <div className="rounded-lg border border-[#e7e5e4] bg-white overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-zinc-800">
-              <th className="px-4 py-3 text-left text-zinc-400 font-medium">
+            <tr className="border-b border-[#e7e5e4] bg-[#faf9f6]">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#78716c]">
                 Email
               </th>
-              <th className="px-4 py-3 text-left text-zinc-400 font-medium">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#78716c]">
                 Role
               </th>
-              <th className="px-4 py-3 text-left text-zinc-400 font-medium">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#78716c]">
                 Company
               </th>
-              <th className="px-4 py-3 text-left text-zinc-400 font-medium">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#78716c]">
                 Status
               </th>
-              <th className="px-4 py-3 text-left text-zinc-400 font-medium">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#78716c]">
                 Created
               </th>
-              <th className="px-4 py-3 text-left text-zinc-400 font-medium">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#78716c]">
                 Actions
               </th>
             </tr>
@@ -124,7 +114,7 @@ export default async function AdminUsersPage({
               <tr>
                 <td
                   colSpan={6}
-                  className="px-4 py-8 text-center text-zinc-500"
+                  className="px-4 py-8 text-center text-[#a8a29e]"
                 >
                   No users found.
                 </td>
@@ -133,33 +123,33 @@ export default async function AdminUsersPage({
               filtered.map((user) => (
                 <tr
                   key={user.id}
-                  className="border-b border-zinc-800 last:border-0 hover:bg-zinc-800/50"
+                  className="border-b border-[#e7e5e4] last:border-0 hover:bg-[#faf9f6]"
                 >
-                  <td className="px-4 py-3 text-zinc-50">{user.email}</td>
+                  <td className="px-4 py-3 text-[#1c1917] font-medium">{user.email}</td>
                   <td className="px-4 py-3">
                     <span
                       className={
                         user.role === 'wholesaler'
-                          ? 'text-xs rounded-full px-2 py-0.5 bg-blue-900 text-blue-200'
+                          ? 'text-xs rounded-full px-2 py-0.5 border border-blue-200 bg-blue-50 text-blue-700'
                           : user.role === 'admin'
-                            ? 'text-xs rounded-full px-2 py-0.5 bg-purple-900 text-purple-200'
-                            : 'text-xs rounded-full px-2 py-0.5 bg-zinc-800 text-zinc-300'
+                            ? 'text-xs rounded-full px-2 py-0.5 border border-purple-200 bg-purple-50 text-purple-700'
+                            : 'text-xs rounded-full px-2 py-0.5 border border-[#e7e5e4] bg-[#f5f4f0] text-[#78716c]'
                       }
                     >
                       {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-zinc-400">
+                  <td className="px-4 py-3 text-[#78716c]">
                     {user.company ?? '—'}
                   </td>
                   <td className="px-4 py-3">
                     {user.isBanned ? (
-                      <span className="text-red-400">Banned</span>
+                      <span className="text-red-600 text-xs font-medium">Banned</span>
                     ) : (
-                      <span className="text-green-400">Active</span>
+                      <span className="text-green-700 text-xs font-medium">Active</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-zinc-400">
+                  <td className="px-4 py-3 text-[#78716c]">
                     {new Date(user.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3">

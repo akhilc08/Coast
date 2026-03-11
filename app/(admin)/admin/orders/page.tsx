@@ -19,13 +19,13 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  pending_payment: 'border-zinc-700 bg-zinc-800 text-zinc-400',
-  paid: 'border-blue-800 bg-blue-950 text-blue-400',
-  documents_sent: 'border-amber-800 bg-amber-950 text-amber-400',
-  documents_signed: 'border-green-800 bg-green-950 text-green-400',
-  complete: 'border-green-800 bg-green-950 text-green-400',
-  cancelled: 'border-red-800 bg-red-950 text-red-400',
-  refunded: 'border-red-800 bg-red-950 text-red-400',
+  pending_payment: 'border-[#e7e5e4] bg-[#f5f4f0] text-[#78716c]',
+  paid: 'border-blue-200 bg-blue-50 text-blue-700',
+  documents_sent: 'border-amber-200 bg-amber-50 text-amber-700',
+  documents_signed: 'border-green-200 bg-green-50 text-green-700',
+  complete: 'border-green-200 bg-green-50 text-green-700',
+  cancelled: 'border-red-200 bg-red-50 text-red-700',
+  refunded: 'border-red-200 bg-red-50 text-red-700',
 }
 
 function formatPrice(cents: number): string {
@@ -98,10 +98,10 @@ export default async function AdminOrdersPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-zinc-50">Orders</h1>
+      <h1 className="text-2xl font-bold text-[#1c1917]">Orders</h1>
 
       {/* Filter tabs */}
-      <div className="mt-6 flex gap-6 border-b border-zinc-800">
+      <div className="mt-6 flex gap-6 border-b border-[#e7e5e4]">
         {STATUS_TABS.map((tab) => {
           const isActive = status === tab.value
           return (
@@ -110,8 +110,8 @@ export default async function AdminOrdersPage({
               href={`/admin/orders?status=${tab.value}`}
               className={`pb-3 text-sm font-medium transition-colors ${
                 isActive
-                  ? 'border-b-2 border-blue-500 text-zinc-50'
-                  : 'text-zinc-500 hover:text-zinc-300'
+                  ? 'border-b-2 border-[#1d4ed8] text-[#1c1917]'
+                  : 'text-[#78716c] hover:text-[#1c1917]'
               }`}
             >
               {tab.label}
@@ -121,50 +121,50 @@ export default async function AdminOrdersPage({
       </div>
 
       {/* Table */}
-      <div className="mt-4 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900">
+      <div className="mt-4 overflow-hidden rounded-lg border border-[#e7e5e4] bg-white">
         {rows.length === 0 ? (
-          <p className="px-6 py-8 text-center text-sm text-zinc-500">No orders found.</p>
+          <p className="px-6 py-8 text-center text-sm text-[#a8a29e]">No orders found.</p>
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b border-zinc-800 text-left">
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+              <tr className="border-b border-[#e7e5e4] text-left bg-[#faf9f6]">
+                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
                   Order #
                 </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
                   Vehicle
                 </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
                   Buyer
                 </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
                   Amount
                 </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
                   Status
                 </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
                   Date
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800 text-sm">
+            <tbody className="divide-y divide-[#e7e5e4] text-sm">
               {rows.map((order) => (
-                <tr key={order.id} className="transition-colors hover:bg-zinc-800/50">
-                  <td className="px-4 py-3 font-mono text-xs text-zinc-400">
+                <tr key={order.id} className="transition-colors hover:bg-[#faf9f6]">
+                  <td className="px-4 py-3 font-mono text-xs text-[#78716c]">
                     {order.id.slice(0, 8)}
                   </td>
-                  <td className="px-4 py-3 text-zinc-50">
+                  <td className="px-4 py-3 font-medium text-[#1c1917]">
                     {order.listings
                       ? `${order.listings.year} ${order.listings.make} ${order.listings.model}`
                       : '—'}
                   </td>
-                  <td className="px-4 py-3 text-zinc-300">{order.profiles?.email ?? '—'}</td>
-                  <td className="px-4 py-3 text-zinc-300">{formatPrice(order.price_cents)}</td>
+                  <td className="px-4 py-3 text-[#78716c]">{order.profiles?.email ?? '—'}</td>
+                  <td className="px-4 py-3 text-[#1c1917]">{formatPrice(order.price_cents)}</td>
                   <td className="px-4 py-3">
                     <OrderStatusBadge status={order.status} />
                   </td>
-                  <td className="px-4 py-3 text-zinc-400">{formatDate(order.created_at)}</td>
+                  <td className="px-4 py-3 text-[#78716c]">{formatDate(order.created_at)}</td>
                 </tr>
               ))}
             </tbody>

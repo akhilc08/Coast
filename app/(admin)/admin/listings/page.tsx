@@ -28,11 +28,11 @@ function formatDate(dateStr: string): string {
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    draft: 'border-zinc-700 bg-zinc-800 text-zinc-400',
-    active: 'border-green-800 bg-green-950 text-green-400',
-    sold: 'border-amber-800 bg-amber-950 text-amber-400',
+    draft: 'border-[#e7e5e4] bg-[#f5f4f0] text-[#78716c]',
+    active: 'border-green-200 bg-green-50 text-green-700',
+    sold: 'border-amber-200 bg-amber-50 text-amber-700',
   }
-  const cls = styles[status] ?? 'border-zinc-700 bg-zinc-800 text-zinc-400'
+  const cls = styles[status] ?? 'border-[#e7e5e4] bg-[#f5f4f0] text-[#78716c]'
   return (
     <span
       className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium capitalize ${cls}`}
@@ -83,10 +83,10 @@ export default async function AdminListingsPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-zinc-50">Listings</h1>
+      <h1 className="text-2xl font-bold text-[#1c1917]">Listings</h1>
 
       {/* Filter tabs */}
-      <div className="mt-6 flex gap-6 border-b border-zinc-800">
+      <div className="mt-6 flex gap-6 border-b border-[#e7e5e4]">
         {STATUS_TABS.map((tab) => {
           const isActive = status === tab.value
           return (
@@ -95,8 +95,8 @@ export default async function AdminListingsPage({
               href={`/admin/listings?status=${tab.value}`}
               className={`pb-3 text-sm font-medium transition-colors ${
                 isActive
-                  ? 'border-b-2 border-blue-500 text-zinc-50'
-                  : 'text-zinc-500 hover:text-zinc-300'
+                  ? 'border-b-2 border-[#1d4ed8] text-[#1c1917]'
+                  : 'text-[#78716c] hover:text-[#1c1917]'
               }`}
             >
               {tab.label}
@@ -106,62 +106,62 @@ export default async function AdminListingsPage({
       </div>
 
       {/* Table */}
-      <div className="mt-4 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900">
+      <div className="mt-4 overflow-hidden rounded-lg border border-[#e7e5e4] bg-white">
         {rows.length === 0 ? (
-          <p className="px-6 py-8 text-center text-sm text-zinc-500">No listings found.</p>
+          <p className="px-6 py-8 text-center text-sm text-[#a8a29e]">No listings found.</p>
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b border-zinc-800 text-left">
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+              <tr className="border-b border-[#e7e5e4] text-left bg-[#faf9f6]">
+                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
                   Vehicle
                 </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
                   VIN
                 </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
                   Seller
                 </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
                   Price
                 </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
                   Grade
                 </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
                   Status
                 </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
                   Created
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800 text-sm">
+            <tbody className="divide-y divide-[#e7e5e4] text-sm">
               {rows.map((listing) => (
                 <tr
                   key={listing.id}
-                  className="cursor-pointer transition-colors hover:bg-zinc-800/50"
+                  className="cursor-pointer transition-colors hover:bg-[#faf9f6]"
                 >
                   <td className="px-4 py-3">
                     <Link
                       href={`/listings/${listing.id}`}
-                      className="block text-zinc-50 hover:underline"
+                      className="block text-[#1c1917] font-medium hover:underline"
                     >
                       {listing.year} {listing.make} {listing.model}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 font-mono text-xs text-zinc-400">{listing.vin}</td>
-                  <td className="px-4 py-3 text-zinc-300">
+                  <td className="px-4 py-3 font-mono text-xs text-[#78716c]">{listing.vin}</td>
+                  <td className="px-4 py-3 text-[#78716c]">
                     {listing.profiles?.company ?? '—'}
                   </td>
-                  <td className="px-4 py-3 text-zinc-300">{formatPrice(listing.price_cents)}</td>
+                  <td className="px-4 py-3 text-[#1c1917]">{formatPrice(listing.price_cents)}</td>
                   <td className="px-4 py-3">
                     <GradeBadge grade={listing.grade} />
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={listing.status} />
                   </td>
-                  <td className="px-4 py-3 text-zinc-400">{formatDate(listing.created_at)}</td>
+                  <td className="px-4 py-3 text-[#78716c]">{formatDate(listing.created_at)}</td>
                 </tr>
               ))}
             </tbody>

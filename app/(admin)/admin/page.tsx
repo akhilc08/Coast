@@ -74,62 +74,62 @@ export default async function AdminDashboardPage() {
     .limit(5)
 
   return (
-    <div className="bg-zinc-950 min-h-full text-zinc-50">
-      <h1 className="text-2xl font-bold text-zinc-50 mb-6">Dashboard</h1>
+    <div className="min-h-full">
+      <h1 className="text-2xl font-bold text-[#1c1917] mb-6">Dashboard</h1>
 
       {/* Stat cards */}
       <div className="grid grid-cols-4 gap-4 mb-8">
-        <Card className="border-zinc-800 bg-zinc-900">
+        <Card className="border-[#e7e5e4] bg-white">
           <CardHeader>
-            <CardTitle className="text-zinc-400 text-sm font-medium">
+            <CardTitle className="text-[#78716c] text-sm font-medium">
               Total Revenue
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-zinc-50">
+            <p className="text-3xl font-bold text-[#1c1917]">
               {formatUSD(totalRevenue)}
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-zinc-800 bg-zinc-900">
+        <Card className="border-[#e7e5e4] bg-white">
           <CardHeader>
-            <CardTitle className="text-zinc-400 text-sm font-medium">
+            <CardTitle className="text-[#78716c] text-sm font-medium">
               Listings
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-zinc-50">
+            <p className="text-3xl font-bold text-[#1c1917]">
               {totalListings ?? 0}
             </p>
-            <p className="text-sm text-zinc-400 mt-1">
+            <p className="text-sm text-[#78716c] mt-1">
               {activeListings ?? 0} active
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-zinc-800 bg-zinc-900">
+        <Card className="border-[#e7e5e4] bg-white">
           <CardHeader>
-            <CardTitle className="text-zinc-400 text-sm font-medium">
+            <CardTitle className="text-[#78716c] text-sm font-medium">
               Orders
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-zinc-50">
+            <p className="text-3xl font-bold text-[#1c1917]">
               {totalOrders ?? 0}
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-zinc-800 bg-zinc-900">
+        <Card className="border-[#e7e5e4] bg-white">
           <CardHeader>
-            <CardTitle className="text-zinc-400 text-sm font-medium">
+            <CardTitle className="text-[#78716c] text-sm font-medium">
               Users
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-zinc-50">{totalUsers}</p>
-            <p className="text-sm text-zinc-400 mt-1">
+            <p className="text-3xl font-bold text-[#1c1917]">{totalUsers}</p>
+            <p className="text-sm text-[#78716c] mt-1">
               {wholesalerCount} sellers
             </p>
           </CardContent>
@@ -138,12 +138,12 @@ export default async function AdminDashboardPage() {
 
       {/* Recent orders */}
       <section>
-        <h2 className="text-lg font-semibold text-zinc-50 mb-4">
+        <h2 className="text-lg font-semibold text-[#1c1917] mb-4">
           Recent Orders
         </h2>
         <div className="space-y-2">
           {(recentOrders ?? []).length === 0 ? (
-            <p className="text-zinc-500 text-sm">No orders yet.</p>
+            <p className="text-[#a8a29e] text-sm">No orders yet.</p>
           ) : (
             (recentOrders ?? []).map((order) => {
               const listing = Array.isArray(order.listings)
@@ -156,14 +156,14 @@ export default async function AdminDashboardPage() {
                 <Link
                   key={order.id}
                   href="/admin/orders"
-                  className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-3 hover:bg-zinc-800 transition-colors"
+                  className="flex items-center justify-between rounded-lg border border-[#e7e5e4] bg-white px-4 py-3 hover:bg-[#faf9f6] transition-colors"
                 >
-                  <span className="text-zinc-50 font-medium">{vehicle}</span>
+                  <span className="text-[#1c1917] font-medium">{vehicle}</span>
                   <span className="flex items-center gap-4">
-                    <span className="text-zinc-300">
+                    <span className="text-[#1c1917]">
                       {formatUSD(order.price_cents ?? 0)}
                     </span>
-                    <span className="text-zinc-500 text-sm">
+                    <span className="text-[#a8a29e] text-sm">
                       {relativeTime(order.created_at)}
                     </span>
                   </span>

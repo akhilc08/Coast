@@ -27,8 +27,8 @@ export function BanToggleButton({ userId, isBanned }: BanToggleButtonProps) {
       disabled={isPending}
       className={
         isBanned
-          ? 'text-xs px-2 py-1 rounded bg-zinc-700 text-zinc-200 hover:bg-zinc-600 disabled:opacity-50'
-          : 'text-xs px-2 py-1 rounded bg-red-900 text-red-200 hover:bg-red-800 disabled:opacity-50'
+          ? 'text-xs px-2 py-1 rounded border border-[#e7e5e4] bg-[#f5f4f0] text-[#78716c] hover:bg-[#e7e5e4] disabled:opacity-50 cursor-pointer transition-colors'
+          : 'text-xs px-2 py-1 rounded border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 disabled:opacity-50 cursor-pointer transition-colors'
       }
     >
       {isPending ? '...' : isBanned ? 'Enable' : 'Disable'}
