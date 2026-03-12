@@ -40,6 +40,10 @@ export async function POST(request: Request) {
         listing_id: string
         buyer_id: string
         seller_id: string
+        delivery_address?: string
+        delivery_zip?: string
+        transport_fee_cents?: string
+        transport_quote_tbd?: string
       } | null
       customer_details: {
         email: string | null
@@ -76,9 +80,19 @@ export async function POST(request: Request) {
       .eq('id', listing_id)
       .eq('status', 'active')
 
+    // Fetch listing details for order record and emails (best-effort)
+    const { data: listing } = await supabase
+      .from('listings')
+      .select('title, year, make, model, price_cents')
+      .eq('id', listing_id)
+      .single()
+
     // --- Create order record ---
     // Generate orderId client-side so we don't need a select() round-trip
     const orderId = crypto.randomUUID()
+    const rawTransportFee = session.metadata?.transport_fee_cents
+    const transportFeeCents =
+      rawTransportFee && /^\d+$/.test(rawTransportFee) ? Number(rawTransportFee) : null
     await supabase
       .from('orders')
       .insert({
@@ -86,10 +100,16 @@ export async function POST(request: Request) {
         listing_id,
         buyer_id,
         seller_id,
-        status: 'paid',
-        price_cents: session.amount_total ?? 0,
-        stripe_payment_intent: session.payment_intent ?? null,
+        status:                  'paid',
+        price_cents:             session.amount_total ?? 0,
+        vehicle_price_cents:     listing?.price_cents ?? null,
+        stripe_payment_intent:   session.payment_intent ?? null,
         stripe_checkout_session: session.id,
+        delivery_address:        session.metadata?.delivery_address ?? null,
+        delivery_zip:            session.metadata?.delivery_zip ?? null,
+        transport_fee_cents:     transportFeeCents,
+        transport_quote_tbd:     session.metadata?.transport_quote_tbd === 'true',
+        transport_status:        'pending',
       })
 
     // --- Create order_documents stubs ---
@@ -110,13 +130,6 @@ export async function POST(request: Request) {
     const orderNumber = orderId.slice(0, 8).toUpperCase()
     const buyerName = session.customer_details?.name ?? 'Valued Customer'
     const buyerEmail = session.customer_details?.email ?? ''
-
-    // Fetch listing title for emails (best-effort)
-    const { data: listing } = await supabase
-      .from('listings')
-      .select('title, year, make, model')
-      .eq('id', listing_id)
-      .single()
 
     const vehicleTitle =
       listing?.title ??
