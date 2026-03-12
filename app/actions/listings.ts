@@ -144,6 +144,15 @@ export async function addDocumentAction(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
+  const { data: listing } = await supabase
+    .from('listings')
+    .select('id')
+    .eq('id', listingId)
+    .eq('seller_id', user.id)
+    .single()
+
+  if (!listing) return { error: 'Listing not found or access denied' }
+
   const { error } = await supabase.from('listing_documents').insert({
     listing_id:    listingId,
     storage_key:   storageKey,
