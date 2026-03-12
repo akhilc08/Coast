@@ -114,10 +114,19 @@ export function generatePurchaseAgreement(data: PurchaseAgreementData): Promise<
       .text('SIGNATURES')
       .moveDown(1)
 
+    // Buyer signature block — anchor strings in white text (invisible to reader,
+    // detected by DocuSign to auto-place signature and date tabs)
     doc
       .fontSize(11)
       .font('Helvetica')
-      .text('Buyer Signature: _______________________________    Date: _______________')
+      .text('Buyer Signature: _______________________________', { continued: true })
+      .fillColor('white')
+      .text('{{BUYER_SIGNATURE}}', { continued: true })
+      .fillColor('black')
+      .text('    Date: _______________', { continued: true })
+      .fillColor('white')
+      .text('{{BUYER_DATE}}')
+      .fillColor('black')
       .moveDown(0.5)
       .text(`Print Name: ${data.buyerName}`)
       .moveDown(1.5)
