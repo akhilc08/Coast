@@ -37,10 +37,10 @@ CREATE POLICY "reviews_public_select"
 CREATE POLICY "reviews_consumer_insert"
   ON public.reviews FOR INSERT
   WITH CHECK (
-    NEW.buyer_id = auth.uid()
+    buyer_id = auth.uid()
     AND EXISTS (
       SELECT 1 FROM public.orders
-      WHERE id = NEW.order_id
+      WHERE id = order_id
         AND buyer_id = auth.uid()
         AND status = 'complete'
     )
