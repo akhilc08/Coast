@@ -185,34 +185,34 @@ async function handleEnvelopeCompleted(envelopeId: string): Promise<void> {
       }
     }
 
-    // --- Update orders.status to 'documents_signed' ---
-    // Only advance status if at least one signed document was collected.
-    // If all downloads failed, leave status as 'documents_sent' for recovery.
+    // --- Update orders.status and send NOTF-04 only if downloads succeeded ---
+    // If all downloads failed, leave status as 'documents_sent' for recovery
+    // and do not email the buyer a false success notification.
     if (attachments.length > 0) {
       await supabase
         .from('orders')
         .update({ status: 'documents_signed' })
         .eq('id', orderId)
+
+      // --- Send NOTF-04: documents complete email ---
+      const buyerName = buyer.full_name ?? buyer.email ?? 'Valued Customer'
+
+      await resend.emails.send({
+        from: FROM_EMAIL,
+        to: buyer.email ?? '',
+        subject: `Your signed documents are ready — ${vehicleTitle}`,
+        html: await render(
+          React.createElement(DocumentsCompleteEmail, {
+            buyerName,
+            vehicleTitle,
+            orderNumber,
+          })
+        ),
+        attachments,
+      })
     } else {
-      console.error('[docusign-webhook] No signed attachments collected for order', orderId, '— order status not advanced')
+      console.error('[docusign-webhook] No signed attachments collected for order', orderId, '— order status not advanced, NOTF-04 not sent')
     }
-
-    // --- Send NOTF-04: documents complete email ---
-    const buyerName = buyer.full_name ?? buyer.email ?? 'Valued Customer'
-
-    await resend.emails.send({
-      from: FROM_EMAIL,
-      to: buyer.email ?? '',
-      subject: `Your signed documents are ready — ${vehicleTitle}`,
-      html: await render(
-        React.createElement(DocumentsCompleteEmail, {
-          buyerName,
-          vehicleTitle,
-          orderNumber,
-        })
-      ),
-      attachments: attachments.length > 0 ? attachments : undefined,
-    })
   } catch (err) {
     console.error('[docusign-webhook] Unhandled error in handleEnvelopeCompleted', envelopeId, err)
   }
