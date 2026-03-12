@@ -21,7 +21,7 @@ export interface SigningRequestEmailProps {
 
 /**
  * NOTF-03: Document signing request email sent to buyer after documents are generated.
- * Points to the Coast order detail page (NOT a Dropbox Sign URL).
+ * Points to the Coast order detail page (NOT a direct DocuSign URL).
  */
 export function SigningRequestEmail({
   buyerName,

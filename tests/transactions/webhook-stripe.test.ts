@@ -8,7 +8,7 @@ vi.mock('next/server', () => ({
   }),
 }))
 
-// Mock fulfillment to prevent actual PDF/Dropbox Sign work in webhook tests
+// Mock fulfillment to prevent actual PDF/signing work in webhook tests
 vi.mock('@/lib/fulfillment', () => ({
   generateAndSendDocuments: vi.fn(() => Promise.resolve()),
 }))
