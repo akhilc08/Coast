@@ -19,6 +19,7 @@ interface ListingWizardProps {
 export function ListingWizard({ listingId, initialData }: ListingWizardProps) {
   const [step, setStep] = useState<Step>(listingId ? 'details' : 'vin')
   const [draftId, setDraftId] = useState<string | null>(listingId ?? null)
+  const [vinData, setVinData] = useState<Record<string, unknown> | null>(null)
 
   function advance() {
     const idx = STEPS.indexOf(step)
@@ -30,13 +31,17 @@ export function ListingWizard({ listingId, initialData }: ListingWizardProps) {
       <WizardProgress current={step} />
       {step === 'vin' && (
         <StepVinLookup
-          onSuccess={(id) => { setDraftId(id); advance() }}
+          onSuccess={(id, vehicle) => {
+            setDraftId(id)
+            if (vehicle) setVinData({ make: vehicle.make, model: vehicle.model, year: vehicle.year, trim: vehicle.trim, body_class: vehicle.bodyClass })
+            advance()
+          }}
         />
       )}
       {step === 'details' && draftId && (
         <StepVehicleDetails
           listingId={draftId}
-          initialData={initialData}
+          initialData={vinData ?? initialData}
           onSave={advance}
         />
       )}

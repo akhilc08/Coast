@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 
 interface StepVinLookupProps {
-  onSuccess: (draftId: string) => void
+  onSuccess: (draftId: string, vehicle: import('@/lib/nhtsa').VehicleDetails | null) => void
 }
 
 export function StepVinLookup({ onSuccess }: StepVinLookupProps) {
@@ -27,15 +27,15 @@ export function StepVinLookup({ onSuccess }: StepVinLookupProps) {
     const vin = data.vin.toUpperCase()
 
     // Attempt NHTSA lookup — failure is OK, wholesaler can fill manually
-    await decodeVin(vin)
+    const vehicle = await decodeVin(vin)
 
-    const result = await createDraftAction(vin)
+    const result = await createDraftAction(vin, vehicle)
     if ('error' in result) {
       setServerError(result.error)
       return
     }
 
-    onSuccess(result.id)
+    onSuccess(result.id, vehicle)
   }
 
   return (

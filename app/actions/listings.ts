@@ -3,15 +3,33 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import type { DetailsStepInput } from '@/lib/validations/listing'
+import type { VehicleDetails } from '@/lib/nhtsa'
 
-export async function createDraftAction(vin: string): Promise<{ id: string } | { error: string }> {
+export async function createDraftAction(
+  vin: string,
+  vehicle?: VehicleDetails | null
+): Promise<{ id: string } | { error: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
+  const title = vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : vin
+
   const { data, error } = await supabase
     .from('listings')
-    .insert({ seller_id: user.id, vin, status: 'draft', title: vin })
+    .insert({
+      seller_id: user.id,
+      vin,
+      status: 'draft',
+      title,
+      ...(vehicle ? {
+        make:       vehicle.make,
+        model:      vehicle.model,
+        year:       vehicle.year,
+        trim:       vehicle.trim || null,
+        body_class: vehicle.bodyClass || null,
+      } : {}),
+    })
     .select('id')
     .single()
 
