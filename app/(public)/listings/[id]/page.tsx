@@ -3,8 +3,6 @@ import { getListing } from '@/lib/queries/listings'
 import { createClient } from '@/lib/supabase/server'
 import { PhotoGallery } from '@/components/storefront/PhotoGallery'
 import { GradeBadge } from '@/components/ui/GradeBadge'
-import { BuyNowButton } from '@/components/storefront/BuyNowButton'
-import { createCheckoutSession } from '@/app/actions/checkout'
 import Link from 'next/link'
 
 export default async function ListingDetailPage({
@@ -117,9 +115,12 @@ export default async function ListingDetailPage({
               Sold
             </div>
           ) : canBuy ? (
-            <form action={createCheckoutSession.bind(null, listing.id)}>
-              <BuyNowButton priceCents={listing.price_cents} />
-            </form>
+            <Link
+              href={`/checkout/${listing.id}/transport`}
+              className="block w-full rounded-xl bg-blue-600 py-3 text-center text-base font-semibold text-white transition-colors hover:bg-blue-500"
+            >
+              Buy Now — {listing.price_cents != null ? `$${(listing.price_cents / 100).toLocaleString('en-US')}` : '—'}
+            </Link>
           ) : !user ? (
             <Link
               href="/login"
