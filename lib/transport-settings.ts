@@ -19,8 +19,8 @@ export async function getTransportMarkupPct(): Promise<number> {
 
     if (error || !data) return 0
 
-    const pct = parseInt(data.value, 10)
-    if (Number.isNaN(pct) || pct < 0 || pct > 100) return 0
+    const pct = Number(data.value)
+    if (!Number.isInteger(pct) || pct < 0 || pct > 100) return 0
     return pct
   } catch {
     return 0
