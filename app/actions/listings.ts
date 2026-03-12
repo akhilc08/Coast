@@ -18,15 +18,14 @@ export async function createDraftAction(
   const { data, error } = await supabase
     .from('listings')
     .insert({
-      seller_id: user.id,
+      seller_id:   user.id,
       vin,
-      status: 'draft',
+      status:      'draft',
       title,
-      ...(vehicle ? {
-        make:  vehicle.make,
-        model: vehicle.model,
-        year:  vehicle.year,
-      } : {}),
+      price_cents: 0,
+      make:        vehicle?.make  ?? '',
+      model:       vehicle?.model ?? '',
+      year:        vehicle?.year  ?? new Date().getFullYear(),
     })
     .select('id')
     .single()
