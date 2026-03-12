@@ -203,7 +203,11 @@ export async function generateAndSendDocuments(orderId: string): Promise<void> {
 
     let envelopeId: string | undefined
     try {
-      const accountId = process.env.DOCUSIGN_ACCOUNT_ID!
+      const accountId = process.env.DOCUSIGN_ACCOUNT_ID
+      if (!accountId) {
+        console.error('[fulfillment] DOCUSIGN_ACCOUNT_ID is not set')
+        return
+      }
       const envelopesApi = await getEnvelopesApi()
       const result = await envelopesApi.createEnvelope(accountId, {
         envelopeDefinition: envelopeDef,

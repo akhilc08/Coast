@@ -23,7 +23,11 @@ export async function POST(request: Request) {
   const rawBody = Buffer.from(await request.arrayBuffer())
 
   // --- Verify HMAC-SHA256 signature (timing-safe) ---
-  const connectSecret = process.env.DOCUSIGN_CONNECT_SECRET ?? ''
+  const connectSecret = process.env.DOCUSIGN_CONNECT_SECRET
+  if (!connectSecret) {
+    console.error('[docusign-webhook] DOCUSIGN_CONNECT_SECRET is not set')
+    return new Response('Internal Server Error', { status: 500 })
+  }
   const expectedSig = createHmac('sha256', connectSecret).update(rawBody).digest('base64')
   const receivedSig = request.headers.get('X-DocuSign-Signature-1') ?? ''
 
@@ -63,7 +67,11 @@ export async function POST(request: Request) {
 async function handleEnvelopeCompleted(envelopeId: string): Promise<void> {
   try {
     const supabase = createAdminClient()
-    const accountId = process.env.DOCUSIGN_ACCOUNT_ID!
+    const accountId = process.env.DOCUSIGN_ACCOUNT_ID
+    if (!accountId) {
+      console.error('[docusign-webhook] DOCUSIGN_ACCOUNT_ID is not set')
+      return
+    }
 
     // --- Find order_documents by esign_ref ---
     const { data: docs, error: docsError } = await supabase
@@ -154,15 +162,19 @@ async function handleEnvelopeCompleted(envelopeId: string): Promise<void> {
         }
       }
 
-      await supabase
-        .from('order_documents')
-        .update({
-          status: 'signed',
-          signed_at: signedAt,
-          signer_id: order.buyer_id,
-          storage_key: signedBuffer ? signedKey : doc.storage_key,
-        })
-        .eq('id', doc.id)
+      if (signedBuffer) {
+        await supabase
+          .from('order_documents')
+          .update({
+            status: 'signed',
+            signed_at: signedAt,
+            signer_id: order.buyer_id,
+            storage_key: signedKey,
+          })
+          .eq('id', doc.id)
+      } else {
+        console.error('[docusign-webhook] Skipping status update for doc — no signed buffer', doc.id)
+      }
 
       if (signedBuffer) {
         const filename =
@@ -174,10 +186,16 @@ async function handleEnvelopeCompleted(envelopeId: string): Promise<void> {
     }
 
     // --- Update orders.status to 'documents_signed' ---
-    await supabase
-      .from('orders')
-      .update({ status: 'documents_signed' })
-      .eq('id', orderId)
+    // Only advance status if at least one signed document was collected.
+    // If all downloads failed, leave status as 'documents_sent' for recovery.
+    if (attachments.length > 0) {
+      await supabase
+        .from('orders')
+        .update({ status: 'documents_signed' })
+        .eq('id', orderId)
+    } else {
+      console.error('[docusign-webhook] No signed attachments collected for order', orderId, '— order status not advanced')
+    }
 
     // --- Send NOTF-04: documents complete email ---
     const buyerName = buyer.full_name ?? buyer.email ?? 'Valued Customer'
