@@ -1,3 +1,4 @@
+// components/listings/wizard/StepVehicleDetails.tsx
 'use client'
 
 import { useForm } from 'react-hook-form'
@@ -28,6 +29,7 @@ export function StepVehicleDetails({ listingId, initialData, onSave }: StepVehic
       price:           initialData?.price_cents ? (initialData.price_cents as number) / 100 : 0,
       color:           (initialData?.color as string) ?? '',
       condition_notes: (initialData?.condition_notes as string) ?? '',
+      pickup_zip:      (initialData?.pickup_zip as string) ?? '',
     },
   })
 
@@ -110,6 +112,22 @@ export function StepVehicleDetails({ listingId, initialData, onSave }: StepVehic
                   {...field}
                 />
               </FormControl>
+              <FormMessage className="text-red-500" />
+            </FormItem>
+          )} />
+
+          <FormField control={form.control} name={"pickup_zip" as never} render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-[#78716c]">Vehicle Pickup ZIP *</FormLabel>
+              <FormControl>
+                <Input
+                  className="border-[#e7e5e4] bg-white text-[#1c1917]"
+                  placeholder="78701"
+                  maxLength={5}
+                  {...field}
+                />
+              </FormControl>
+              <p className="text-xs text-[#a8a29e] mt-1">ZIP code where buyers will pick up or where transport begins</p>
               <FormMessage className="text-red-500" />
             </FormItem>
           )} />

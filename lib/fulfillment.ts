@@ -1,9 +1,11 @@
+// lib/fulfillment.ts
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getEnvelopesApi, DOCUMENT_IDS } from '@/lib/docusign'
 import { resend, FROM_EMAIL } from '@/lib/resend'
 import { generatePurchaseAgreement } from '@/lib/pdf/purchase-agreement'
 import { generateBillOfSale } from '@/lib/pdf/bill-of-sale'
 import { SigningRequestEmail } from '@/lib/email/signing-request'
+import { dispatchTransportOrder } from '@/lib/transport/dispatch'
 import { render } from '@react-email/components'
 import * as React from 'react'
 import type {
@@ -17,9 +19,28 @@ import type {
 } from 'docusign-esign'
 
 /**
- * Post-payment document pipeline orchestrator.
+ * Post-payment pipeline orchestrator.
  *
  * Called asynchronously (fire-and-forget) from the Stripe webhook via after().
+ * Runs document generation and transport dispatch in parallel via Promise.allSettled
+ * so a dispatch failure never blocks documents (and vice versa).
+ */
+export async function generateAndSendDocuments(orderId: string): Promise<void> {
+  const [docsResult, dispatchResult] = await Promise.allSettled([
+    _generateDocuments(orderId),
+    dispatchTransportOrder(orderId),
+  ])
+
+  if (docsResult.status === 'rejected') {
+    console.error('[fulfillment] Document pipeline failed for order', orderId, docsResult.reason)
+  }
+  if (dispatchResult.status === 'rejected') {
+    console.error('[fulfillment] Transport dispatch failed for order', orderId, dispatchResult.reason)
+  }
+}
+
+/**
+ * Internal: generate PDFs, upload to storage, send to DocuSign, notify buyer.
  * Steps:
  *  1. Fetch order with listing and buyer/seller profiles
  *  2. Generate purchase agreement and bill of sale PDFs
@@ -31,14 +52,14 @@ import type {
  *  8. Update orders.status to 'documents_sent'
  *  9. Send NOTF-03 (signing request notification) via Resend
  */
-export async function generateAndSendDocuments(orderId: string): Promise<void> {
+async function _generateDocuments(orderId: string): Promise<void> {
   try {
     const supabase = createAdminClient()
 
     // --- Step 1: Fetch order data ---
     const { data: order, error: orderError } = await supabase
       .from('orders')
-      .select('id, listing_id, buyer_id, seller_id, price_cents')
+      .select('id, listing_id, buyer_id, seller_id, price_cents, vehicle_price_cents')
       .eq('id', orderId)
       .single()
 
@@ -82,7 +103,7 @@ export async function generateAndSendDocuments(orderId: string): Promise<void> {
 
     const orderNumber = orderId.slice(0, 8).toUpperCase()
     const today = new Date().toISOString().slice(0, 10)
-    const buyerName = buyer.full_name ?? buyer.email ?? 'Buyer'
+    const buyerName  = buyer.full_name ?? buyer.email ?? 'Buyer'
     const sellerName = seller.business_name ?? seller.full_name ?? 'Seller'
     const vehicleTitle =
       listing.title ??
@@ -90,17 +111,18 @@ export async function generateAndSendDocuments(orderId: string): Promise<void> {
       'Vehicle'
 
     const docData = {
-      vin: listing.vin ?? '',
-      year: listing.year ?? 0,
-      make: listing.make ?? '',
-      model: listing.model ?? '',
-      mileage: listing.mileage ?? 0,
-      color: listing.exterior_color ?? '',
-      priceCents: order.price_cents ?? 0,
+      vin:        listing.vin      ?? '',
+      year:       listing.year     ?? 0,
+      make:       listing.make     ?? '',
+      model:      listing.model    ?? '',
+      mileage:    listing.mileage  ?? 0,
+      color:      listing.exterior_color ?? '',
+      // Use vehicle_price_cents (vehicle only) for legal documents — not Stripe amount_total
+      priceCents: order.vehicle_price_cents ?? order.price_cents ?? 0,
       buyerName,
       buyerEmail: buyer.email ?? '',
       sellerName,
-      date: today,
+      date:        today,
       orderNumber,
     }
 
@@ -111,7 +133,7 @@ export async function generateAndSendDocuments(orderId: string): Promise<void> {
     ])
 
     // --- Step 3: Upload PDFs to order-documents bucket ---
-    const paKey = `${orderId}/purchase-agreement.pdf`
+    const paKey  = `${orderId}/purchase-agreement.pdf`
     const bosKey = `${orderId}/bill-of-sale.pdf`
 
     const [paUpload, bosUpload] = await Promise.all([
@@ -125,12 +147,8 @@ export async function generateAndSendDocuments(orderId: string): Promise<void> {
       }),
     ])
 
-    if (paUpload.error) {
-      console.error('[fulfillment] Failed to upload purchase agreement', orderId, paUpload.error)
-    }
-    if (bosUpload.error) {
-      console.error('[fulfillment] Failed to upload bill of sale', orderId, bosUpload.error)
-    }
+    if (paUpload.error)  console.error('[fulfillment] Failed to upload purchase agreement', orderId, paUpload.error)
+    if (bosUpload.error) console.error('[fulfillment] Failed to upload bill of sale', orderId, bosUpload.error)
 
     // --- Step 4: Update order_documents rows with storage_key ---
     await Promise.all([
@@ -147,46 +165,39 @@ export async function generateAndSendDocuments(orderId: string): Promise<void> {
     ])
 
     // --- Step 5: Send to DocuSign ---
-    // Both documents use anchor string tabs ({{BUYER_SIGNATURE}}, {{BUYER_DATE}}).
-    // DocuSign searches all documents in the envelope for these anchors — no
-    // documentId scoping needed on the tabs. Both PDFs contain the anchors, so
-    // both will receive signature and date tabs as intended.
     const paDoc: Document = {
       documentBase64: purchaseAgreementBuffer.toString('base64'),
-      name: 'Purchase Agreement',
-      fileExtension: 'pdf',
-      documentId: DOCUMENT_IDS.purchase_agreement,
+      name:           'Purchase Agreement',
+      fileExtension:  'pdf',
+      documentId:     DOCUMENT_IDS.purchase_agreement,
     }
 
     const bosDoc: Document = {
       documentBase64: billOfSaleBuffer.toString('base64'),
-      name: 'Bill of Sale',
-      fileExtension: 'pdf',
-      documentId: DOCUMENT_IDS.title_transfer,
+      name:           'Bill of Sale',
+      fileExtension:  'pdf',
+      documentId:     DOCUMENT_IDS.title_transfer,
     }
 
     const signHere: SignHere = {
-      anchorString: '{{BUYER_SIGNATURE}}',
-      anchorUnits: 'pixels',
+      anchorString:  '{{BUYER_SIGNATURE}}',
+      anchorUnits:   'pixels',
       anchorXOffset: '0',
       anchorYOffset: '0',
     }
 
     const dateSigned: DateSigned = {
-      anchorString: '{{BUYER_DATE}}',
-      anchorUnits: 'pixels',
+      anchorString:  '{{BUYER_DATE}}',
+      anchorUnits:   'pixels',
       anchorXOffset: '0',
       anchorYOffset: '0',
     }
 
-    const tabs: Tabs = {
-      signHereTabs: [signHere],
-      dateSignedTabs: [dateSigned],
-    }
+    const tabs: Tabs = { signHereTabs: [signHere], dateSignedTabs: [dateSigned] }
 
     const signer: Signer = {
-      email: buyer.email ?? '',
-      name: buyerName,
+      email:       buyer.email ?? '',
+      name:        buyerName,
       recipientId: '1',
       tabs,
     }
@@ -195,10 +206,10 @@ export async function generateAndSendDocuments(orderId: string): Promise<void> {
 
     const envelopeDef: EnvelopeDefinition = {
       emailSubject: `Please sign your vehicle purchase documents — ${vehicleTitle}`,
-      emailBlurb: 'Your vehicle purchase documents are ready for your signature.',
-      documents: [paDoc, bosDoc],
+      emailBlurb:   'Your vehicle purchase documents are ready for your signature.',
+      documents:    [paDoc, bosDoc],
       recipients,
-      status: 'sent',
+      status:       'sent',
     }
 
     let envelopeId: string | undefined
@@ -209,20 +220,15 @@ export async function generateAndSendDocuments(orderId: string): Promise<void> {
         return
       }
       const envelopesApi = await getEnvelopesApi()
-      const result = await envelopesApi.createEnvelope(accountId, {
-        envelopeDefinition: envelopeDef,
-      })
-      envelopeId = result.envelopeId ?? undefined
+      const result       = await envelopesApi.createEnvelope(accountId, { envelopeDefinition: envelopeDef })
+      envelopeId         = result.envelopeId ?? undefined
     } catch (err) {
       console.error('[fulfillment] DocuSign API error for order', orderId, err)
-      // Continue — log error but don't abort the pipeline. envelopeId will be undefined.
     }
 
     // --- Steps 6 & 7: Update order_documents with esign_ref and status 'sent' ---
     const docUpdate: Record<string, unknown> = { status: 'sent' }
-    if (envelopeId) {
-      docUpdate.esign_ref = envelopeId
-    }
+    if (envelopeId) docUpdate.esign_ref = envelopeId
 
     await supabase
       .from('order_documents')
@@ -236,23 +242,18 @@ export async function generateAndSendDocuments(orderId: string): Promise<void> {
       .eq('id', orderId)
 
     // --- Step 9: Send NOTF-03 (signing request notification) ---
-    const baseUrl = process.env.NEXT_PUBLIC_URL ?? 'https://coastautos.com'
+    const baseUrl  = process.env.NEXT_PUBLIC_URL ?? 'https://coastautos.com'
     const orderUrl = `${baseUrl}/account/orders/${orderId}`
 
     await resend.emails.send({
-      from: FROM_EMAIL,
-      to: buyer.email ?? '',
+      from:    FROM_EMAIL,
+      to:      buyer.email ?? '',
       subject: `Your documents are ready to sign — ${vehicleTitle}`,
-      html: await render(
-        React.createElement(SigningRequestEmail, {
-          buyerName,
-          vehicleTitle,
-          orderNumber,
-          orderUrl,
-        })
+      html:    await render(
+        React.createElement(SigningRequestEmail, { buyerName, vehicleTitle, orderNumber, orderUrl })
       ),
     })
   } catch (err) {
-    console.error('[fulfillment] Unhandled error in generateAndSendDocuments for order', orderId, err)
+    console.error('[fulfillment] Unhandled error in _generateDocuments for order', orderId, err)
   }
 }
