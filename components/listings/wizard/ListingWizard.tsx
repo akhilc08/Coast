@@ -55,7 +55,7 @@ export function ListingWizard({ listingId, initialData }: ListingWizardProps) {
       {step === 'documents' && draftId && (
         <StepDocuments
           listingId={draftId}
-          initialDocs={(initialData?.listing_documents as { id: string; storage_key: string; document_type: string; original_name: string }[]) ?? []}
+          initialDocs={(initialData?.listing_documents as { id: string; storage_key: string; document_type: string; file_name: string }[]) ?? []}
           onSave={advance}
         />
       )}

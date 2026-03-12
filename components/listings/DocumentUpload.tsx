@@ -11,12 +11,12 @@ interface DocumentItem {
   id: string
   storageKey: string
   documentType: string
-  originalName: string
+  fileName: string
 }
 
 interface DocumentUploadProps {
   listingId: string
-  initialDocs: { id: string; storage_key: string; document_type: string; original_name: string }[]
+  initialDocs: { id: string; storage_key: string; document_type: string; file_name: string }[]
 }
 
 export function DocumentUpload({ listingId, initialDocs }: DocumentUploadProps) {
@@ -25,7 +25,7 @@ export function DocumentUpload({ listingId, initialDocs }: DocumentUploadProps) 
       id: d.id,
       storageKey: d.storage_key,
       documentType: d.document_type,
-      originalName: d.original_name,
+      fileName: d.file_name,
     }))
   )
   const [docType, setDocType] = useState('carfax')
@@ -59,7 +59,7 @@ export function DocumentUpload({ listingId, initialDocs }: DocumentUploadProps) 
           id: crypto.randomUUID(),
           storageKey,
           documentType: docType,
-          originalName: file.name,
+          fileName: file.name,
         }])
         toast.success('Document uploaded')
       } catch {
@@ -106,7 +106,7 @@ export function DocumentUpload({ listingId, initialDocs }: DocumentUploadProps) 
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-400">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
               </svg>
-              <span className="flex-1 text-sm text-zinc-300">{doc.originalName}</span>
+              <span className="flex-1 text-sm text-zinc-300">{doc.fileName}</span>
               <span className="text-xs text-zinc-600">{doc.documentType}</span>
             </li>
           ))}
