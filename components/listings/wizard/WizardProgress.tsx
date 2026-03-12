@@ -1,12 +1,4 @@
-type Step = 'vin' | 'details' | 'photos' | 'documents' | 'review'
-const STEP_LABELS: Record<Step, string> = {
-  vin: 'VIN Lookup',
-  details: 'Vehicle Details',
-  photos: 'Photos',
-  documents: 'Documents',
-  review: 'Review & Publish',
-}
-const STEPS: Step[] = ['vin', 'details', 'photos', 'documents', 'review']
+import { STEPS, STEP_LABELS, type Step } from './steps'
 
 export function WizardProgress({ current }: { current: Step }) {
   const currentIdx = STEPS.indexOf(current)
