@@ -11,7 +11,7 @@ export async function createDraftAction(vin: string): Promise<{ id: string } | {
 
   const { data, error } = await supabase
     .from('listings')
-    .insert({ seller_id: user.id, vin, status: 'draft' })
+    .insert({ seller_id: user.id, vin, status: 'draft', title: vin })
     .select('id')
     .single()
 
@@ -27,9 +27,13 @@ export async function updateListingAction(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
+  const title = fields.year && fields.make && fields.model
+    ? `${fields.year} ${fields.make} ${fields.model}`
+    : undefined
+
   const { error } = await supabase
     .from('listings')
-    .update({ ...fields, updated_at: new Date().toISOString() })
+    .update({ ...fields, ...(title ? { title } : {}), updated_at: new Date().toISOString() })
     .eq('id', listingId)
     .eq('seller_id', user.id)
 
