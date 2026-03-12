@@ -42,7 +42,7 @@ BEGIN
     '00000000-0000-0000-0000-000000000000',
     'authenticated', 'authenticated',
     'demo-buyer@coast.dev',
-    crypt('DemoPass123!', gen_salt('bf')),
+    extensions.crypt('DemoPass123!', extensions.gen_salt('bf')),
     NOW(),
     '{"provider":"email","providers":["email"],"role":"consumer"}'::jsonb,
     '{"full_name":"Jordan Mitchell"}'::jsonb,
