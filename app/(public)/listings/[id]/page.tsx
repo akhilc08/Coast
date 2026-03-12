@@ -1,9 +1,11 @@
 import { notFound } from 'next/navigation'
 import { getListing } from '@/lib/queries/listings'
 import { createClient } from '@/lib/supabase/server'
+import { getSellerStats } from '@/lib/queries/reviews'
 import { PhotoGallery } from '@/components/storefront/PhotoGallery'
 import { GradeBadge } from '@/components/ui/GradeBadge'
 import { BuyNowButton } from '@/components/storefront/BuyNowButton'
+import { SellerRatingBadge } from '@/components/reviews/SellerRatingBadge'
 import { createCheckoutSession } from '@/app/actions/checkout'
 import Link from 'next/link'
 
@@ -24,6 +26,11 @@ export default async function ListingDetailPage({
   const role = user?.app_metadata?.role
   const canBuy = !!user && role === 'consumer'
   const isSold = listing.status === 'sold'
+
+  // Fetch seller rating stats (null if seller has no reviews — badge hides itself)
+  const sellerStats = listing.seller_id
+    ? await getSellerStats(listing.seller_id)
+    : null
 
   // Construct photo URLs from storage keys (server-side, avoiding client hydration mismatch)
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -54,6 +61,12 @@ export default async function ListingDetailPage({
                 ? `$${(listing.price_cents / 100).toLocaleString()}`
                 : 'Call for price'}
             </p>
+            {/* Seller rating badge — null if seller has no reviews */}
+            {sellerStats && listing.seller_id && (
+              <div className="mt-2">
+                <SellerRatingBadge stats={sellerStats} sellerId={listing.seller_id} />
+              </div>
+            )}
           </div>
 
           {/* Grade section — GRADE-02 placeholder */}
