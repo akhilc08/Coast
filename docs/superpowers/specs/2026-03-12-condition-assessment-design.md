@@ -18,13 +18,16 @@ Add a dedicated **Condition Assessment** wizard step to the car listing flow. It
 - Add `'condition'` to the `Step` union type in `ListingWizard.tsx`
 - Insert `<StepCondition>` into the wizard's render switch between Details and Photos
 - Update `WizardProgress.tsx` to include a "Condition" label
+- Both `ListingWizard.tsx` and `WizardProgress.tsx` currently duplicate the `Step` type and `STEPS` array. Extract both to a new shared file `components/listings/wizard/steps.ts` and import from there to prevent future drift.
 - No changes to any other existing steps
 
 ---
 
 ## Data Model
 
-### Migration: `supabase/migrations/003_condition_fields.sql`
+### Migration: `supabase/migrations/009_condition_fields.sql`
+
+> Note: migrations 003–008 already exist. This is the next available slot.
 
 Add the following columns to the `listings` table:
 
@@ -51,7 +54,7 @@ ALTER TABLE public.listings
   ADD COLUMN transmission_condition text CHECK (transmission_condition IN ('excellent','good','fair','poor')),
   ADD COLUMN brake_condition        text CHECK (brake_condition        IN ('excellent','good','fair','poor')),
   ADD COLUMN tire_condition         text CHECK (tire_condition         IN ('excellent','good','fair','poor')),
-  ADD COLUMN tire_tread_depth       int  CHECK (tire_tread_depth BETWEEN 0 AND 20),
+  ADD COLUMN tire_tread_depth       int  CHECK (tire_tread_depth BETWEEN 0 AND 12),
   ADD COLUMN mechanical_notes       text,
 
 -- Known Issues (PostgreSQL array)
@@ -65,12 +68,14 @@ ALTER TABLE public.listings
   ADD COLUMN has_lien             boolean NOT NULL DEFAULT false,
   ADD COLUMN is_former_rental     boolean NOT NULL DEFAULT false;
 
--- Extend document_type enum to support inspection reports
+-- Extend document_type check constraint to support inspection reports
 ALTER TABLE public.listing_documents
   DROP CONSTRAINT listing_documents_document_type_check,
   ADD CONSTRAINT listing_documents_document_type_check
     CHECK (document_type IN ('carfax','title','service_history','other','inspection_report'));
 ```
+
+`tire_tread_depth` is stored in **millimetres** (range 0–12 mm; new tires ≈ 8–9 mm, legal minimum ≈ 1.6 mm). The UI label must read "Tread Depth (mm)".
 
 ---
 
@@ -113,7 +118,7 @@ export const conditionStepSchema = z.object({
   transmission_condition: z.enum(['excellent','good','fair','poor']).optional(),
   brake_condition:        z.enum(['excellent','good','fair','poor']).optional(),
   tire_condition:         z.enum(['excellent','good','fair','poor']).optional(),
-  tire_tread_depth:       z.number().int().min(0).max(20).optional(),
+  tire_tread_depth:       z.number().int().min(0).max(12).optional(), // millimetres
   mechanical_notes:       z.string().optional(),
 
   // Known Issues
@@ -147,7 +152,17 @@ export async function updateConditionAction(
 - Authenticates the caller via Supabase session (same pattern as `updateListingAction`)
 - Runs `UPDATE listings SET <all condition fields> WHERE id = $1 AND seller_id = $2`
 - Returns `{ success: true }` on success, `{ error: string }` on failure
-- Inspection PDF upload is handled separately via the existing `addDocumentAction` — called directly by the `DocumentUpload` component on file drop
+- Inspection PDF upload is handled separately via `addDocumentAction` — called directly by `DocumentUpload` on file drop
+
+**Bug fix required — `original_name` / `file_name` mismatch (affects all document types):**
+
+The `listing_documents` table column is `file_name`, but five places reference the non-existent `original_name` and must all be corrected together:
+
+1. `addDocumentAction` in `app/actions/listings.ts` — change insert field from `original_name: originalName` to `file_name: originalName`; rename the parameter from `originalName` to `fileName` for clarity
+2. `DocumentUploadProps.initialDocs` type in `components/listings/DocumentUpload.tsx` — change `original_name: string` to `file_name: string`; update internal `DocumentItem.originalName` → `fileName` and the mapping that reads `d.original_name` → `d.file_name`
+3. `StepDocuments.tsx` `initialDocs` prop type — change `original_name: string` to `file_name: string`
+4. The `listing_documents(...)` select string in `app/(seller)/seller/listings/[id]/edit/page.tsx` — change `original_name` to `file_name` in the Supabase query
+5. The inline `initialDocs` type cast in `components/listings/wizard/ListingWizard.tsx` — change `original_name` to `file_name`
 
 ---
 
@@ -158,16 +173,31 @@ export async function updateConditionAction(
 | File | Purpose |
 |------|---------|
 | `components/listings/wizard/StepCondition.tsx` | Main step component |
+| `components/listings/wizard/steps.ts` | Shared `Step` type + `STEPS` array (extracted from wizard) |
 
 ### Modified files
 
 | File | Change |
 |------|--------|
 | `lib/validations/listing.ts` | Add `conditionStepSchema` + `ConditionStepInput` |
-| `app/actions/listings.ts` | Add `updateConditionAction` |
-| `components/listings/wizard/ListingWizard.tsx` | Add `'condition'` step, render `<StepCondition>` |
-| `components/listings/wizard/WizardProgress.tsx` | Add "Condition" step label |
-| `supabase/migrations/003_condition_fields.sql` | New migration |
+| `app/actions/listings.ts` | Add `updateConditionAction`; fix `file_name` bug in `addDocumentAction` (write path) |
+| `components/listings/DocumentUpload.tsx` | Add `lockedDocumentType?: string` prop; fix `original_name` → `file_name` in prop type + internal mapping; re-theme from dark zinc to warm light palette |
+| `components/listings/wizard/StepDocuments.tsx` | Fix `original_name` → `file_name` in `initialDocs` prop type |
+| `app/(seller)/seller/listings/[id]/edit/page.tsx` | Extend Supabase query to select all new condition columns; fix `original_name` → `file_name` in the `listing_documents(...)` select string |
+| `components/listings/wizard/ListingWizard.tsx` | Add `'condition'` step; render `<StepCondition>`; import Step type from `steps.ts`; extend edit-page query to select all new condition columns and pass them as `initialData` to `StepCondition` |
+| `components/listings/wizard/WizardProgress.tsx` | Add "Condition" step label; import Step type from `steps.ts` |
+| `components/listings/DocumentUpload.tsx` | Add optional `lockedDocumentType?: string` prop; when present, hide the type `<select>` and pass the locked value through to `addDocumentAction` |
+| `supabase/migrations/009_condition_fields.sql` | New migration |
+
+---
+
+## Initial Data (Edit Flow)
+
+`StepCondition` accepts an `initialData?: Partial<ConditionStepInput>` prop.
+
+The edit page at `app/(seller)/seller/listings/[id]/edit/page.tsx` already fetches the listing row and passes it to `ListingWizard` as `initialData`. The Supabase query in that page must be extended to `SELECT` all new condition columns. `ListingWizard` then passes them through to `StepCondition` as `initialData`, exactly as it does for `StepVehicleDetails`.
+
+`useForm` `defaultValues` are populated from `initialData` so that reopening a draft pre-fills all condition fields.
 
 ---
 
@@ -175,55 +205,58 @@ export async function updateConditionAction(
 
 **Pattern:** Matches existing steps exactly — `'use client'`, `useForm` + `zodResolver`, `Form`/`FormField`/`FormItem`/`FormLabel`/`FormControl`/`FormMessage` wrappers, warm light color palette.
 
-**UI sections** (each in a `rounded-xl border border-[#e7e5e4] bg-white p-6` card with bold heading + muted description):
+**UI sections** (each in a `rounded-xl border border-[#e7e5e4] bg-white p-6` card with bold heading + muted description line, separated by `mb-6` spacing):
 
 ### 1. Overall Grade
 - Grade picker: 5 styled buttons (Excellent / Good / Fair / Poor / Salvage), controlled via `setValue('overall_grade', ...)`; selected state shown with blue border + blue text
-- Description hint below the picker explaining the selected grade
+- Hint text below the picker describing what the selected grade means
 - `overall_notes` textarea (optional)
 
 ### 2. Exterior
-- 3-column grid: `paint_condition` (required), `body_condition` (required), `glass_condition` (optional) — native `<select>` in `FormField`
+- 3-column grid (`grid-cols-1 sm:grid-cols-3`): `paint_condition` (required *), `body_condition` (required *), `glass_condition` (optional) — native `<select>` in `FormField`
 - `exterior_notes` textarea (optional)
 
 ### 3. Interior
-- 3-column grid: `seat_condition` (required), `dashboard_condition`, `carpet_condition` (optional)
+- 3-column grid: `seat_condition` (required *), `dashboard_condition`, `carpet_condition` (optional)
 - `interior_notes` textarea (optional)
 
 ### 4. Mechanical
-- 3-column grid: `engine_condition` (required), `transmission_condition`, `brake_condition`
-- 2-column grid: `tire_condition`, `tire_tread_depth` (number input, mm)
+- 3-column grid: `engine_condition` (required *), `transmission_condition`, `brake_condition`
+- 2-column grid: `tire_condition`, `tire_tread_depth` number input labelled "Tread Depth (mm)", range 0–12
 - `mechanical_notes` textarea (optional)
 
 ### 5. Known Issues
 - Local `useState` for the text input value
-- "Add" button appends to RHF `known_issues` array via `setValue`
+- "Add" button (or Enter key) appends to RHF `known_issues` array via `setValue`
 - Chips rendered from the array; ✕ on each chip removes the entry
-- Suggestion strip below with common issues as clickable text links (add on click)
+- Suggestion strip below: common issues as clickable text links that add on click
 
 ### 6. Seller Disclosures
-- 2-column checkbox grid; each `<input type="checkbox">` wrapped in `FormField`
+- 2-column checkbox grid (`grid-cols-1 sm:grid-cols-2`); each `<input type="checkbox">` wrapped in `FormField`
 
 ### 7. Inspection Report
-- Reuses `<DocumentUpload>` component with `documentType` prop locked to `'inspection_report'`
+- `<DocumentUpload listingId={listingId} initialDocs={initialInspectionDocs} lockedDocumentType="inspection_report" />`
+- Type select is hidden when `lockedDocumentType` is set
 - Marked optional with note text
+- **Deletion:** Out of scope. Users can upload but not delete an inspection report in this step (consistent with how `StepDocuments` works today). Deletion support can be added in a future pass.
+- **Theming:** `DocumentUpload.tsx` currently uses a dark zinc palette (`bg-zinc-800`, `border-zinc-700`, etc.). As part of this work, re-theme it to match the warm light palette (`border-[#e7e5e4]`, `bg-white`, `text-[#1c1917]`, `text-[#78716c]`) so it renders correctly inside the warm-light wizard step cards. This also fixes the visual inconsistency in `StepDocuments`.
 
 ### Submit
 - `<Button type="submit">` full-width, `bg-blue-600 text-white hover:bg-blue-500`
 - Label: "Save & Continue" / "Saving..." while submitting
-- Server error displayed in `border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600` block
+- Server error in `border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600` block
 
 ---
 
 ## Responsive Behavior
 
-- All multi-column grids collapse to single column on mobile (`grid-cols-1 sm:grid-cols-2` / `sm:grid-cols-3`)
+- All multi-column grids use `grid-cols-1 sm:grid-cols-2` or `grid-cols-1 sm:grid-cols-3`
 - Cards stack vertically with consistent `mb-6` spacing
 
 ---
 
 ## Out of Scope
 
-- Removing `condition_notes` from `StepVehicleDetails` (kept for backwards compatibility with existing drafts; can be cleaned up in a future pass)
+- Removing `condition_notes` from `StepVehicleDetails` (kept for backwards compatibility with existing drafts; clean up in a future pass)
 - AI-assisted grading (the existing `grade` / `grade_source` / `graded_at` columns are untouched)
-- Surfacing condition fields in the storefront filters (separate feature)
+- Surfacing new condition fields in the storefront filters (separate feature)
