@@ -63,6 +63,17 @@ export async function publishListingAction(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
+  // Guard: pickup_zip must be set before publishing
+  const { data: listing } = await supabase
+    .from('listings')
+    .select('pickup_zip')
+    .eq('id', listingId)
+    .eq('seller_id', user.id)
+    .single()
+
+  if (!listing) return { error: 'Listing not found' }
+  if (!listing.pickup_zip) return { error: 'Pickup ZIP code is required before publishing. Go back to Vehicle Details and add it.' }
+
   const { error } = await supabase
     .from('listings')
     .update({ status: 'active', updated_at: new Date().toISOString() })
