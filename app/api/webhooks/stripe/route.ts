@@ -109,7 +109,8 @@ export async function POST(request: Request) {
         delivery_zip:            session.metadata?.delivery_zip ?? null,
         transport_fee_cents:     transportFeeCents,
         transport_quote_tbd:     session.metadata?.transport_quote_tbd === 'true',
-        transport_status:        'pending',
+        // Only 'pending' when delivery was requested — otherwise 'not_requested'
+        transport_status:        session.metadata?.delivery_address ? 'pending' : 'not_requested',
       })
 
     // --- Create order_documents stubs ---
