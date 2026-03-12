@@ -68,10 +68,11 @@ export async function dispatchTransportOrder(orderId: string): Promise<void> {
   const buyerName = profile?.full_name ?? 'Buyer'
 
   // Mark as pending before calling provider
-  await supabase
+  const { error: pendingErr } = await supabase
     .from('orders')
     .update({ transport_status: 'pending' })
     .eq('id', orderId)
+  if (pendingErr) console.error('[transport] Failed to set pending status for order', orderId, pendingErr)
 
   try {
     const provider = getTransportProvider()
@@ -93,20 +94,22 @@ export async function dispatchTransportOrder(orderId: string): Promise<void> {
       },
     })
 
-    await supabase
+    const { error: dispatchErr } = await supabase
       .from('orders')
       .update({
         transport_dispatch_id: result.dispatch_id,
         transport_status:      'dispatched',
       })
       .eq('id', orderId)
+    if (dispatchErr) console.error('[transport] Failed to record dispatch for order', orderId, dispatchErr)
 
     console.log('[transport] Dispatched order', orderId, '→', result.dispatch_id)
   } catch (err) {
     console.error('[transport] Dispatch failed for order', orderId, err)
-    await supabase
+    const { error: failErr } = await supabase
       .from('orders')
       .update({ transport_status: 'failed' })
       .eq('id', orderId)
+    if (failErr) console.error('[transport] Failed to record failure for order', orderId, failErr)
   }
 }

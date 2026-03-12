@@ -30,6 +30,7 @@ export function TransportForm({ listingId, vehicleTitle, priceCents, heroUrl }: 
 
   function handleZipBlur() {
     if (!/^\d{5}$/.test(zip)) return
+    if (isPending) return  // Prevent concurrent quote fetches
     setQuote({ status: 'loading' })
     startTransition(async () => {
       const result = await getTransportQuoteAction(listingId, zip)

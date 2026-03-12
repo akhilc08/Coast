@@ -23,6 +23,7 @@ export default async function TransportPage({ params }: Props) {
     .single()
 
   if (!listing) notFound()
+  if (listing.price_cents == null) notFound()
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const heroPhoto   = ((listing.listing_photos as { storage_key: string; position: number }[]) ?? [])
