@@ -45,6 +45,21 @@ function DocumentStatusBadge({ status }: { status: DocumentStatus }) {
   )
 }
 
+function TransportStatusBadge({ status }: { status: string }) {
+  const config: Record<string, { label: string; className: string }> = {
+    not_requested: { label: 'Not Requested',  className: 'bg-[#f5f5f4] text-[#78716c]' },
+    pending:       { label: 'Arranging',      className: 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200' },
+    dispatched:    { label: 'Dispatched',     className: 'bg-blue-50 text-blue-700 ring-1 ring-blue-200' },
+    failed:        { label: 'Issue — Contact Support', className: 'bg-red-50 text-red-700 ring-1 ring-red-200' },
+  }
+  const { label, className } = config[status] ?? config.not_requested
+  return (
+    <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${className}`}>
+      {label}
+    </span>
+  )
+}
+
 function documentTypeLabel(type: string): string {
   const labels: Record<string, string> = {
     purchase_agreement: 'Purchase Agreement',
@@ -92,6 +107,13 @@ type OrderRow = {
   listings: ListingRow | null
   order_documents: OrderDocument[]
   profiles: SellerProfile | null
+  vehicle_price_cents: number | null
+  transport_fee_cents: number | null
+  transport_quote_tbd: boolean
+  transport_status: string
+  transport_dispatch_id: string | null
+  delivery_address: string | null
+  delivery_zip: string | null
 }
 
 // ─── Page ────────────────────────────────────────────────────────────────────
@@ -204,16 +226,66 @@ export default async function OrderDetailPage({ params }: Props) {
         <section className="rounded-xl border border-[#e7e5e4] bg-white p-6">
           <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-[#a8a29e]">Payment</p>
           <div className="space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-[#a8a29e]">Amount Paid</span>
-              <span className="text-lg font-semibold text-[#1c1917]">{formattedPrice}</span>
-            </div>
+            {typedOrder.vehicle_price_cents != null ? (
+              <>
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#a8a29e]">Vehicle</span>
+                  <span className="text-[#57534e]">
+                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+                      typedOrder.vehicle_price_cents / 100
+                    )}
+                  </span>
+                </div>
+                {typedOrder.transport_fee_cents != null && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#a8a29e]">Transport</span>
+                    <span className="text-[#57534e]">
+                      {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+                        typedOrder.transport_fee_cents / 100
+                      )}
+                    </span>
+                  </div>
+                )}
+                {typedOrder.transport_quote_tbd && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#a8a29e]">Transport</span>
+                    <span className="text-[#a8a29e] italic">TBD — we&apos;ll contact you</span>
+                  </div>
+                )}
+                <div className="flex justify-between border-t border-[#e7e5e4] pt-3 text-sm">
+                  <span className="font-semibold text-[#1c1917]">Total Paid</span>
+                  <span className="text-lg font-semibold text-[#1c1917]">{formattedPrice}</span>
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-between text-sm">
+                <span className="text-[#a8a29e]">Amount Paid</span>
+                <span className="text-lg font-semibold text-[#1c1917]">{formattedPrice}</span>
+              </div>
+            )}
             <div className="flex justify-between text-sm">
               <span className="text-[#a8a29e]">Date</span>
               <span className="text-[#57534e]">{formattedDate}</span>
             </div>
           </div>
         </section>
+
+        {/* Delivery section — shown when transport was arranged */}
+        {typedOrder.delivery_address && (
+          <section className="rounded-xl border border-[#e7e5e4] bg-white p-6">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-[#a8a29e]">Delivery</p>
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-[#a8a29e]">Address</span>
+                <span className="text-right text-[#57534e]">{typedOrder.delivery_address}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-[#a8a29e]">Transport Status</span>
+                <TransportStatusBadge status={typedOrder.transport_status} />
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Documents section */}
         {docs.length > 0 && (
