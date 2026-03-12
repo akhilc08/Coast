@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 
 interface StepDocumentsProps {
   listingId: string
-  initialDocs: { id: string; storage_key: string; document_type: string; original_name: string }[]
+  initialDocs: { id: string; storage_key: string; document_type: string; file_name: string }[]
   onSave: () => void
 }
 
