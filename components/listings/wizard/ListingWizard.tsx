@@ -33,7 +33,7 @@ export function ListingWizard({ listingId, initialData }: ListingWizardProps) {
         <StepVinLookup
           onSuccess={(id, vehicle) => {
             setDraftId(id)
-            if (vehicle) setVinData({ make: vehicle.make, model: vehicle.model, year: vehicle.year, trim: vehicle.trim, body_class: vehicle.bodyClass })
+            if (vehicle) setVinData({ make: vehicle.make, model: vehicle.model, year: vehicle.year })
             advance()
           }}
         />

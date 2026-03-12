@@ -27,8 +27,6 @@ export function StepVehicleDetails({ listingId, initialData, onSave }: StepVehic
       mileage:         (initialData?.mileage as number) ?? 0,
       price:           initialData?.price_cents ? (initialData.price_cents as number) / 100 : 0,
       color:           (initialData?.color as string) ?? '',
-      trim:            (initialData?.trim as string) ?? '',
-      body_class:      (initialData?.body_class as string) ?? '',
       condition_notes: (initialData?.condition_notes as string) ?? '',
     },
   })
@@ -97,23 +95,6 @@ export function StepVehicleDetails({ listingId, initialData, onSave }: StepVehic
               <FormItem>
                 <FormLabel className="text-[#78716c]">Color</FormLabel>
                 <FormControl><Input className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="Silver" {...field} /></FormControl>
-                <FormMessage className="text-red-500" />
-              </FormItem>
-            )} />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <FormField control={form.control} name="trim" render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-[#78716c]">Trim</FormLabel>
-                <FormControl><Input className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="EX-V6" {...field} /></FormControl>
-                <FormMessage className="text-red-500" />
-              </FormItem>
-            )} />
-            <FormField control={form.control} name="body_class" render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-[#78716c]">Body Style</FormLabel>
-                <FormControl><Input className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="Coupe" {...field} /></FormControl>
                 <FormMessage className="text-red-500" />
               </FormItem>
             )} />

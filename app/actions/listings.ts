@@ -23,11 +23,9 @@ export async function createDraftAction(
       status: 'draft',
       title,
       ...(vehicle ? {
-        make:       vehicle.make,
-        model:      vehicle.model,
-        year:       vehicle.year,
-        trim:       vehicle.trim || null,
-        body_class: vehicle.bodyClass || null,
+        make:  vehicle.make,
+        model: vehicle.model,
+        year:  vehicle.year,
       } : {}),
     })
     .select('id')

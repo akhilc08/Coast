@@ -15,8 +15,6 @@ export const detailsStepSchema = z.object({
   mileage:         z.number().int().min(0, 'Mileage cannot be negative'),
   price_cents:     z.number().int().positive('Price must be greater than zero'),
   color:           z.string().optional(),
-  trim:            z.string().optional(),
-  body_class:      z.string().optional(),
   condition_notes: z.string().optional(),
 })
 
