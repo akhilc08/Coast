@@ -1,0 +1,206 @@
+<style>
+  .form-card { background: white; border: 1px solid #e7e5e4; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+  .form-card h3 { font-size: 15px; font-weight: 600; color: #1c1917; margin: 0 0 4px 0; }
+  .form-card .desc { font-size: 13px; color: #78716c; margin: 0 0 20px 0; }
+  .form-card hr { border: none; border-top: 1px solid #e7e5e4; margin: 0 0 20px 0; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12px; color: #78716c; font-weight: 500; }
+  .field label .req { color: #ef4444; margin-left: 2px; }
+  .field input, .field select, .field textarea {
+    border: 1px solid #e7e5e4; border-radius: 6px; padding: 8px 10px;
+    font-size: 13px; color: #1c1917; background: white; outline: none;
+    font-family: inherit;
+  }
+  .field textarea { min-height: 72px; resize: vertical; }
+  .field select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2378716c' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+  .full { grid-column: 1 / -1; }
+  .tags-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .tag { display: flex; align-items: center; gap: 4px; background: #f5f5f4; border: 1px solid #e7e5e4; border-radius: 20px; padding: 3px 10px; font-size: 12px; color: #1c1917; }
+  .tag .x { color: #a8a29e; cursor: pointer; font-size: 11px; }
+  .tag-input-row { display: flex; gap: 8px; }
+  .tag-input-row input { flex: 1; border: 1px solid #e7e5e4; border-radius: 6px; padding: 7px 10px; font-size: 13px; color: #1c1917; outline: none; font-family: inherit; }
+  .tag-add-btn { border: 1px solid #e7e5e4; background: white; border-radius: 6px; padding: 7px 12px; font-size: 12px; color: #78716c; cursor: pointer; white-space: nowrap; }
+  .checkboxes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .checkbox-row { display: flex; align-items: center; gap: 8px; }
+  .checkbox-row input[type=checkbox] { width: 15px; height: 15px; accent-color: #2563eb; cursor: pointer; }
+  .checkbox-row label { font-size: 13px; color: #1c1917; cursor: pointer; }
+  .upload-zone { border: 1px dashed #e7e5e4; border-radius: 8px; padding: 28px; text-align: center; background: #fafaf9; }
+  .upload-zone .icon { font-size: 24px; margin-bottom: 8px; }
+  .upload-zone p { font-size: 13px; color: #78716c; margin: 0 0 4px 0; }
+  .upload-zone span { font-size: 12px; color: #a8a29e; }
+  .upload-zone a { color: #2563eb; text-decoration: underline; cursor: pointer; }
+  .grade-row { display: flex; gap: 8px; }
+  .grade-btn { flex: 1; padding: 10px 6px; border: 1px solid #e7e5e4; border-radius: 8px; font-size: 13px; font-weight: 600; color: #78716c; background: white; cursor: pointer; text-align: center; }
+  .grade-btn.selected { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+  .grade-btn.a { color: #16a34a; border-color: #bbf7d0; }
+  .grade-btn.b { color: #2563eb; border-color: #bfdbfe; }
+  .grade-btn.c { color: #d97706; border-color: #fde68a; }
+  .grade-btn.d { color: #ea580c; border-color: #fed7aa; }
+  .grade-btn.f { color: #dc2626; border-color: #fecaca; }
+  .note { font-size: 11px; color: #a8a29e; margin-top: 2px; }
+  .page-title { font-size: 20px; font-weight: 600; color: #1c1917; margin: 0 0 4px 0; }
+  .page-subtitle { font-size: 14px; color: #78716c; margin: 0 0 24px 0; }
+  .save-btn { width: 100%; background: #2563eb; color: white; border: none; border-radius: 8px; padding: 11px; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 8px; }
+  .save-btn:hover { background: #1d4ed8; }
+  .section-num { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; background: #f5f5f4; border-radius: 50%; font-size: 11px; font-weight: 600; color: #78716c; margin-right: 6px; }
+</style>
+
+<div style="max-width: 680px; margin: 0 auto;">
+  <p class="page-title">Condition Assessment</p>
+  <p class="page-subtitle">Describe the current condition of the vehicle. Accurate details help buyers make informed decisions.</p>
+
+  <!-- Section 1: Overall Grade -->
+  <div class="form-card">
+    <h3><span class="section-num">1</span>Overall Grade</h3>
+    <p class="desc">Give the vehicle an overall condition rating.</p>
+    <hr/>
+    <div class="field" style="margin-bottom:16px">
+      <label>Overall Grade <span class="req">*</span></label>
+      <div class="grade-row">
+        <div class="grade-btn a">Excellent</div>
+        <div class="grade-btn b selected">Good</div>
+        <div class="grade-btn c">Fair</div>
+        <div class="grade-btn d">Poor</div>
+        <div class="grade-btn f">Salvage</div>
+      </div>
+      <p class="note">Good — Minor wear consistent with age and mileage. No major defects.</p>
+    </div>
+    <div class="field">
+      <label>Summary Notes</label>
+      <textarea placeholder="Brief overview of the vehicle's condition..."></textarea>
+    </div>
+  </div>
+
+  <!-- Section 2: Exterior -->
+  <div class="form-card">
+    <h3><span class="section-num">2</span>Exterior</h3>
+    <p class="desc">Assess paint, body, and glass condition.</p>
+    <hr/>
+    <div class="grid-3">
+      <div class="field">
+        <label>Paint Condition <span class="req">*</span></label>
+        <select><option>Excellent</option><option selected>Good</option><option>Fair</option><option>Poor</option></select>
+      </div>
+      <div class="field">
+        <label>Body Panels <span class="req">*</span></label>
+        <select><option>Excellent</option><option selected>Good</option><option>Fair</option><option>Poor</option></select>
+      </div>
+      <div class="field">
+        <label>Glass & Windows</label>
+        <select><option>Excellent</option><option selected>Good</option><option>Fair</option><option>Poor</option></select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Exterior Notes</label>
+      <textarea placeholder="e.g. Small scratch on rear bumper, paint fade on hood..."></textarea>
+    </div>
+  </div>
+
+  <!-- Section 3: Interior -->
+  <div class="form-card">
+    <h3><span class="section-num">3</span>Interior</h3>
+    <p class="desc">Seats, dashboard, carpet, and electronics.</p>
+    <hr/>
+    <div class="grid-3">
+      <div class="field">
+        <label>Seats & Upholstery <span class="req">*</span></label>
+        <select><option>Excellent</option><option selected>Good</option><option>Fair</option><option>Poor</option></select>
+      </div>
+      <div class="field">
+        <label>Dashboard & Trim</label>
+        <select><option>Excellent</option><option selected>Good</option><option>Fair</option><option>Poor</option></select>
+      </div>
+      <div class="field">
+        <label>Carpet & Headliner</label>
+        <select><option>Excellent</option><option selected>Good</option><option>Fair</option><option>Poor</option></select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Interior Notes</label>
+      <textarea placeholder="e.g. Minor wear on driver seat, all electronics functional..."></textarea>
+    </div>
+  </div>
+
+  <!-- Section 4: Mechanical -->
+  <div class="form-card">
+    <h3><span class="section-num">4</span>Mechanical</h3>
+    <p class="desc">Engine, drivetrain, brakes, and tires.</p>
+    <hr/>
+    <div class="grid-3">
+      <div class="field">
+        <label>Engine <span class="req">*</span></label>
+        <select><option>Excellent</option><option selected>Good</option><option>Fair</option><option>Poor</option></select>
+      </div>
+      <div class="field">
+        <label>Transmission</label>
+        <select><option>Excellent</option><option selected>Good</option><option>Fair</option><option>Poor</option></select>
+      </div>
+      <div class="field">
+        <label>Brakes</label>
+        <select><option>Excellent</option><option selected>Good</option><option>Fair</option><option>Poor</option></select>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:0">
+      <div class="field">
+        <label>Tires</label>
+        <select><option>Excellent</option><option selected>Good</option><option>Fair</option><option>Poor</option></select>
+      </div>
+      <div class="field">
+        <label>Tire Tread Depth (mm)</label>
+        <input type="number" placeholder="e.g. 7" />
+      </div>
+    </div>
+    <div class="field">
+      <label>Mechanical Notes</label>
+      <textarea placeholder="e.g. Recent brake job, new tires installed..."></textarea>
+    </div>
+  </div>
+
+  <!-- Section 5: Known Issues -->
+  <div class="form-card">
+    <h3><span class="section-num">5</span>Known Issues</h3>
+    <p class="desc">Tag any known problems. Add your own or pick from common issues.</p>
+    <hr/>
+    <div class="tags-row">
+      <div class="tag">Check engine light <span class="x">✕</span></div>
+      <div class="tag">AC not working <span class="x">✕</span></div>
+      <div class="tag">Minor rust <span class="x">✕</span></div>
+    </div>
+    <div class="tag-input-row">
+      <input placeholder="Type an issue and press + to add..." />
+      <button class="tag-add-btn">+ Add</button>
+    </div>
+    <p class="note" style="margin-top:8px">Common: Oil leak · Brake noise · Power window issue · AC not working · Transmission slip · Check engine light · Rust/corrosion</p>
+  </div>
+
+  <!-- Section 6: Disclosures -->
+  <div class="form-card">
+    <h3><span class="section-num">6</span>Seller Disclosures</h3>
+    <p class="desc">Check all that apply. Honest disclosures build buyer trust.</p>
+    <hr/>
+    <div class="checkboxes">
+      <div class="checkbox-row"><input type="checkbox" id="acc" checked /><label for="acc">Prior accident history</label></div>
+      <div class="checkbox-row"><input type="checkbox" id="flood" /><label for="flood">Flood or water damage</label></div>
+      <div class="checkbox-row"><input type="checkbox" id="frame" /><label for="frame">Frame or structural damage</label></div>
+      <div class="checkbox-row"><input type="checkbox" id="rebuilt" /><label for="rebuilt">Rebuilt or salvage title</label></div>
+      <div class="checkbox-row"><input type="checkbox" id="lien" /><label for="lien">Active lien on vehicle</label></div>
+      <div class="checkbox-row"><input type="checkbox" id="rental" /><label for="rental">Former rental or fleet vehicle</label></div>
+    </div>
+  </div>
+
+  <!-- Section 7: Inspection Report -->
+  <div class="form-card">
+    <h3><span class="section-num">7</span>Inspection Report</h3>
+    <p class="desc">Upload a third-party inspection report (PDF). Optional but increases buyer confidence.</p>
+    <hr/>
+    <div class="upload-zone">
+      <div class="icon">📄</div>
+      <p>Drag & drop inspection PDF here</p>
+      <span>or <a>browse files</a> · PDF only · Max 10 MB</span>
+    </div>
+  </div>
+
+  <button class="save-btn">Save Condition Assessment</button>
+</div>
