@@ -144,7 +144,7 @@ export async function proceedToCheckout(
   ]
 
   // Only add transport line item when fee is known (not TBD)
-  if (transport_fee_cents && !transport_quote_tbd) {
+  if (transport_fee_cents !== null && !transport_quote_tbd) {
     line_items.push({
       price_data: {
         currency: 'usd',
