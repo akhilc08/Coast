@@ -127,7 +127,15 @@ export function generateBillOfSale(data: BillOfSaleData): Promise<Buffer> {
       .moveDown(0.5)
       .text(`Print Name: ${data.sellerName}`)
       .moveDown(1.5)
-      .text('Buyer Signature: _______________________________    Date: _______________')
+      // Buyer signature block — anchor strings in white text for DocuSign tab placement
+      .text('Buyer Signature: _______________________________', { continued: true })
+      .fillColor('white')
+      .text('{{BUYER_SIGNATURE}}', { continued: true })
+      .fillColor('black')
+      .text('    Date: _______________', { continued: true })
+      .fillColor('white')
+      .text('{{BUYER_DATE}}')
+      .fillColor('black')
       .moveDown(0.5)
       .text(`Print Name: ${data.buyerName}`)
 
