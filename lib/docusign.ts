@@ -7,6 +7,7 @@ const SCOPES = ['signature', 'impersonation']
 const TOKEN_EXPIRY_BUFFER_MS = 5 * 60 * 1000 // refresh 5 min before expiry
 // Note: these module-level variables are reset on every serverless cold start.
 // Token caching only benefits warm instances.
+// 0 = Unix epoch, forces first call to always fetch a fresh token.
 let cachedToken: string | null = null
 let tokenExpiresAt: number = 0
 
@@ -20,10 +21,17 @@ export async function getAccessToken(): Promise<string> {
     return cachedToken
   }
 
-  const integrationKey = process.env.DOCUSIGN_INTEGRATION_KEY!
-  const userId = process.env.DOCUSIGN_USER_ID!
-  const privateKey = process.env.DOCUSIGN_PRIVATE_KEY!.replace(/\\n/g, '\n')
-  const authServer = process.env.DOCUSIGN_AUTH_SERVER!
+  const integrationKey = process.env.DOCUSIGN_INTEGRATION_KEY
+  const userId = process.env.DOCUSIGN_USER_ID
+  const rawPrivateKey = process.env.DOCUSIGN_PRIVATE_KEY
+  const authServer = process.env.DOCUSIGN_AUTH_SERVER
+
+  if (!integrationKey) throw new Error('Missing required env var: DOCUSIGN_INTEGRATION_KEY')
+  if (!userId) throw new Error('Missing required env var: DOCUSIGN_USER_ID')
+  if (!rawPrivateKey) throw new Error('Missing required env var: DOCUSIGN_PRIVATE_KEY')
+  if (!authServer) throw new Error('Missing required env var: DOCUSIGN_AUTH_SERVER')
+
+  const privateKey = rawPrivateKey.replace(/\\n/g, '\n')
 
   const apiClient = new ApiClient()
   apiClient.setOAuthBasePath(authServer)
@@ -36,9 +44,10 @@ export async function getAccessToken(): Promise<string> {
     3600
   )
 
-  cachedToken = results.body.access_token
+  const token = results.body.access_token
+  cachedToken = token
   tokenExpiresAt = now + results.body.expires_in * 1000
-  return cachedToken!
+  return token
 }
 
 /**
@@ -46,7 +55,11 @@ export async function getAccessToken(): Promise<string> {
  */
 export async function getApiClient(): Promise<ApiClient> {
   const token = await getAccessToken()
-  const baseUrl = process.env.DOCUSIGN_BASE_URL!
+  const rawBaseUrl = process.env.DOCUSIGN_BASE_URL
+  if (!rawBaseUrl) throw new Error('Missing required env var: DOCUSIGN_BASE_URL')
+
+  // Strip any existing scheme — the variable may be stored as a hostname or full URL
+  const baseUrl = rawBaseUrl.replace(/^https?:\/\//, '')
 
   const apiClient = new ApiClient()
   apiClient.setBasePath(`https://${baseUrl}/restapi`)
