@@ -2,6 +2,10 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { DownloadDocumentButton } from './DownloadDocumentButton'
+import { getReviewForOrder } from '@/lib/queries/reviews'
+import { ReviewForm } from '@/components/reviews/ReviewForm'
+import { StarRating } from '@/components/reviews/StarRating'
+import { formatBuyerName } from '@/lib/utils/formatBuyerName'
 import type { OrderStatus, DocumentStatus } from '@/lib/validations/order'
 
 export const metadata = { title: 'Order Details — Coast' }
@@ -142,6 +146,15 @@ export default async function OrderDetailPage({ params }: Props) {
 
   const hasPendingSignature = docs.some((d) => d.status === 'sent')
 
+  // Fetch existing review for this order (if any)
+  const existingReview = typedOrder.status === 'complete'
+    ? await getReviewForOrder(orderId)
+    : null
+
+  // The buyer sees their own name verbatim (authenticated, viewing own review)
+  // user.user_metadata.full_name is the raw stored value; fall back via formatBuyerName
+  const buyerFullName = user.user_metadata?.full_name as string | undefined
+
   return (
     <main className="mx-auto max-w-3xl px-4 py-12">
       {/* Back link */}
@@ -263,6 +276,28 @@ export default async function OrderDetailPage({ params }: Props) {
               Your documents are ready for your signature. Check your email for the signing link,
               or it will appear here once the link is available.
             </p>
+          </section>
+        )}
+
+        {/* Review section — only for complete orders */}
+        {typedOrder.status === 'complete' && (
+          <section className="rounded-xl border border-[#e7e5e4] bg-white p-6">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-[#a8a29e]">
+              Your Review
+            </p>
+
+            {existingReview ? (
+              <div className="space-y-2">
+                <p className="text-xs text-green-700 font-medium">Thanks for your review!</p>
+                <StarRating rating={existingReview.rating} />
+                {buyerFullName && (
+                  <p className="text-sm font-medium text-[#1c1917]">{buyerFullName}</p>
+                )}
+                <p className="text-sm text-[#57534e] leading-relaxed">{existingReview.body}</p>
+              </div>
+            ) : (
+              <ReviewForm orderId={orderId} />
+            )}
           </section>
         )}
 
