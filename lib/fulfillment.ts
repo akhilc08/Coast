@@ -1,12 +1,20 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import { signatureApi } from '@/lib/dropbox-sign'
+import { getEnvelopesApi, DOCUMENT_IDS } from '@/lib/docusign'
 import { resend, FROM_EMAIL } from '@/lib/resend'
 import { generatePurchaseAgreement } from '@/lib/pdf/purchase-agreement'
 import { generateBillOfSale } from '@/lib/pdf/bill-of-sale'
 import { SigningRequestEmail } from '@/lib/email/signing-request'
-import type { SignatureRequestSendRequest, SubSignatureRequestSigner, RequestDetailedFile } from '@dropbox/sign'
 import { render } from '@react-email/components'
 import * as React from 'react'
+import type {
+  Document,
+  SignHere,
+  DateSigned,
+  Signer,
+  Tabs,
+  Recipients,
+  EnvelopeDefinition,
+} from 'docusign-esign'
 
 /**
  * Post-payment document pipeline orchestrator.
@@ -17,8 +25,8 @@ import * as React from 'react'
  *  2. Generate purchase agreement and bill of sale PDFs
  *  3. Upload both to `order-documents` bucket
  *  4. Update order_documents rows with storage_key
- *  5. Send to Dropbox Sign (single envelope, buyer as signer)
- *  6. Store esign_ref on order_documents rows
+ *  5. Send to DocuSign (single envelope, buyer as signer, two documents)
+ *  6. Store esign_ref (envelope ID) on both order_documents rows
  *  7. Update order_documents status to 'sent'
  *  8. Update orders.status to 'documents_sent'
  *  9. Send NOTF-03 (signing request notification) via Resend
@@ -39,7 +47,6 @@ export async function generateAndSendDocuments(orderId: string): Promise<void> {
       return
     }
 
-    // Fetch listing details
     const { data: listing, error: listingError } = await supabase
       .from('listings')
       .select('title, vin, year, make, model, mileage, exterior_color')
@@ -51,7 +58,6 @@ export async function generateAndSendDocuments(orderId: string): Promise<void> {
       return
     }
 
-    // Fetch buyer profile
     const { data: buyer, error: buyerError } = await supabase
       .from('profiles')
       .select('full_name, email, business_name')
@@ -63,7 +69,6 @@ export async function generateAndSendDocuments(orderId: string): Promise<void> {
       return
     }
 
-    // Fetch seller profile
     const { data: seller, error: sellerError } = await supabase
       .from('profiles')
       .select('full_name, business_name')
@@ -141,48 +146,78 @@ export async function generateAndSendDocuments(orderId: string): Promise<void> {
         .eq('document_type', 'title_transfer'),
     ])
 
-    // --- Step 5: Send to Dropbox Sign ---
-    const signer: SubSignatureRequestSigner = {
+    // --- Step 5: Send to DocuSign ---
+    // Both documents use anchor string tabs ({{BUYER_SIGNATURE}}, {{BUYER_DATE}}).
+    // DocuSign searches all documents in the envelope for these anchors — no
+    // documentId scoping needed on the tabs. Both PDFs contain the anchors, so
+    // both will receive signature and date tabs as intended.
+    const paDoc: Document = {
+      documentBase64: purchaseAgreementBuffer.toString('base64'),
+      name: 'Purchase Agreement',
+      fileExtension: 'pdf',
+      documentId: DOCUMENT_IDS.purchase_agreement,
+    }
+
+    const bosDoc: Document = {
+      documentBase64: billOfSaleBuffer.toString('base64'),
+      name: 'Bill of Sale',
+      fileExtension: 'pdf',
+      documentId: DOCUMENT_IDS.title_transfer,
+    }
+
+    const signHere: SignHere = {
+      anchorString: '{{BUYER_SIGNATURE}}',
+      anchorUnits: 'pixels',
+      anchorXOffset: '0',
+      anchorYOffset: '0',
+    }
+
+    const dateSigned: DateSigned = {
+      anchorString: '{{BUYER_DATE}}',
+      anchorUnits: 'pixels',
+      anchorXOffset: '0',
+      anchorYOffset: '0',
+    }
+
+    const tabs: Tabs = {
+      signHereTabs: [signHere],
+      dateSignedTabs: [dateSigned],
+    }
+
+    const signer: Signer = {
+      email: buyer.email ?? '',
       name: buyerName,
-      emailAddress: buyer.email ?? '',
-      order: 0,
+      recipientId: '1',
+      tabs,
     }
 
-    // Dropbox Sign files accept RequestDetailedFile (Buffer + metadata) or ReadStream
-    const paFile: RequestDetailedFile = {
-      value: purchaseAgreementBuffer,
-      options: { filename: 'purchase-agreement.pdf', contentType: 'application/pdf' },
-    }
-    const bosFile: RequestDetailedFile = {
-      value: billOfSaleBuffer,
-      options: { filename: 'bill-of-sale.pdf', contentType: 'application/pdf' },
+    const recipients: Recipients = { signers: [signer] }
+
+    const envelopeDef: EnvelopeDefinition = {
+      emailSubject: `Please sign your vehicle purchase documents — ${vehicleTitle}`,
+      emailBlurb: 'Your vehicle purchase documents are ready for your signature.',
+      documents: [paDoc, bosDoc],
+      recipients,
+      status: 'sent',
     }
 
-    const signRequest: SignatureRequestSendRequest = {
-      title: `Coast Vehicle Purchase Documents — ${orderNumber}`,
-      subject: 'Please sign your vehicle purchase documents',
-      message: 'Your vehicle purchase documents are ready for your signature.',
-      signers: [signer],
-      files: [paFile, bosFile],
-      metadata: { order_id: orderId },
-      testMode: process.env.NODE_ENV !== 'production',
-      // Note: Dropbox Sign email suppression requires account-level dashboard setting.
-      // Coast sends its own NOTF-03 via Resend pointing buyer to the order page.
-    }
-
-    let esignRef: string | undefined
+    let envelopeId: string | undefined
     try {
-      const signResponse = await signatureApi.signatureRequestSend(signRequest)
-      esignRef = signResponse.body?.signatureRequest?.signatureRequestId ?? undefined
+      const accountId = process.env.DOCUSIGN_ACCOUNT_ID!
+      const envelopesApi = await getEnvelopesApi()
+      const result = await envelopesApi.createEnvelope(accountId, {
+        envelopeDefinition: envelopeDef,
+      })
+      envelopeId = result.envelopeId ?? undefined
     } catch (err) {
-      console.error('[fulfillment] Dropbox Sign API error for order', orderId, err)
-      // Continue — log error but don't abort the pipeline. esignRef will be undefined.
+      console.error('[fulfillment] DocuSign API error for order', orderId, err)
+      // Continue — log error but don't abort the pipeline. envelopeId will be undefined.
     }
 
-    // --- Step 6 & 7: Update order_documents with esign_ref and status 'sent' ---
+    // --- Steps 6 & 7: Update order_documents with esign_ref and status 'sent' ---
     const docUpdate: Record<string, unknown> = { status: 'sent' }
-    if (esignRef) {
-      docUpdate.esign_ref = esignRef
+    if (envelopeId) {
+      docUpdate.esign_ref = envelopeId
     }
 
     await supabase
@@ -214,7 +249,6 @@ export async function generateAndSendDocuments(orderId: string): Promise<void> {
       ),
     })
   } catch (err) {
-    // Fire-and-forget: log errors without propagating
     console.error('[fulfillment] Unhandled error in generateAndSendDocuments for order', orderId, err)
   }
 }
