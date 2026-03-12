@@ -30,12 +30,12 @@ export function StepReview({ listingId }: StepReviewProps) {
   }
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-      <h2 className="mb-1 text-xl font-semibold text-zinc-100">Review & Publish</h2>
-      <p className="mb-6 text-sm text-zinc-400">Your listing is ready. You can save it as a draft or publish it now to make it live.</p>
+    <div className="rounded-xl border border-[#e7e5e4] bg-white p-6">
+      <h2 className="mb-1 text-xl font-semibold text-[#1c1917]">Review & Publish</h2>
+      <p className="mb-6 text-sm text-[#78716c]">Your listing is ready. You can save it as a draft or publish it now to make it live.</p>
 
-      <div className="mb-6 rounded-lg border border-zinc-700 bg-zinc-800 p-4">
-        <p className="text-sm text-zinc-400">
+      <div className="mb-6 rounded-lg border border-[#e7e5e4] bg-[#faf9f6] p-4">
+        <p className="text-sm text-[#78716c]">
           Make sure all required fields (make, model, year, price) are filled in before publishing. You can continue editing after publishing.
         </p>
       </div>
@@ -45,7 +45,7 @@ export function StepReview({ listingId }: StepReviewProps) {
           type="button"
           variant="outline"
           onClick={() => router.push('/seller/dashboard')}
-          className="flex-1 border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
+          className="flex-1 border-[#e7e5e4] text-[#78716c] hover:border-[#1c1917] hover:text-[#1c1917]"
         >
           Save as Draft
         </Button>

@@ -49,53 +49,53 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-16">
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8 text-center">
+      <div className="rounded-2xl border border-[#e7e5e4] bg-white p-8 text-center">
         {/* Success icon */}
         <div className="mb-6 flex justify-center">
           <CheckCircle2 className="h-16 w-16 text-green-500" />
         </div>
 
         {/* Heading */}
-        <h1 className="mb-2 text-3xl font-bold text-zinc-100">Order Confirmed</h1>
-        <p className="text-zinc-400">
+        <h1 className="mb-2 text-3xl font-bold text-[#1c1917]">Order Confirmed</h1>
+        <p className="text-[#78716c]">
           Your payment was successful. Thank you for your purchase.
         </p>
 
         {/* Order details */}
-        <div className="mt-8 rounded-xl border border-zinc-800 bg-zinc-950 p-6 text-left">
+        <div className="mt-8 rounded-xl border border-[#e7e5e4] bg-[#faf9f6] p-6 text-left">
           <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
-              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+            <div className="flex items-center justify-between border-b border-[#e7e5e4] pb-4">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#a8a29e]">
                 Order Number
               </span>
-              <span className="font-mono text-sm font-semibold text-zinc-100">{orderNumber}</span>
+              <span className="font-mono text-sm font-semibold text-[#1c1917]">{orderNumber}</span>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#a8a29e]">
                 Vehicle
               </span>
-              <span className="text-sm text-zinc-200">{vehicleTitle}</span>
+              <span className="text-sm text-[#1c1917]">{vehicleTitle}</span>
             </div>
 
             {formattedPrice && (
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#a8a29e]">
                   Amount Paid
                 </span>
-                <span className="text-lg font-semibold text-zinc-100">{formattedPrice}</span>
+                <span className="text-lg font-semibold text-[#1c1917]">{formattedPrice}</span>
               </div>
             )}
           </div>
         </div>
 
         {/* Next steps */}
-        <div className="mt-6 rounded-xl border border-zinc-800 bg-zinc-950 p-6 text-left">
+        <div className="mt-6 rounded-xl border border-[#e7e5e4] bg-[#faf9f6] p-6 text-left">
           <div className="flex items-start gap-3">
-            <Clock className="mt-0.5 h-5 w-5 shrink-0 text-blue-400" />
+            <Clock className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
             <div>
-              <p className="text-sm font-medium text-zinc-200">Documents are being prepared</p>
-              <p className="mt-1 text-sm text-zinc-400">
+              <p className="text-sm font-medium text-[#1c1917]">Documents are being prepared</p>
+              <p className="mt-1 text-sm text-[#78716c]">
                 You&apos;ll receive an email when they&apos;re ready to sign. This usually takes a
                 few minutes.
               </p>
@@ -113,7 +113,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
           </Link>
           <Link
             href="/listings"
-            className="inline-flex items-center justify-center rounded-xl border border-zinc-700 px-6 py-3 text-sm text-zinc-400 transition-colors hover:border-zinc-500 hover:text-zinc-200"
+            className="inline-flex items-center justify-center rounded-xl border border-[#e7e5e4] px-6 py-3 text-sm text-[#78716c] transition-colors hover:border-[#1c1917] hover:text-[#1c1917]"
           >
             Continue Browsing
           </Link>
@@ -126,18 +126,18 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
 function PendingState() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-16">
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8 text-center">
+      <div className="rounded-2xl border border-[#e7e5e4] bg-white p-8 text-center">
         <div className="mb-6 flex justify-center">
-          <Clock className="h-16 w-16 text-zinc-400" />
+          <Clock className="h-16 w-16 text-[#a8a29e]" />
         </div>
-        <h1 className="mb-2 text-3xl font-bold text-zinc-100">Your order is being processed...</h1>
-        <p className="text-zinc-400">
+        <h1 className="mb-2 text-3xl font-bold text-[#1c1917]">Your order is being processed...</h1>
+        <p className="text-[#78716c]">
           This may take a few moments. You&apos;ll receive a confirmation email shortly.
         </p>
         <div className="mt-8">
           <Link
             href="/listings"
-            className="inline-flex items-center justify-center rounded-xl border border-zinc-700 px-6 py-3 text-sm text-zinc-400 transition-colors hover:border-zinc-500 hover:text-zinc-200"
+            className="inline-flex items-center justify-center rounded-xl border border-[#e7e5e4] px-6 py-3 text-sm text-[#78716c] transition-colors hover:border-[#1c1917] hover:text-[#1c1917]"
           >
             Continue Browsing
           </Link>

@@ -36,9 +36,9 @@ export function StepPhotos({ listingId, initialPhotos, onSave }: StepPhotosProps
   }
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-      <h2 className="mb-1 text-xl font-semibold text-zinc-100">Photos</h2>
-      <p className="mb-6 text-sm text-zinc-400">Upload photos of the vehicle. Drag to reorder — the first photo will be the hero image.</p>
+    <div className="rounded-xl border border-[#e7e5e4] bg-white p-6">
+      <h2 className="mb-1 text-xl font-semibold text-[#1c1917]">Photos</h2>
+      <p className="mb-6 text-sm text-[#78716c]">Upload photos of the vehicle. Drag to reorder — the first photo will be the hero image.</p>
 
       <PhotoUploadZone
         listingId={listingId}

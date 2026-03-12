@@ -45,25 +45,25 @@ export function StepVehicleDetails({ listingId, initialData, onSave }: StepVehic
   }
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-      <h2 className="mb-1 text-xl font-semibold text-zinc-100">Vehicle Details</h2>
-      <p className="mb-6 text-sm text-zinc-400">Fill in the vehicle details. Pre-filled fields are editable.</p>
+    <div className="rounded-xl border border-[#e7e5e4] bg-white p-6">
+      <h2 className="mb-1 text-xl font-semibold text-[#1c1917]">Vehicle Details</h2>
+      <p className="mb-6 text-sm text-[#78716c]">Fill in the vehicle details. Pre-filled fields are editable.</p>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit as never)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <FormField control={form.control} name="make" render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-zinc-300">Make *</FormLabel>
-                <FormControl><Input className="border-zinc-700 bg-zinc-800 text-zinc-100" placeholder="Honda" {...field} /></FormControl>
-                <FormMessage className="text-red-400" />
+                <FormLabel className="text-[#78716c]">Make *</FormLabel>
+                <FormControl><Input className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="Honda" {...field} /></FormControl>
+                <FormMessage className="text-red-500" />
               </FormItem>
             )} />
             <FormField control={form.control} name="model" render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-zinc-300">Model *</FormLabel>
-                <FormControl><Input className="border-zinc-700 bg-zinc-800 text-zinc-100" placeholder="Accord" {...field} /></FormControl>
-                <FormMessage className="text-red-400" />
+                <FormLabel className="text-[#78716c]">Model *</FormLabel>
+                <FormControl><Input className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="Accord" {...field} /></FormControl>
+                <FormMessage className="text-red-500" />
               </FormItem>
             )} />
           </div>
@@ -71,16 +71,16 @@ export function StepVehicleDetails({ listingId, initialData, onSave }: StepVehic
           <div className="grid grid-cols-2 gap-4">
             <FormField control={form.control} name="year" render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-zinc-300">Year *</FormLabel>
-                <FormControl><Input type="number" className="border-zinc-700 bg-zinc-800 text-zinc-100" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} /></FormControl>
-                <FormMessage className="text-red-400" />
+                <FormLabel className="text-[#78716c]">Year *</FormLabel>
+                <FormControl><Input type="number" className="border-[#e7e5e4] bg-white text-[#1c1917]" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} /></FormControl>
+                <FormMessage className="text-red-500" />
               </FormItem>
             )} />
             <FormField control={form.control} name="mileage" render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-zinc-300">Mileage *</FormLabel>
-                <FormControl><Input type="number" className="border-zinc-700 bg-zinc-800 text-zinc-100" placeholder="45000" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} /></FormControl>
-                <FormMessage className="text-red-400" />
+                <FormLabel className="text-[#78716c]">Mileage *</FormLabel>
+                <FormControl><Input type="number" className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="45000" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} /></FormControl>
+                <FormMessage className="text-red-500" />
               </FormItem>
             )} />
           </div>
@@ -88,16 +88,16 @@ export function StepVehicleDetails({ listingId, initialData, onSave }: StepVehic
           <div className="grid grid-cols-2 gap-4">
             <FormField control={form.control} name={"price" as never} render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-zinc-300">Price (USD) *</FormLabel>
-                <FormControl><Input type="number" step="0.01" className="border-zinc-700 bg-zinc-800 text-zinc-100" placeholder="15000" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl>
-                <FormMessage className="text-red-400" />
+                <FormLabel className="text-[#78716c]">Price (USD) *</FormLabel>
+                <FormControl><Input type="number" step="0.01" className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="15000" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl>
+                <FormMessage className="text-red-500" />
               </FormItem>
             )} />
             <FormField control={form.control} name="color" render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-zinc-300">Color</FormLabel>
-                <FormControl><Input className="border-zinc-700 bg-zinc-800 text-zinc-100" placeholder="Silver" {...field} /></FormControl>
-                <FormMessage className="text-red-400" />
+                <FormLabel className="text-[#78716c]">Color</FormLabel>
+                <FormControl><Input className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="Silver" {...field} /></FormControl>
+                <FormMessage className="text-red-500" />
               </FormItem>
             )} />
           </div>
@@ -105,36 +105,36 @@ export function StepVehicleDetails({ listingId, initialData, onSave }: StepVehic
           <div className="grid grid-cols-2 gap-4">
             <FormField control={form.control} name="trim" render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-zinc-300">Trim</FormLabel>
-                <FormControl><Input className="border-zinc-700 bg-zinc-800 text-zinc-100" placeholder="EX-V6" {...field} /></FormControl>
-                <FormMessage className="text-red-400" />
+                <FormLabel className="text-[#78716c]">Trim</FormLabel>
+                <FormControl><Input className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="EX-V6" {...field} /></FormControl>
+                <FormMessage className="text-red-500" />
               </FormItem>
             )} />
             <FormField control={form.control} name="body_class" render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-zinc-300">Body Style</FormLabel>
-                <FormControl><Input className="border-zinc-700 bg-zinc-800 text-zinc-100" placeholder="Coupe" {...field} /></FormControl>
-                <FormMessage className="text-red-400" />
+                <FormLabel className="text-[#78716c]">Body Style</FormLabel>
+                <FormControl><Input className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="Coupe" {...field} /></FormControl>
+                <FormMessage className="text-red-500" />
               </FormItem>
             )} />
           </div>
 
           <FormField control={form.control} name="condition_notes" render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-zinc-300">Condition Notes</FormLabel>
+              <FormLabel className="text-[#78716c]">Condition Notes</FormLabel>
               <FormControl>
                 <textarea
-                  className="min-h-[80px] w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-600 focus:outline-none"
+                  className="min-h-[80px] w-full rounded-md border border-[#e7e5e4] bg-white px-3 py-2 text-sm text-[#1c1917] placeholder:text-[#a8a29e] focus:border-blue-600 focus:outline-none"
                   placeholder="Describe the vehicle condition..."
                   {...field}
                 />
               </FormControl>
-              <FormMessage className="text-red-400" />
+              <FormMessage className="text-red-500" />
             </FormItem>
           )} />
 
           {serverError && (
-            <p className="rounded-md border border-red-800 bg-red-950 px-3 py-2 text-sm text-red-300">{serverError}</p>
+            <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">{serverError}</p>
           )}
 
           <Button type="submit" disabled={form.formState.isSubmitting} className="w-full bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-50">

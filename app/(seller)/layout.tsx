@@ -8,12 +8,12 @@ export default async function SellerLayout({ children }: { children: React.React
   if (!user) redirect('/login')
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-50">
-      <header className="border-b border-zinc-800 bg-zinc-950">
+    <div className="min-h-screen bg-[#faf9f6] text-[#1c1917]">
+      <header className="border-b border-[#e7e5e4] bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-          <Link href="/" className="text-lg font-semibold text-zinc-100">Coast</Link>
+          <Link href="/" className="text-lg font-semibold text-[#1c1917]">Coast</Link>
           <nav className="flex items-center gap-4">
-            <Link href="/seller/dashboard" className="text-sm text-zinc-400 hover:text-zinc-100 transition-colors">
+            <Link href="/seller/dashboard" className="text-sm text-[#78716c] hover:text-[#1c1917] transition-colors">
               Dashboard
             </Link>
             <Link href="/seller/listings/new" className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500 transition-colors">

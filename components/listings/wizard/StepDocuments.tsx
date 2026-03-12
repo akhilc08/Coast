@@ -11,10 +11,10 @@ interface StepDocumentsProps {
 
 export function StepDocuments({ listingId, initialDocs, onSave }: StepDocumentsProps) {
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-      <h2 className="mb-1 text-xl font-semibold text-zinc-100">Documents</h2>
-      <p className="mb-2 text-sm text-zinc-400">Upload supporting documents such as Carfax, service history, or title. This step is optional.</p>
-      <p className="mb-6 text-xs text-zinc-600">You can publish the listing without uploading documents.</p>
+    <div className="rounded-xl border border-[#e7e5e4] bg-white p-6">
+      <h2 className="mb-1 text-xl font-semibold text-[#1c1917]">Documents</h2>
+      <p className="mb-2 text-sm text-[#78716c]">Upload supporting documents such as Carfax, service history, or title. This step is optional.</p>
+      <p className="mb-6 text-xs text-[#a8a29e]">You can publish the listing without uploading documents.</p>
 
       <DocumentUpload listingId={listingId} initialDocs={initialDocs} />
 
@@ -23,7 +23,7 @@ export function StepDocuments({ listingId, initialDocs, onSave }: StepDocumentsP
           type="button"
           variant="outline"
           onClick={onSave}
-          className="flex-1 border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
+          className="flex-1 border-[#e7e5e4] text-[#78716c] hover:border-[#1c1917] hover:text-[#1c1917]"
         >
           Skip this step
         </Button>

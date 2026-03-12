@@ -18,40 +18,40 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-zinc-100">My Listings</h1>
+        <h1 className="text-2xl font-semibold text-[#1c1917]">My Listings</h1>
         <Link href="/seller/listings/new" className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500">
           + New Listing
         </Link>
       </div>
 
       <section>
-        <h2 className="mb-3 text-sm font-medium uppercase tracking-wider text-zinc-500">Published ({active.length})</h2>
+        <h2 className="mb-3 text-sm font-medium uppercase tracking-wider text-[#a8a29e]">Published ({active.length})</h2>
         {active.length === 0 ? (
-          <p className="text-sm text-zinc-600">No published listings yet.</p>
+          <p className="text-sm text-[#a8a29e]">No published listings yet.</p>
         ) : (
-          <div className="overflow-hidden rounded-lg border border-zinc-800">
+          <div className="overflow-hidden rounded-lg border border-[#e7e5e4]">
             <table className="w-full text-sm">
-              <thead className="bg-zinc-900">
+              <thead className="bg-[#faf9f6]">
                 <tr>
-                  <th className="px-4 py-3 text-left font-medium text-zinc-400">Vehicle</th>
-                  <th className="px-4 py-3 text-left font-medium text-zinc-400">Price</th>
-                  <th className="px-4 py-3 text-right font-medium text-zinc-400">Actions</th>
+                  <th className="px-4 py-3 text-left font-medium text-[#78716c]">Vehicle</th>
+                  <th className="px-4 py-3 text-left font-medium text-[#78716c]">Price</th>
+                  <th className="px-4 py-3 text-right font-medium text-[#78716c]">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-800">
+              <tbody className="divide-y divide-[#e7e5e4]">
                 {active.map(listing => (
-                  <tr key={listing.id} className="bg-zinc-950">
-                    <td className="px-4 py-3 text-zinc-100">
+                  <tr key={listing.id} className="bg-white hover:bg-[#faf9f6]">
+                    <td className="px-4 py-3 text-[#1c1917]">
                       {listing.year} {listing.make} {listing.model}
-                      <span className="ml-2 text-xs text-zinc-500">{listing.vin}</span>
+                      <span className="ml-2 text-xs text-[#a8a29e]">{listing.vin}</span>
                     </td>
-                    <td className="px-4 py-3 text-zinc-300">
+                    <td className="px-4 py-3 text-[#78716c]">
                       {listing.price_cents ? `$${(listing.price_cents / 100).toLocaleString()}` : '—'}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <Link href={`/seller/listings/${listing.id}/edit`} className="mr-3 text-blue-400 hover:text-blue-300 text-xs">Edit</Link>
+                      <Link href={`/seller/listings/${listing.id}/edit`} className="mr-3 text-blue-600 hover:text-blue-500 text-xs">Edit</Link>
                       <form action={async () => { 'use server'; await archiveListingAction(listing.id) }} className="inline">
-                        <button type="submit" className="text-zinc-500 hover:text-zinc-300 text-xs">Archive</button>
+                        <button type="submit" className="text-[#a8a29e] hover:text-[#78716c] text-xs">Archive</button>
                       </form>
                     </td>
                   </tr>
@@ -63,30 +63,30 @@ export default async function DashboardPage() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-sm font-medium uppercase tracking-wider text-zinc-500">Drafts ({drafts.length})</h2>
+        <h2 className="mb-3 text-sm font-medium uppercase tracking-wider text-[#a8a29e]">Drafts ({drafts.length})</h2>
         {drafts.length === 0 ? (
-          <p className="text-sm text-zinc-600">No draft listings.</p>
+          <p className="text-sm text-[#a8a29e]">No draft listings.</p>
         ) : (
-          <div className="overflow-hidden rounded-lg border border-zinc-800">
+          <div className="overflow-hidden rounded-lg border border-[#e7e5e4]">
             <table className="w-full text-sm">
-              <thead className="bg-zinc-900">
+              <thead className="bg-[#faf9f6]">
                 <tr>
-                  <th className="px-4 py-3 text-left font-medium text-zinc-400">Vehicle</th>
-                  <th className="px-4 py-3 text-left font-medium text-zinc-400">VIN</th>
-                  <th className="px-4 py-3 text-right font-medium text-zinc-400">Actions</th>
+                  <th className="px-4 py-3 text-left font-medium text-[#78716c]">Vehicle</th>
+                  <th className="px-4 py-3 text-left font-medium text-[#78716c]">VIN</th>
+                  <th className="px-4 py-3 text-right font-medium text-[#78716c]">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-800">
+              <tbody className="divide-y divide-[#e7e5e4]">
                 {drafts.map(listing => (
-                  <tr key={listing.id} className="bg-zinc-950">
-                    <td className="px-4 py-3 text-zinc-100">
+                  <tr key={listing.id} className="bg-white hover:bg-[#faf9f6]">
+                    <td className="px-4 py-3 text-[#1c1917]">
                       {listing.year && listing.make ? `${listing.year} ${listing.make} ${listing.model}` : 'Draft listing'}
                     </td>
-                    <td className="px-4 py-3 text-xs text-zinc-500">{listing.vin ?? '—'}</td>
+                    <td className="px-4 py-3 text-xs text-[#a8a29e]">{listing.vin ?? '—'}</td>
                     <td className="px-4 py-3 text-right">
-                      <Link href={`/seller/listings/${listing.id}/edit`} className="mr-3 text-blue-400 hover:text-blue-300 text-xs">Continue</Link>
+                      <Link href={`/seller/listings/${listing.id}/edit`} className="mr-3 text-blue-600 hover:text-blue-500 text-xs">Continue</Link>
                       <form action={async () => { 'use server'; await publishListingAction(listing.id) }} className="inline">
-                        <button type="submit" className="text-emerald-500 hover:text-emerald-400 text-xs">Publish</button>
+                        <button type="submit" className="text-emerald-600 hover:text-emerald-500 text-xs">Publish</button>
                       </form>
                     </td>
                   </tr>
