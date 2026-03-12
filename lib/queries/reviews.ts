@@ -36,6 +36,25 @@ export async function getSellerStats(sellerId: string): Promise<SellerStats> {
 }
 
 /**
+ * Fetches aggregate rating stats for multiple sellers in one query.
+ * Returns a Map from sellerId → SellerStats (null entry means no reviews).
+ */
+export async function getSellerStatsBulk(sellerIds: string[]): Promise<Map<string, SellerStats>> {
+  if (sellerIds.length === 0) return new Map()
+  const admin = createAdminClient()
+  const { data } = await admin
+    .from('seller_review_stats')
+    .select('seller_id, avg_rating, review_count')
+    .in('seller_id', sellerIds)
+
+  const map = new Map<string, SellerStats>()
+  for (const row of data ?? []) {
+    map.set(row.seller_id, { avg_rating: Number(row.avg_rating), review_count: Number(row.review_count) })
+  }
+  return map
+}
+
+/**
  * Fetches one page of reviews for a seller (10 per page, newest first).
  * Uses LIMIT 11 to detect if a next page exists without a COUNT query.
  * Returns reviews with buyer display names resolved via service role.

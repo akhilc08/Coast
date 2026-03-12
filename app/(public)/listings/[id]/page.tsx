@@ -61,8 +61,8 @@ export default async function ListingDetailPage({
                 ? `$${(listing.price_cents / 100).toLocaleString()}`
                 : 'Call for price'}
             </p>
-            {/* Seller rating badge — null if seller has no reviews */}
-            {sellerStats && listing.seller_id && (
+            {/* Seller rating badge — shows "No reviews yet" if seller has none */}
+            {listing.seller_id && (
               <div className="mt-2">
                 <SellerRatingBadge stats={sellerStats} sellerId={listing.seller_id} />
               </div>

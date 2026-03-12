@@ -1,4 +1,5 @@
 import { getListings, PAGE_SIZE } from '@/lib/queries/listings'
+import { getSellerStatsBulk } from '@/lib/queries/reviews'
 import { createClient } from '@/lib/supabase/server'
 import { SearchBar } from '@/components/storefront/SearchBar'
 import { StorefrontFilters } from '@/components/storefront/StorefrontFilters'
@@ -60,6 +61,9 @@ export default async function StorefrontPage({
     })(),
   ])
 
+  const sellerIds = [...new Set(listings.map(l => l.seller_id).filter(Boolean) as string[])]
+  const sellerStatsMap = await getSellerStatsBulk(sellerIds)
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 
   return (
@@ -88,7 +92,7 @@ export default async function StorefrontPage({
             <p className="text-sm text-zinc-500">{total.toLocaleString()} vehicle{total !== 1 ? 's' : ''}</p>
           </div>
 
-          <ListingGrid listings={listings} supabaseUrl={supabaseUrl} />
+          <ListingGrid listings={listings} supabaseUrl={supabaseUrl} sellerStatsMap={sellerStatsMap} />
           <Pagination total={total} pageSize={PAGE_SIZE} />
         </div>
       </div>

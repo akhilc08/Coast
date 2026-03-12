@@ -1,7 +1,9 @@
 import { ListingCard } from './ListingCard'
+import type { SellerStats } from '@/lib/queries/reviews'
 
 interface Listing {
   id: string
+  seller_id: string | null
   make: string | null
   model: string | null
   year: number | null
@@ -14,9 +16,10 @@ interface Listing {
 interface ListingGridProps {
   listings: Listing[]
   supabaseUrl: string
+  sellerStatsMap: Map<string, SellerStats>
 }
 
-export function ListingGrid({ listings, supabaseUrl }: ListingGridProps) {
+export function ListingGrid({ listings, supabaseUrl, sellerStatsMap }: ListingGridProps) {
   if (listings.length === 0) {
     return (
       <div className="flex h-64 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900">
@@ -35,6 +38,8 @@ export function ListingGrid({ listings, supabaseUrl }: ListingGridProps) {
           <ListingCard
             key={listing.id}
             id={listing.id}
+            sellerId={listing.seller_id}
+            sellerStats={listing.seller_id ? (sellerStatsMap.get(listing.seller_id) ?? null) : null}
             make={listing.make}
             model={listing.model}
             year={listing.year}

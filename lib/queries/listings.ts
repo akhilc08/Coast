@@ -28,7 +28,7 @@ export async function getListings(filters: ListingFilters = {}) {
   let query = supabase
     .from('listings')
     .select(
-      'id, make, model, year, mileage, price_cents, grade, condition_notes, created_at, listing_photos(id, storage_key, position)',
+      'id, seller_id, make, model, year, mileage, price_cents, grade, condition_notes, created_at, listing_photos(id, storage_key, position)',
       { count: 'exact' }
     )
     .eq('status', 'active')

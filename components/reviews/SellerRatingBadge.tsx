@@ -7,7 +7,14 @@ interface SellerRatingBadgeProps {
 }
 
 export function SellerRatingBadge({ stats, sellerId }: SellerRatingBadgeProps) {
-  if (!stats) return null
+  if (!stats) {
+    return (
+      <span className="inline-flex items-center gap-1 text-sm text-[#a8a29e]">
+        <span>★</span>
+        <span>No reviews yet</span>
+      </span>
+    )
+  }
 
   return (
     <Link

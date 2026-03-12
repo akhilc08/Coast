@@ -1,9 +1,12 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { GradeBadge } from '@/components/ui/GradeBadge'
+import type { SellerStats } from '@/lib/queries/reviews'
 
 interface ListingCardProps {
   id: string
+  sellerId: string | null
+  sellerStats: SellerStats
   make: string | null
   model: string | null
   year: number | null
@@ -14,7 +17,7 @@ interface ListingCardProps {
   supabaseUrl: string
 }
 
-export function ListingCard({ id, make, model, year, mileage, price_cents, grade, heroStorageKey, supabaseUrl }: ListingCardProps) {
+export function ListingCard({ id, sellerId, sellerStats, make, model, year, mileage, price_cents, grade, heroStorageKey, supabaseUrl }: ListingCardProps) {
   // Construct thumbnail URL via Supabase image transformation (CDN-optimized)
   const heroUrl = heroStorageKey
     ? `${supabaseUrl}/storage/v1/render/image/public/car-photos/${heroStorageKey}?width=600&height=450&resize=cover`
@@ -54,6 +57,19 @@ export function ListingCard({ id, make, model, year, mileage, price_cents, grade
           <p className="text-base font-semibold text-[#1c1917]">
             {price_cents != null ? `$${(price_cents / 100).toLocaleString()}` : 'Call for price'}
           </p>
+
+          {sellerId && (
+            sellerStats ? (
+              <p className="inline-flex items-center gap-1 text-xs text-[#78716c]">
+                <span className="text-[#ca8a04]">★</span>
+                <span className="font-medium">{sellerStats.avg_rating}</span>
+                <span className="text-[#a8a29e]">·</span>
+                <span>{sellerStats.review_count} {sellerStats.review_count === 1 ? 'review' : 'reviews'}</span>
+              </p>
+            ) : (
+              <p className="text-xs text-[#a8a29e]">★ No reviews yet</p>
+            )
+          )}
         </div>
       </div>
     </Link>
