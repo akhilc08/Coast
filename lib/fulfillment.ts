@@ -1,6 +1,6 @@
 // lib/fulfillment.ts
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getEnvelopesApi, DOCUMENT_IDS } from '@/lib/docusign'
+import { createEnvelope, DOCUMENT_IDS } from '@/lib/docusign'
 import { resend, FROM_EMAIL } from '@/lib/resend'
 import { generatePurchaseAgreement } from '@/lib/pdf/purchase-agreement'
 import { generateBillOfSale } from '@/lib/pdf/bill-of-sale'
@@ -8,15 +8,6 @@ import { SigningRequestEmail } from '@/lib/email/signing-request'
 import { dispatchTransportOrder } from '@/lib/transport/dispatch'
 import { render } from '@react-email/components'
 import * as React from 'react'
-import type {
-  Document,
-  SignHere,
-  DateSigned,
-  Signer,
-  Tabs,
-  Recipients,
-  EnvelopeDefinition,
-} from 'docusign-esign'
 
 /**
  * Post-payment pipeline orchestrator.
@@ -165,51 +156,41 @@ async function _generateDocuments(orderId: string): Promise<void> {
     ])
 
     // --- Step 5: Send to DocuSign ---
-    const paDoc: Document = {
-      documentBase64: purchaseAgreementBuffer.toString('base64'),
-      name:           'Purchase Agreement',
-      fileExtension:  'pdf',
-      documentId:     DOCUMENT_IDS.purchase_agreement,
-    }
-
-    const bosDoc: Document = {
-      documentBase64: billOfSaleBuffer.toString('base64'),
-      name:           'Bill of Sale',
-      fileExtension:  'pdf',
-      documentId:     DOCUMENT_IDS.title_transfer,
-    }
-
-    const signHere: SignHere = {
-      anchorString:  '{{BUYER_SIGNATURE}}',
-      anchorUnits:   'pixels',
-      anchorXOffset: '0',
-      anchorYOffset: '0',
-    }
-
-    const dateSigned: DateSigned = {
-      anchorString:  '{{BUYER_DATE}}',
-      anchorUnits:   'pixels',
-      anchorXOffset: '0',
-      anchorYOffset: '0',
-    }
-
-    const tabs: Tabs = { signHereTabs: [signHere], dateSignedTabs: [dateSigned] }
-
-    const signer: Signer = {
-      email:       buyer.email ?? '',
-      name:        buyerName,
-      recipientId: '1',
-      tabs,
-    }
-
-    const recipients: Recipients = { signers: [signer] }
-
-    const envelopeDef: EnvelopeDefinition = {
+    const envelopeDef = {
       emailSubject: `Please sign your vehicle purchase documents — ${vehicleTitle}`,
       emailBlurb:   'Your vehicle purchase documents are ready for your signature.',
-      documents:    [paDoc, bosDoc],
-      recipients,
-      status:       'sent',
+      documents: [
+        {
+          documentBase64: purchaseAgreementBuffer.toString('base64'),
+          name:           'Purchase Agreement',
+          fileExtension:  'pdf',
+          documentId:     DOCUMENT_IDS.purchase_agreement,
+        },
+        {
+          documentBase64: billOfSaleBuffer.toString('base64'),
+          name:           'Bill of Sale',
+          fileExtension:  'pdf',
+          documentId:     DOCUMENT_IDS.title_transfer,
+        },
+      ],
+      recipients: {
+        signers: [
+          {
+            email:       buyer.email ?? '',
+            name:        buyerName,
+            recipientId: '1',
+            tabs: {
+              signHereTabs: [
+                { anchorString: '{{BUYER_SIGNATURE}}', anchorUnits: 'pixels', anchorXOffset: '0', anchorYOffset: '0' },
+              ],
+              dateSignedTabs: [
+                { anchorString: '{{BUYER_DATE}}', anchorUnits: 'pixels', anchorXOffset: '0', anchorYOffset: '0' },
+              ],
+            },
+          },
+        ],
+      },
+      status: 'sent',
     }
 
     let envelopeId: string | undefined
@@ -219,9 +200,8 @@ async function _generateDocuments(orderId: string): Promise<void> {
         console.error('[fulfillment] DOCUSIGN_ACCOUNT_ID is not set')
         return
       }
-      const envelopesApi = await getEnvelopesApi()
-      const result       = await envelopesApi.createEnvelope(accountId, { envelopeDefinition: envelopeDef })
-      envelopeId         = result.envelopeId ?? undefined
+      const result = await createEnvelope(accountId, envelopeDef)
+      envelopeId   = result.envelopeId ?? undefined
     } catch (err) {
       console.error('[fulfillment] DocuSign API error for order', orderId, err)
     }

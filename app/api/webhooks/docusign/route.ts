@@ -1,7 +1,7 @@
 // app/api/webhooks/docusign/route.ts
 import { createHmac, timingSafeEqual } from 'crypto'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getEnvelopesApi, DOCUMENT_IDS } from '@/lib/docusign'
+import { getDocument, DOCUMENT_IDS } from '@/lib/docusign'
 import { resend, FROM_EMAIL } from '@/lib/resend'
 import { DocumentsCompleteEmail } from '@/lib/email/documents-complete'
 import { render } from '@react-email/components'
@@ -124,7 +124,6 @@ async function handleEnvelopeCompleted(envelopeId: string): Promise<void> {
     }
 
     // --- Download signed PDFs from DocuSign, one call per documentId ---
-    const envelopesApi = await getEnvelopesApi()
     const signedAt = new Date().toISOString()
     const orderNumber = orderId.slice(0, 8).toUpperCase()
     const attachments: Array<{ filename: string; content: Buffer }> = []
@@ -138,12 +137,7 @@ async function handleEnvelopeCompleted(envelopeId: string): Promise<void> {
 
       let signedBuffer: Buffer | null = null
       try {
-        // getDocument returns a Buffer for PDF responses at runtime;
-        // types declare it as string so we normalize both cases
-        const response = await envelopesApi.getDocument(accountId, envelopeId, documentId, {})
-        signedBuffer = Buffer.isBuffer(response)
-          ? response
-          : Buffer.from(response as string, 'binary')
+        signedBuffer = await getDocument(accountId, envelopeId, documentId)
       } catch (err) {
         console.error('[docusign-webhook] Failed to download document', documentId, envelopeId, err)
       }
