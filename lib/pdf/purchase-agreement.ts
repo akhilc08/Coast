@@ -114,18 +114,18 @@ export function generatePurchaseAgreement(data: PurchaseAgreementData): Promise<
       .text('SIGNATURES')
       .moveDown(1)
 
-    // Buyer signature block — anchor strings in white text (invisible to reader,
-    // detected by DocuSign to auto-place signature and date tabs)
+    // Buyer signature block — Dropbox Sign text tags in white text (invisible to reader,
+    // detected by Dropbox Sign to auto-place signature and date tabs)
     doc
       .fontSize(11)
       .font('Helvetica')
       .text('Buyer Signature: _______________________________', { continued: true })
       .fillColor('white')
-      .text('{{BUYER_SIGNATURE}}', { continued: true })
+      .text('[sig|req|signer1]', { continued: true })
       .fillColor('black')
       .text('    Date: _______________', { continued: true })
       .fillColor('white')
-      .text('{{BUYER_DATE}}')
+      .text('[date|req|signer1]')
       .fillColor('black')
       .moveDown(0.5)
       .text(`Print Name: ${data.buyerName}`)

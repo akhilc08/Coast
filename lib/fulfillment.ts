@@ -1,6 +1,7 @@
 // lib/fulfillment.ts
 import { createAdminClient } from '@/lib/supabase/admin'
-import { createEnvelope, DOCUMENT_IDS } from '@/lib/docusign'
+import { getSignatureRequestApi } from '@/lib/dropboxsign'
+import { SignatureRequestSendRequest, SubSignatureRequestSigner, RequestDetailedFile } from '@dropbox/sign'
 import { resend, FROM_EMAIL } from '@/lib/resend'
 import { generatePurchaseAgreement } from '@/lib/pdf/purchase-agreement'
 import { generateBillOfSale } from '@/lib/pdf/bill-of-sale'
@@ -31,14 +32,14 @@ export async function generateAndSendDocuments(orderId: string): Promise<void> {
 }
 
 /**
- * Internal: generate PDFs, upload to storage, send to DocuSign, notify buyer.
+ * Internal: generate PDFs, upload to storage, send to Dropbox Sign, notify buyer.
  * Steps:
  *  1. Fetch order with listing and buyer/seller profiles
  *  2. Generate purchase agreement and bill of sale PDFs
  *  3. Upload both to `order-documents` bucket
  *  4. Update order_documents rows with storage_key
- *  5. Send to DocuSign (single envelope, buyer as signer, two documents)
- *  6. Store esign_ref (envelope ID) on both order_documents rows
+ *  5. Send to Dropbox Sign (single request, buyer as signer, two documents)
+ *  6. Store esign_ref (signature request ID) on both order_documents rows
  *  7. Update order_documents status to 'sent'
  *  8. Update orders.status to 'documents_sent'
  *  9. Send NOTF-03 (signing request notification) via Resend
@@ -155,60 +156,36 @@ async function _generateDocuments(orderId: string): Promise<void> {
         .eq('document_type', 'title_transfer'),
     ])
 
-    // --- Step 5: Send to DocuSign ---
-    const envelopeDef = {
-      emailSubject: `Please sign your vehicle purchase documents — ${vehicleTitle}`,
-      emailBlurb:   'Your vehicle purchase documents are ready for your signature.',
-      documents: [
-        {
-          documentBase64: purchaseAgreementBuffer.toString('base64'),
-          name:           'Purchase Agreement',
-          fileExtension:  'pdf',
-          documentId:     DOCUMENT_IDS.purchase_agreement,
-        },
-        {
-          documentBase64: billOfSaleBuffer.toString('base64'),
-          name:           'Bill of Sale',
-          fileExtension:  'pdf',
-          documentId:     DOCUMENT_IDS.title_transfer,
-        },
-      ],
-      recipients: {
-        signers: [
-          {
-            email:       buyer.email ?? '',
-            name:        buyerName,
-            recipientId: '1',
-            tabs: {
-              signHereTabs: [
-                { anchorString: '{{BUYER_SIGNATURE}}', anchorUnits: 'pixels', anchorXOffset: '0', anchorYOffset: '0' },
-              ],
-              dateSignedTabs: [
-                { anchorString: '{{BUYER_DATE}}', anchorUnits: 'pixels', anchorXOffset: '0', anchorYOffset: '0' },
-              ],
-            },
-          },
-        ],
-      },
-      status: 'sent',
+    // --- Step 5: Send to Dropbox Sign ---
+    const signer: SubSignatureRequestSigner = {
+      emailAddress: buyer.email ?? '',
+      name:         buyerName,
+      order:        0,
     }
 
-    let envelopeId: string | undefined
+    const sendRequest = new SignatureRequestSendRequest()
+    sendRequest.title       = `Vehicle Purchase — ${vehicleTitle}`
+    sendRequest.subject     = `Please sign your vehicle purchase documents — ${vehicleTitle}`
+    sendRequest.message     = 'Your vehicle purchase documents are ready for your signature.'
+    sendRequest.signers     = [signer]
+    const paFile: RequestDetailedFile  = { value: purchaseAgreementBuffer, options: { filename: 'purchase-agreement.pdf', contentType: 'application/pdf' } }
+    const bosFile: RequestDetailedFile = { value: billOfSaleBuffer,        options: { filename: 'bill-of-sale.pdf',         contentType: 'application/pdf' } }
+    sendRequest.files = [paFile, bosFile]
+    sendRequest.useTextTags = true
+    sendRequest.hideTextTags = true
+
+    let signatureRequestId: string | undefined
     try {
-      const accountId = process.env.DOCUSIGN_ACCOUNT_ID
-      if (!accountId) {
-        console.error('[fulfillment] DOCUSIGN_ACCOUNT_ID is not set')
-        return
-      }
-      const result = await createEnvelope(accountId, envelopeDef)
-      envelopeId   = result.envelopeId ?? undefined
+      const api    = getSignatureRequestApi()
+      const result = await api.signatureRequestSend(sendRequest)
+      signatureRequestId = result.body.signatureRequest?.signatureRequestId ?? undefined
     } catch (err) {
-      console.error('[fulfillment] DocuSign API error for order', orderId, err)
+      console.error('[fulfillment] Dropbox Sign API error for order', orderId, err)
     }
 
     // --- Steps 6 & 7: Update order_documents with esign_ref and status 'sent' ---
     const docUpdate: Record<string, unknown> = { status: 'sent' }
-    if (envelopeId) docUpdate.esign_ref = envelopeId
+    if (signatureRequestId) docUpdate.esign_ref = signatureRequestId
 
     await supabase
       .from('order_documents')
