@@ -6,4 +6,4 @@ export const resend = new Resend(process.env.RESEND_API_KEY!)
 export const ADMIN_EMAIL = process.env.ADMIN_EMAIL!
 
 /** Default sender address for all transactional emails */
-export const FROM_EMAIL = 'Coast <no-reply@coastautos.com>'
+export const FROM_EMAIL = 'Coast <no-reply@drivewithcoast.com>'
