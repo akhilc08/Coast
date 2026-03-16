@@ -1,473 +1,238 @@
-'use client'
-
-import { useEffect } from 'react'
 import Link from 'next/link'
-import {
-  Search,
-  ClipboardList,
-  CreditCard,
-  Truck,
-  ShieldCheck,
-  Laptop,
-  Tag,
-  Globe,
-  ArrowRight,
-  Star,
-  TrendingUp,
-  BarChart3,
-  Users,
-  Building2,
-  CheckCircle2,
-} from 'lucide-react'
+import { Bot, PenLine, Truck } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server'
+import { getListings } from '@/lib/queries/listings'
+import { getSellerStatsBulk } from '@/lib/queries/reviews'
+import { HeroSearch } from '@/components/storefront/HeroSearch'
+import { ListingCard } from '@/components/storefront/ListingCard'
 
-export default function LandingPage() {
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('fade-in-visible')
-            observer.unobserve(entry.target)
-          }
-        })
-      },
-      { threshold: 0.08, rootMargin: '0px 0px -48px 0px' }
-    )
-    document.querySelectorAll('.fade-in').forEach((el) => observer.observe(el))
-    return () => observer.disconnect()
-  }, [])
+export default async function HomePage() {
+  const supabase = await createClient()
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+
+  // Fetch 7 featured listings + total count
+  const { listings, total } = await getListings({ sort: 'newest', page: 1 })
+  const featured = listings.slice(0, 7)
+
+  // Seller stats for featured cards
+  const sellerIds = [...new Set(featured.map(l => l.seller_id).filter(Boolean))] as string[]
+  const sellerStatsMap = await getSellerStatsBulk(sellerIds)
 
   return (
-    <div className="[font-family:var(--font-dm-sans)]">
+    <div className="font-sans">
 
-      {/* ─── HERO ───────────────────────────────────────────── */}
-      <section className="bg-[#faf9f6] px-6 pt-24 pb-24 sm:pt-32 sm:pb-32 lg:pt-40">
-        <div className="mx-auto max-w-5xl text-center">
+      {/* ── HERO ─────────────────────────────────────────────── */}
+      <section
+        className="relative overflow-hidden px-8 pb-20 pt-16 text-center"
+        style={{ background: 'linear-gradient(160deg, #eff6ff 0%, #dbeafe 40%, #fff 100%)' }}
+      >
+        {/* Radial overlays */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(circle at 20% 50%, rgba(37,99,235,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(99,102,241,0.06) 0%, transparent 50%)',
+          }}
+        />
 
-          {/* Eyebrow */}
-          <div className="fade-in mb-8 inline-flex items-center gap-2 rounded-full border border-[#e7e5e4] bg-white px-4 py-1.5 text-sm text-[#78716c]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#1d4ed8]" />
-            The Modern Wholesale Marketplace
+        {/* Live badge */}
+        <div className="relative mb-5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(37,99,235,0.2)] bg-[rgba(37,99,235,0.08)] px-3 py-[5px] text-[12px] font-semibold uppercase tracking-[0.5px] text-[#2563eb]">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#2563eb]" />
+          {total.toLocaleString()} vehicles live now
+        </div>
+
+        {/* Headline */}
+        <h1 className="relative mb-4 text-[56px] font-extrabold leading-[1.05] tracking-[-2.5px] text-[#0f172a]">
+          The wholesale car market,
+          <br />
+          <span className="text-[#2563eb]">built for consumers.</span>
+        </h1>
+
+        {/* Subhead */}
+        <p className="relative mx-auto mb-10 max-w-[480px] text-[18px] font-normal leading-[1.6] text-[#64748b]">
+          Browse thousands of AI-graded vehicles at true wholesale prices. Buy, sign, and arrange delivery — entirely online.
+        </p>
+
+        {/* Interactive search + pills */}
+        <HeroSearch />
+      </section>
+
+      {/* ── STATS STRIP ──────────────────────────────────────── */}
+      <div className="flex justify-center gap-16 bg-[#0f172a] px-8 py-5">
+        {[
+          { val: total.toLocaleString(),  lbl: 'Vehicles Available' },
+          { val: '$180M+',                lbl: 'Total Transacted' },
+          { val: '500+',                  lbl: 'Active Consumers' },
+          { val: '1.2 days',              lbl: 'Avg Time to Close' },
+        ].map(s => (
+          <div key={s.lbl} className="text-center">
+            <div className="text-[22px] font-extrabold tracking-[-0.5px] text-white">{s.val}</div>
+            <div className="mt-0.5 text-[12px] font-normal text-[#94a3b8]">{s.lbl}</div>
           </div>
+        ))}
+      </div>
 
-          {/* Headline */}
-          <h1 className="fade-in [font-family:var(--font-serif-display)] text-5xl leading-tight tracking-tight text-[#1c1917] sm:text-6xl lg:text-7xl">
-            Buy wholesale vehicles,
-            <br />
-            <em className="text-[#1d4ed8]">entirely online.</em>
-          </h1>
+      {/* ── FEATURED INVENTORY ───────────────────────────────── */}
+      <section className="px-8 py-14">
+        <div className="mb-7 flex items-baseline justify-between">
+          <h2 className="text-[22px] font-extrabold tracking-[-0.5px] text-[#0f172a]">Featured inventory</h2>
+          <Link href="/inventory" className="text-[14px] font-semibold text-[#2563eb] hover:underline">
+            Browse all {total.toLocaleString()} →
+          </Link>
+        </div>
 
-          {/* Subhead */}
-          <p className="fade-in mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-[#78716c] sm:text-xl">
-            Coast brings the wholesale auto market into the 21st century. Browse
-            AI-graded inventory, purchase with confidence, and get vehicles delivered
-            to your lot — no auctions, no wasted trips, no offline steps.
-          </p>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {featured.map(listing => {
+            const heroPhoto = listing.listing_photos
+              ?.sort((a: { position: number }, b: { position: number }) => a.position - b.position)[0]
+            return (
+              <ListingCard
+                key={listing.id}
+                id={listing.id}
+                sellerId={listing.seller_id}
+                sellerStats={listing.seller_id ? (sellerStatsMap.get(listing.seller_id) ?? null) : null}
+                make={listing.make}
+                model={listing.model}
+                year={listing.year}
+                mileage={listing.mileage}
+                price_cents={listing.price_cents}
+                grade={listing.grade}
+                heroStorageKey={heroPhoto?.storage_key ?? null}
+                supabaseUrl={supabaseUrl}
+              />
+            )
+          })}
 
-          {/* CTAs */}
-          <div className="fade-in mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          {/* Browse All CTA card */}
+          <div
+            className="flex min-h-[300px] flex-col items-center justify-center rounded-[16px] border border-[#bfdbfe] p-8 text-center"
+            style={{ background: 'linear-gradient(135deg, #eff6ff, #dbeafe)' }}
+          >
+            <div className="mb-4 text-4xl">🔍</div>
+            <p className="mb-2 text-[17px] font-bold text-[#1e40af]">
+              {Math.max(0, total - 7).toLocaleString()} more vehicles
+            </p>
+            <p className="mb-5 text-[14px] leading-relaxed text-[#3b82f6]">
+              Filter by make, model, year, price, mileage, and AI grade.
+            </p>
             <Link
               href="/inventory"
-              className="w-full rounded-lg bg-[#1c1917] px-8 py-4 text-sm font-semibold text-white transition-colors hover:bg-[#292524] sm:w-auto"
+              className="rounded-[8px] bg-[#2563eb] px-6 py-[11px] text-[14px] font-bold text-white hover:bg-[#1d4ed8] transition-colors"
             >
-              Browse Inventory
-            </Link>
-            <Link
-              href="/signup"
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#e7e5e4] bg-white px-8 py-4 text-sm font-medium text-[#1c1917] transition-colors hover:bg-[#f5f4f0] sm:w-auto"
-            >
-              Create Free Account <ArrowRight size={14} />
-            </Link>
-          </div>
-
-          {/* Stats bar */}
-          <div className="fade-in mt-16 overflow-hidden rounded-xl border border-[#e7e5e4] bg-white">
-            <div className="grid divide-x divide-[#e7e5e4] sm:grid-cols-3">
-              {[
-                { n: '2,400+', label: 'Vehicles listed' },
-                { n: '500+',   label: 'Active dealers' },
-                { n: '$180M+', label: 'Transacted on platform' },
-              ].map((s) => (
-                <div key={s.label} className="px-8 py-7">
-                  <div className="[font-family:var(--font-serif-display)] text-3xl text-[#1c1917] sm:text-4xl">
-                    {s.n}
-                  </div>
-                  <div className="mt-1 text-sm text-[#78716c]">{s.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── HOW IT WORKS ────────────────────────────────────── */}
-      <section className="bg-white px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-6xl">
-
-          <div className="fade-in mb-16 text-center">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-[#a8a29e]">
-              How It Works
-            </p>
-            <h2 className="[font-family:var(--font-serif-display)] text-4xl text-[#1c1917] sm:text-5xl">
-              From search to delivered,
-              <br />
-              <em>without leaving your desk.</em>
-            </h2>
-          </div>
-
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                step: '01',
-                icon: <Search size={20} strokeWidth={1.5} />,
-                title: 'Search & Filter',
-                desc: 'Browse thousands of AI-graded vehicles by make, model, year, mileage, and condition score. Powerful filters, no noise.',
-              },
-              {
-                step: '02',
-                icon: <ClipboardList size={20} strokeWidth={1.5} />,
-                title: 'Review AI Grade',
-                desc: "Every vehicle includes a detailed AI condition report. Know exactly what you're buying — before you commit.",
-              },
-              {
-                step: '03',
-                icon: <CreditCard size={20} strokeWidth={1.5} />,
-                title: 'Buy Securely Online',
-                desc: 'Purchase at wholesale price. Secure payments, digital documents, and title transfer — all handled on Coast.',
-              },
-              {
-                step: '04',
-                icon: <Truck size={20} strokeWidth={1.5} />,
-                title: 'Get It Delivered',
-                desc: 'We coordinate transport from seller to your lot. Your inventory arrives ready to sell, without you lifting a finger.',
-              },
-            ].map((item, i) => (
-              <div key={item.step} className={`fade-in fade-in-delay-${i}`}>
-                <div className="[font-family:var(--font-serif-display)] mb-4 text-5xl text-[#e7e5e4]">
-                  {item.step}
-                </div>
-                <div className="mb-3 text-[#1d4ed8]">{item.icon}</div>
-                <h3 className="mb-2 text-sm font-semibold text-[#1c1917]">{item.title}</h3>
-                <p className="text-sm leading-relaxed text-[#78716c]">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── WHY COAST ───────────────────────────────────────── */}
-      <section className="bg-[#faf9f6] px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-6xl">
-
-          <div className="fade-in mb-16 text-center">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-[#a8a29e]">
-              Why Coast
-            </p>
-            <h2 className="[font-family:var(--font-serif-display)] text-4xl text-[#1c1917] sm:text-5xl">
-              Built for how dealers
-              <br />
-              <em>actually work.</em>
-            </h2>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            {[
-              {
-                icon: <ShieldCheck size={20} strokeWidth={1.5} />,
-                title: 'AI-Graded Condition Reports',
-                desc: "No more surprises at pickup. Our proprietary grading algorithm analyzes hundreds of data points — photos, mileage, history, wear patterns — and issues an objective condition score for every vehicle on the platform.",
-              },
-              {
-                icon: <Laptop size={20} strokeWidth={1.5} />,
-                title: 'Fully Digital Transactions',
-                desc: 'From purchase to title transfer, every step happens on Coast. Sign documents, transfer funds, and manage your entire inventory pipeline — all in one place, with a complete audit trail.',
-              },
-              {
-                icon: <Tag size={20} strokeWidth={1.5} />,
-                title: 'Transparent Wholesale Pricing',
-                desc: "Wholesale prices with no hidden fees, no buyer's premiums, no surprises. The price you see is the price you pay. Full transparency at every step, on every vehicle.",
-              },
-              {
-                icon: <Globe size={20} strokeWidth={1.5} />,
-                title: 'No Dealer Visits Required',
-                desc: "Stop burning Tuesdays driving to auction lanes. Buy from anywhere, at any time, on any device. Coast puts the entire wholesale market in your pocket — 24/7.",
-              },
-            ].map((item, i) => (
-              <div
-                key={item.title}
-                className={`fade-in fade-in-delay-${i % 2} rounded-xl border border-[#e7e5e4] bg-white p-8 transition-shadow hover:shadow-sm`}
-              >
-                <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#e7e5e4] text-[#1d4ed8]">
-                  {item.icon}
-                </div>
-                <h3 className="mb-3 text-sm font-semibold text-[#1c1917]">{item.title}</h3>
-                <p className="text-sm leading-relaxed text-[#78716c]">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── MARKET CONTEXT ──────────────────────────────────── */}
-      <section className="bg-[#1c1917] px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-6xl">
-          <div className="grid items-center gap-16 lg:grid-cols-2">
-
-            <div className="fade-in">
-              <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-[#57534e]">
-                Market Context
-              </p>
-              <h2 className="[font-family:var(--font-serif-display)] mb-8 text-4xl text-white sm:text-5xl">
-                An $800 billion market
-                <br />
-                <em className="text-[#93c5fd]">still stuck in 1985.</em>
-              </h2>
-              <p className="mb-5 leading-relaxed text-[#a8a29e]">
-                The US wholesale auto market processes over 40 million vehicle transactions
-                every year. Yet more than 70% of those transactions still happen in person —
-                at physical auction lanes, through phone calls, and on paper forms.
-              </p>
-              <p className="leading-relaxed text-[#a8a29e]">
-                Dealers spend hours each week just traveling to and from auctions, before
-                they've even seen a vehicle. Coast is built to fix that. We're bringing the
-                same digital transformation that reshaped banking, insurance, and B2B commerce
-                to wholesale automotive — starting with the transaction layer.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { stat: '$800B+',  label: 'US wholesale auto market',          delay: 0 },
-                { stat: '40M+',    label: 'vehicle transactions per year',      delay: 1 },
-                { stat: '70%+',    label: 'still done at physical auctions',    delay: 2 },
-                { stat: '3–4 hrs', label: 'wasted per vehicle on transit runs', delay: 3 },
-              ].map((item) => (
-                <div
-                  key={item.stat}
-                  className={`fade-in fade-in-delay-${item.delay} rounded-xl border border-white/10 bg-white/5 p-6`}
-                >
-                  <div className="[font-family:var(--font-serif-display)] mb-2 text-3xl text-white">
-                    {item.stat}
-                  </div>
-                  <div className="text-sm leading-snug text-[#78716c]">{item.label}</div>
-                </div>
-              ))}
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* ─── WHO WE ARE ──────────────────────────────────────── */}
-      <section className="bg-white px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-4xl">
-
-          <div className="fade-in text-center">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-[#a8a29e]">
-              Who We Are
-            </p>
-            <h2 className="[font-family:var(--font-serif-display)] mb-10 text-4xl text-[#1c1917] sm:text-5xl">
-              Built by people who know
-              <br />
-              <em>the industry inside out.</em>
-            </h2>
-          </div>
-
-          <div className="fade-in space-y-5 text-center">
-            <p className="text-lg leading-relaxed text-[#78716c]">
-              We're a team of automotive industry veterans, fintech engineers, and marketplace
-              builders who've spent careers watching dealers burn time and money on a process
-              that hasn't meaningfully changed since the 1950s.
-            </p>
-            <p className="text-lg leading-relaxed text-[#78716c]">
-              We started Coast with a simple belief: the wholesale vehicle market deserves the
-              same transformation that has reshaped how we bank, insure, and run businesses.
-              The technology exists. The demand is there. What's been missing is execution.
-            </p>
-            <p className="text-lg leading-relaxed text-[#78716c]">
-              Coast is the infrastructure for the next generation of dealer inventory — fast,
-              transparent, and fully digital.
-            </p>
-          </div>
-
-          <div className="fade-in mt-14 grid divide-y divide-[#e7e5e4] rounded-xl border border-[#e7e5e4] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-            {[
-              { icon: <Building2 size={18} strokeWidth={1.5} />, label: 'Detroit, MI', sub: 'Headquarters' },
-              { icon: <Users size={18} strokeWidth={1.5} />,     label: '25+ team',    sub: 'Across engineering, ops & growth' },
-              { icon: <TrendingUp size={18} strokeWidth={1.5} />, label: 'Seed funded', sub: 'Backed by top-tier investors' },
-            ].map((item) => (
-              <div key={item.label} className="flex items-center gap-3 px-8 py-6">
-                <div className="text-[#1d4ed8]">{item.icon}</div>
-                <div>
-                  <div className="text-sm font-semibold text-[#1c1917]">{item.label}</div>
-                  <div className="text-xs text-[#78716c]">{item.sub}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-        </div>
-      </section>
-
-      {/* ─── SOCIAL PROOF ────────────────────────────────────── */}
-      <section className="bg-[#faf9f6] px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-6xl">
-
-          <div className="fade-in mb-16 text-center">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-[#a8a29e]">
-              Trusted by Dealers
-            </p>
-            <h2 className="[font-family:var(--font-serif-display)] text-4xl text-[#1c1917] sm:text-5xl">
-              Dealers are <em>buying differently.</em>
-            </h2>
-          </div>
-
-          <div className="mb-16 grid gap-5 sm:grid-cols-3">
-            {[
-              {
-                quote: "Coast saved us 6+ hours a week we used to spend at the auction. The AI condition reports are more reliable than what I'd see in person half the time.",
-                name: 'Marcus T.',
-                title: 'GM, Metro Ford Dealers Group',
-                delay: 0,
-              },
-              {
-                quote: "I was skeptical about buying wholesale online — but the grading is transparent and the process is genuinely seamless. We've done 30+ vehicles through Coast this quarter alone.",
-                name: 'Jennifer K.',
-                title: 'Inventory Director, Lakeside Auto',
-                delay: 1,
-              },
-              {
-                quote: "The days of burning fuel to drive to a lane and lose on a car you couldn't properly inspect are over. Coast changed how we think about sourcing inventory.",
-                name: 'David R.',
-                title: 'Owner, Riverside Pre-Owned',
-                delay: 2,
-              },
-            ].map((item) => (
-              <div
-                key={item.name}
-                className={`fade-in fade-in-delay-${item.delay} rounded-xl border border-[#e7e5e4] bg-white p-8`}
-              >
-                <div className="mb-4 flex gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={13} className="fill-[#1d4ed8] text-[#1d4ed8]" />
-                  ))}
-                </div>
-                <p className="mb-6 text-sm leading-relaxed text-[#1c1917]">
-                  &ldquo;{item.quote}&rdquo;
-                </p>
-                <div>
-                  <div className="text-sm font-semibold text-[#1c1917]">{item.name}</div>
-                  <div className="mt-0.5 text-xs text-[#78716c]">{item.title}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Platform trust markers */}
-          <div className="fade-in rounded-xl border border-[#e7e5e4] bg-white px-8 py-6">
-            <div className="grid gap-6 sm:grid-cols-4">
-              {[
-                { icon: <ShieldCheck size={18} strokeWidth={1.5} />, label: 'Verified Dealers Only',    sub: 'Licensed dealers exclusively' },
-                { icon: <CreditCard size={18} strokeWidth={1.5} />,  label: 'Secure Payments',          sub: 'Bank-grade transaction security' },
-                { icon: <CheckCircle2 size={18} strokeWidth={1.5} />, label: '100% Digital Titles',    sub: 'No paperwork, no delays' },
-                { icon: <BarChart3 size={18} strokeWidth={1.5} />,   label: 'Real-Time Pricing Data',   sub: 'Wholesale market intelligence' },
-              ].map((item) => (
-                <div key={item.label} className="flex items-start gap-3">
-                  <div className="mt-0.5 text-[#1d4ed8]">{item.icon}</div>
-                  <div>
-                    <div className="text-sm font-semibold text-[#1c1917]">{item.label}</div>
-                    <div className="text-xs text-[#78716c]">{item.sub}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ─── CTA BANNER ──────────────────────────────────────── */}
-      <section className="bg-[#1c1917] px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-3xl text-center fade-in">
-          <h2 className="[font-family:var(--font-serif-display)] mb-6 text-4xl text-white sm:text-5xl lg:text-6xl">
-            Ready to transform
-            <br />
-            <em className="text-[#93c5fd]">how you buy inventory?</em>
-          </h2>
-          <p className="mb-10 text-lg text-[#a8a29e]">
-            Join hundreds of dealers already buying smarter on Coast.
-            Free to create an account. No commitments.
-          </p>
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              href="/signup"
-              className="w-full rounded-lg bg-white px-8 py-4 text-sm font-semibold text-[#1c1917] transition-colors hover:bg-[#f5f4f0] sm:w-auto"
-            >
-              Create Free Account
-            </Link>
-            <Link
-              href="/inventory"
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/20 px-8 py-4 text-sm font-medium text-white transition-colors hover:bg-white/5 sm:w-auto"
-            >
-              Browse Inventory <ArrowRight size={14} />
+              Browse All Inventory
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ─── FOOTER ──────────────────────────────────────────── */}
-      <footer className="border-t border-white/10 bg-[#1c1917] px-6 py-16">
-        <div className="mx-auto max-w-6xl">
+      {/* ── HOW IT WORKS ─────────────────────────────────────── */}
+      <section id="how-it-works" className="bg-[#0f172a] px-8 py-[72px] text-center">
+        <p className="mb-3 text-[12px] font-semibold uppercase tracking-[2px] text-[#3b82f6]">Simple process</p>
+        <h2 className="mb-4 text-[40px] font-extrabold tracking-[-1.5px] text-white">From search to lot in days.</h2>
+        <p className="mx-auto mb-14 max-w-[420px] text-[16px] leading-[1.6] text-[#94a3b8]">
+          No auction travel. No offline paperwork. The entire deal happens on Coast.
+        </p>
 
-          <div className="mb-12 grid grid-cols-2 gap-8 sm:grid-cols-4">
-            <div className="col-span-2 sm:col-span-1">
-              <div className="[font-family:var(--font-serif-display)] mb-3 text-xl text-white">
-                Coast
+        <div className="mx-auto grid max-w-[900px] grid-cols-4 gap-0.5">
+          {[
+            { n: '1', title: 'Search',  desc: 'Browse AI-graded inventory from vetted wholesale sellers. Filter anything.' },
+            { n: '2', title: 'Review',  desc: 'Full photo gallery, AI condition grade, and vehicle history — no surprises.' },
+            { n: '3', title: 'Buy',     desc: 'Purchase at true wholesale price. No auction fees or floor premiums.' },
+            { n: '4', title: 'Deliver', desc: 'E-sign all documents and arrange transport to your lot — all in one place.' },
+          ].map((step, i) => (
+            <div
+              key={step.n}
+              className={`relative bg-[#1e293b] px-7 py-8 text-left ${
+                i === 0 ? 'rounded-l-[16px]' : i === 3 ? 'rounded-r-[16px]' : ''
+              }`}
+            >
+              <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#2563eb] text-[14px] font-extrabold text-white">
+                {step.n}
               </div>
-              <p className="text-sm leading-relaxed text-[#78716c]">
-                The wholesale vehicle marketplace, fully online.
-              </p>
+              <h3 className="mb-2 text-[16px] font-bold text-white">{step.title}</h3>
+              <p className="text-[13px] leading-[1.6] text-[#94a3b8]">{step.desc}</p>
+              {i < 3 && (
+                <div className="absolute right-[-10px] top-1/2 z-10 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-[#2563eb] text-[10px] text-white">
+                  →
+                </div>
+              )}
             </div>
-
-            {[
-              {
-                heading: 'Product',
-                links: ['Browse Inventory', 'How It Works', 'AI Condition Reports', 'Pricing'],
-              },
-              {
-                heading: 'Company',
-                links: ['About', 'Careers', 'Blog', 'Contact'],
-              },
-              {
-                heading: 'Legal',
-                links: ['Privacy Policy', 'Terms of Service', 'Dealer Agreement', 'Cookie Policy'],
-              },
-            ].map((col) => (
-              <div key={col.heading}>
-                <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-[#57534e]">
-                  {col.heading}
-                </p>
-                <ul className="space-y-3">
-                  {col.links.map((link) => (
-                    <li key={link}>
-                      <a href="#" className="text-sm text-[#78716c] transition-colors hover:text-white">
-                        {link}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex flex-col items-start justify-between gap-2 border-t border-white/10 pt-8 sm:flex-row sm:items-center">
-            <p className="text-xs text-[#57534e]">
-              © 2025 Coast Marketplace, Inc. All rights reserved.
-            </p>
-            <p className="text-xs text-[#57534e]">hello@coastauto.com</p>
-          </div>
-
+          ))}
         </div>
+      </section>
+
+      {/* ── TRUST / WHY COAST ────────────────────────────────── */}
+      <section className="bg-[#f8fafc] px-8 py-16">
+        <h2 className="mb-12 text-center text-[32px] font-extrabold tracking-[-1px] text-[#0f172a]">
+          Why consumers choose Coast
+        </h2>
+        <div className="mx-auto grid max-w-[900px] grid-cols-1 gap-6 sm:grid-cols-3">
+          {[
+            {
+              icon: <Bot size={22} />,
+              title: 'AI Condition Grading',
+              desc: 'Every vehicle is graded using AI analysis of photos and inspection data — so you know exactly what you\'re buying before wiring funds.',
+            },
+            {
+              icon: <PenLine size={22} />,
+              title: 'Digital Paperwork',
+              desc: 'Purchase agreements, title transfer, and all closing documents signed electronically. No fax machines, no overnight mail.',
+            },
+            {
+              icon: <Truck size={22} />,
+              title: 'Transport Arranged',
+              desc: 'Once you close, coordinate transport directly to your lot through Coast. One platform, start to finish.',
+            },
+          ].map(card => (
+            <div key={card.title} className="rounded-[16px] border border-[#e2e8f0] bg-white p-8">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-[12px] bg-[#eff6ff] text-[#2563eb]">
+                {card.icon}
+              </div>
+              <h3 className="mb-2 text-[17px] font-bold text-[#0f172a]">{card.title}</h3>
+              <p className="text-[14px] leading-[1.6] text-[#64748b]">{card.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── FOOTER CTA ───────────────────────────────────────── */}
+      <div
+        className="px-8 py-20 text-center"
+        style={{ background: 'linear-gradient(135deg, #1d4ed8 0%, #4f46e5 100%)' }}
+      >
+        <h2 className="mb-4 text-[44px] font-extrabold tracking-[-2px] text-white">Ready to buy smarter?</h2>
+        <p className="mx-auto mb-9 max-w-[420px] text-[17px] leading-[1.6] text-white/75">
+          Join 500+ consumers buying wholesale inventory entirely online. No auction floors required.
+        </p>
+        <div className="flex justify-center gap-3">
+          <Link
+            href="/inventory"
+            className="rounded-[10px] bg-white px-8 py-[14px] text-[15px] font-bold text-[#1d4ed8] hover:bg-white/90 transition-colors"
+          >
+            Browse Inventory
+          </Link>
+          <Link
+            href="/signup"
+            className="rounded-[10px] border-2 border-white/40 px-8 py-[14px] text-[15px] font-semibold text-white hover:bg-white/10 transition-colors"
+          >
+            Create Free Account
+          </Link>
+        </div>
+      </div>
+
+      {/* ── FOOTER ───────────────────────────────────────────── */}
+      <footer className="flex items-center justify-between bg-[#0f172a] px-8 py-10">
+        <div className="text-[18px] font-extrabold tracking-[-0.5px] text-white">
+          Coast<span className="text-[#3b82f6]">.</span>
+        </div>
+        <div className="flex gap-6">
+          {['Inventory', 'How It Works', 'For Sellers', 'Sign In'].map(l => (
+            <Link key={l} href={l === 'Inventory' ? '/inventory' : l === 'Sign In' ? '/login' : '#'} className="text-[13px] text-[#64748b] hover:text-white transition-colors">
+              {l}
+            </Link>
+          ))}
+        </div>
+        <p className="text-[13px] text-[#475569]">© 2026 Coast Wholesale</p>
       </footer>
 
     </div>
