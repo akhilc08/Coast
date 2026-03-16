@@ -22,14 +22,14 @@ interface ListingGridProps {
 export function ListingGrid({ listings, supabaseUrl, sellerStatsMap }: ListingGridProps) {
   if (listings.length === 0) {
     return (
-      <div className="flex h-64 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900">
-        <p className="text-sm text-zinc-500">No listings match your filters.</p>
+      <div className="flex h-64 items-center justify-center rounded-xl border border-[#e5e7eb] bg-[#f8fafc]">
+        <p className="text-sm text-[#94a3b8]">No listings match your filters.</p>
       </div>
     )
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {listings.map(listing => {
         const heroPhoto = listing.listing_photos
           ?.sort((a, b) => a.position - b.position)[0]
