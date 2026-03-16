@@ -116,8 +116,6 @@ export default async function ListingDetailPage({
   const formattedDate = listingDate
     ? new Date(listingDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
     : null
-  const shortId = listing.id.replace(/-/g, '').slice(0, 8).toUpperCase()
-
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <main className="min-h-screen bg-[#f5f5f4]">
@@ -126,7 +124,7 @@ export default async function ListingDetailPage({
       <div className="sticky top-0 z-20 bg-white border-b border-[#e7e5e4] shadow-sm">
         <div className="mx-auto max-w-7xl flex items-center gap-8 px-6 py-4">
           <Link
-            href="/listings"
+            href="/inventory"
             className="flex items-center gap-2 text-sm font-medium text-[#78716c] hover:text-[#1c1917] transition-colors whitespace-nowrap"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -134,15 +132,12 @@ export default async function ListingDetailPage({
           </Link>
 
           <div className="hidden sm:flex items-center gap-0 text-sm text-[#78716c] divide-x divide-[#e7e5e4]">
-            <span className="pr-6">
-              Listing: <span className="font-semibold text-[#1c1917]">#{shortId}</span>
-            </span>
             {formattedDate && (
-              <span className="px-6">
+              <span className="pr-6">
                 Listed: <span className="font-semibold text-[#1c1917]">{formattedDate}</span>
               </span>
             )}
-            <span className="pl-6">{photos.length} Photos</span>
+            <span className={formattedDate ? 'pl-6' : ''}>{photos.length} Photos</span>
           </div>
         </div>
       </div>
