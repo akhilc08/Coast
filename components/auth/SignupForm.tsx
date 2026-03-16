@@ -41,8 +41,8 @@ export function SignupForm() {
 
   if (submitted) {
     return (
-      <div className="rounded-lg border border-blue-800 bg-blue-950 p-4">
-        <p className="text-sm text-blue-200">
+      <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+        <p className="text-sm text-blue-700">
           Check your email — we sent a confirmation link to complete your signup.
         </p>
       </div>
@@ -57,15 +57,15 @@ export function SignupForm() {
           name="fullName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-zinc-300">Full name</FormLabel>
+              <FormLabel className="text-[#374151]">Full name</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Jane Smith"
-                  className="border-zinc-700 bg-zinc-800 text-zinc-100 placeholder:text-zinc-500 focus:border-blue-600"
+                  className="border-[#d1d5db] bg-white text-[#111] placeholder:text-[#9ca3af] focus:border-[#2563eb]"
                   {...field}
                 />
               </FormControl>
-              <FormMessage className="text-red-400" />
+              <FormMessage className="text-red-500" />
             </FormItem>
           )}
         />
@@ -75,16 +75,16 @@ export function SignupForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-zinc-300">Email</FormLabel>
+              <FormLabel className="text-[#374151]">Email</FormLabel>
               <FormControl>
                 <Input
                   type="email"
                   placeholder="jane@example.com"
-                  className="border-zinc-700 bg-zinc-800 text-zinc-100 placeholder:text-zinc-500 focus:border-blue-600"
+                  className="border-[#d1d5db] bg-white text-[#111] placeholder:text-[#9ca3af] focus:border-[#2563eb]"
                   {...field}
                 />
               </FormControl>
-              <FormMessage className="text-red-400" />
+              <FormMessage className="text-red-500" />
             </FormItem>
           )}
         />
@@ -94,22 +94,22 @@ export function SignupForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-zinc-300">Password</FormLabel>
+              <FormLabel className="text-[#374151]">Password</FormLabel>
               <FormControl>
                 <Input
                   type="password"
                   placeholder="Min 8 characters"
-                  className="border-zinc-700 bg-zinc-800 text-zinc-100 placeholder:text-zinc-500 focus:border-blue-600"
+                  className="border-[#d1d5db] bg-white text-[#111] placeholder:text-[#9ca3af] focus:border-[#2563eb]"
                   {...field}
                 />
               </FormControl>
-              <FormMessage className="text-red-400" />
+              <FormMessage className="text-red-500" />
             </FormItem>
           )}
         />
 
         {serverError && (
-          <p className="rounded-md bg-red-950 border border-red-800 px-3 py-2 text-sm text-red-300">
+          <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
             {serverError}
           </p>
         )}
@@ -117,14 +117,14 @@ export function SignupForm() {
         <Button
           type="submit"
           disabled={form.formState.isSubmitting}
-          className="w-full bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-50"
+          className="w-full bg-[#2563eb] text-white hover:bg-[#1d4ed8] disabled:opacity-50"
         >
           {form.formState.isSubmitting ? 'Creating account...' : 'Create account'}
         </Button>
 
-        <p className="text-center text-sm text-zinc-500">
+        <p className="text-center text-sm text-[#6b7280]">
           Already have an account?{' '}
-          <Link href="/login" className="text-blue-400 hover:text-blue-300">
+          <Link href="/login" className="text-[#2563eb] hover:underline font-medium">
             Log in
           </Link>
         </p>

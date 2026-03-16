@@ -20,7 +20,6 @@ export function ForgotPasswordForm() {
 
   async function onSubmit(data: ResetPasswordRequestInput) {
     const supabase = createClient()
-    // Always show success message — don't leak whether email exists
     await supabase.auth.resetPasswordForEmail(data.email, {
       redirectTo: `${window.location.origin}/auth/reset-password`,
     })
@@ -30,15 +29,12 @@ export function ForgotPasswordForm() {
   if (submitted) {
     return (
       <div className="space-y-4">
-        <div className="rounded-lg border border-blue-800 bg-blue-950 p-4">
-          <p className="text-sm text-blue-200">
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+          <p className="text-sm text-blue-700">
             If an account exists with that email, you will receive a password reset link shortly.
           </p>
         </div>
-        <Link
-          href="/login"
-          className="block text-center text-sm text-zinc-500 hover:text-zinc-300"
-        >
+        <Link href="/login" className="block text-center text-sm text-[#6b7280] hover:text-[#111]">
           Back to login
         </Link>
       </div>
@@ -53,16 +49,16 @@ export function ForgotPasswordForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-zinc-300">Email</FormLabel>
+              <FormLabel className="text-[#374151]">Email</FormLabel>
               <FormControl>
                 <Input
                   type="email"
                   placeholder="jane@example.com"
-                  className="border-zinc-700 bg-zinc-800 text-zinc-100 placeholder:text-zinc-500 focus:border-blue-600"
+                  className="border-[#d1d5db] bg-white text-[#111] placeholder:text-[#9ca3af] focus:border-[#2563eb]"
                   {...field}
                 />
               </FormControl>
-              <FormMessage className="text-red-400" />
+              <FormMessage className="text-red-500" />
             </FormItem>
           )}
         />
@@ -70,14 +66,14 @@ export function ForgotPasswordForm() {
         <Button
           type="submit"
           disabled={form.formState.isSubmitting}
-          className="w-full bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-50"
+          className="w-full bg-[#2563eb] text-white hover:bg-[#1d4ed8] disabled:opacity-50"
         >
           {form.formState.isSubmitting ? 'Sending...' : 'Send reset link'}
         </Button>
 
-        <p className="text-center text-sm text-zinc-500">
+        <p className="text-center text-sm text-[#6b7280]">
           Remembered it?{' '}
-          <Link href="/login" className="text-blue-400 hover:text-blue-300">
+          <Link href="/login" className="text-[#2563eb] hover:underline font-medium">
             Back to login
           </Link>
         </p>

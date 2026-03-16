@@ -16,7 +16,6 @@ export function LoginForm() {
   const searchParams = useSearchParams()
   const [serverError, setServerError] = useState<string | null>(null)
 
-  // Show error from email confirmation failure if redirected with ?error=verification_failed
   const paramError = searchParams.get('error')
 
   const form = useForm<LoginInput>({
@@ -37,7 +36,6 @@ export function LoginForm() {
       return
     }
 
-    // Redirect based on role
     const { data: { user: loggedInUser } } = await supabase.auth.getUser()
     const role = loggedInUser?.app_metadata?.role
     if (role === 'admin') {
@@ -54,8 +52,8 @@ export function LoginForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         {paramError === 'verification_failed' && (
-          <div className="rounded-md border border-red-800 bg-red-950 px-3 py-2">
-            <p className="text-sm text-red-300">Email verification failed. Please request a new link.</p>
+          <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2">
+            <p className="text-sm text-red-600">Email verification failed. Please request a new link.</p>
           </div>
         )}
 
@@ -64,16 +62,16 @@ export function LoginForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-zinc-300">Email</FormLabel>
+              <FormLabel className="text-[#374151]">Email</FormLabel>
               <FormControl>
                 <Input
                   type="email"
                   placeholder="jane@example.com"
-                  className="border-zinc-700 bg-zinc-800 text-zinc-100 placeholder:text-zinc-500 focus:border-blue-600"
+                  className="border-[#d1d5db] bg-white text-[#111] placeholder:text-[#9ca3af] focus:border-[#2563eb]"
                   {...field}
                 />
               </FormControl>
-              <FormMessage className="text-red-400" />
+              <FormMessage className="text-red-500" />
             </FormItem>
           )}
         />
@@ -84,11 +82,8 @@ export function LoginForm() {
           render={({ field }) => (
             <FormItem>
               <div className="flex items-center justify-between">
-                <FormLabel className="text-zinc-300">Password</FormLabel>
-                <Link
-                  href="/forgot-password"
-                  className="text-xs text-zinc-500 hover:text-zinc-300"
-                >
+                <FormLabel className="text-[#374151]">Password</FormLabel>
+                <Link href="/forgot-password" className="text-xs text-[#6b7280] hover:text-[#111]">
                   Forgot password?
                 </Link>
               </div>
@@ -96,17 +91,17 @@ export function LoginForm() {
                 <Input
                   type="password"
                   placeholder="Enter your password"
-                  className="border-zinc-700 bg-zinc-800 text-zinc-100 placeholder:text-zinc-500 focus:border-blue-600"
+                  className="border-[#d1d5db] bg-white text-[#111] placeholder:text-[#9ca3af] focus:border-[#2563eb]"
                   {...field}
                 />
               </FormControl>
-              <FormMessage className="text-red-400" />
+              <FormMessage className="text-red-500" />
             </FormItem>
           )}
         />
 
         {serverError && (
-          <p className="rounded-md bg-red-950 border border-red-800 px-3 py-2 text-sm text-red-300">
+          <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
             {serverError}
           </p>
         )}
@@ -114,14 +109,14 @@ export function LoginForm() {
         <Button
           type="submit"
           disabled={form.formState.isSubmitting}
-          className="w-full bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-50"
+          className="w-full bg-[#2563eb] text-white hover:bg-[#1d4ed8] disabled:opacity-50"
         >
           {form.formState.isSubmitting ? 'Logging in...' : 'Log in'}
         </Button>
 
-        <p className="text-center text-sm text-zinc-500">
+        <p className="text-center text-sm text-[#6b7280]">
           New to Coast?{' '}
-          <Link href="/signup" className="text-blue-400 hover:text-blue-300">
+          <Link href="/signup" className="text-[#2563eb] hover:underline font-medium">
             Create account
           </Link>
         </p>
