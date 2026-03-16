@@ -45,7 +45,7 @@ export default async function SellerProfilePage({ params, searchParams }: Props)
           <p className="mt-1 text-sm text-[#78716c]">{seller.full_name}</p>
         )}
 
-        {/* Aggregate rating */}
+          {/* Aggregate rating */}
         <div className="mt-3">
           {stats ? (
             <div className="flex items-center gap-2">
@@ -59,6 +59,11 @@ export default async function SellerProfilePage({ params, searchParams }: Props)
             <p className="text-sm text-[#a8a29e]">No reviews yet</p>
           )}
         </div>
+
+        {/* Bio */}
+        {seller.bio && (
+          <p className="mt-5 text-sm leading-relaxed text-[#57534e] max-w-xl">{seller.bio}</p>
+        )}
       </div>
 
       {/* Reviews list */}

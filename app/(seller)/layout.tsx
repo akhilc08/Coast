@@ -16,6 +16,9 @@ export default async function SellerLayout({ children }: { children: React.React
             <Link href="/seller/dashboard" className="text-sm text-[#78716c] hover:text-[#1c1917] transition-colors">
               Dashboard
             </Link>
+            <Link href="/seller/profile" className="text-sm text-[#78716c] hover:text-[#1c1917] transition-colors">
+              Profile
+            </Link>
             <Link href="/seller/listings/new" className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500 transition-colors">
               New Listing
             </Link>

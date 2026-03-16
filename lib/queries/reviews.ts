@@ -16,6 +16,7 @@ export type PublicSellerProfile = {
   id: string
   full_name: string | null
   company: string | null
+  bio: string | null
 }
 
 /**
@@ -104,7 +105,7 @@ export async function getPublicSellerProfile(sellerId: string): Promise<PublicSe
   const admin = createAdminClient()
   const { data } = await admin
     .from('public_seller_profiles')
-    .select('id, full_name, company')
+    .select('id, full_name, company, bio')
     .eq('id', sellerId)
     .single()
 
