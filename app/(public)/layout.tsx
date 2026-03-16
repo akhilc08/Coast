@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { LogoutButton } from '@/components/auth/LogoutButton'
-import { NavSearch } from '@/components/storefront/NavSearch'
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -16,9 +15,6 @@ export default async function PublicLayout({ children }: { children: React.React
         <Link href="/" className="shrink-0 text-[22px] font-extrabold tracking-tight text-[#111]">
           Coast<span className="text-[#2563eb]">.</span>
         </Link>
-
-        {/* Centre search */}
-        <NavSearch />
 
         {/* Right nav */}
         <nav className="ml-auto flex items-center gap-6">
