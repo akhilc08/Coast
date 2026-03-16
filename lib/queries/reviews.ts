@@ -101,8 +101,8 @@ export async function getReviewsForSeller(
  * Returns null if the seller doesn't exist or is not a wholesaler.
  */
 export async function getPublicSellerProfile(sellerId: string): Promise<PublicSellerProfile | null> {
-  const supabase = await createClient()
-  const { data } = await supabase
+  const admin = createAdminClient()
+  const { data } = await admin
     .from('public_seller_profiles')
     .select('id, full_name, company')
     .eq('id', sellerId)
