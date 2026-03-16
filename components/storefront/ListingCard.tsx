@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Calendar, Gauge } from 'lucide-react'
+import { Calendar, Gauge, Heart } from 'lucide-react'
 
 interface ListingCardProps {
   id: string
@@ -63,7 +63,7 @@ export function ListingCard({
 
           {/* Save button */}
           <div className="absolute right-[10px] top-[10px] flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-[#94a3b8] backdrop-blur-sm">
-            ♡
+            <Heart size={14} />
           </div>
         </div>
 

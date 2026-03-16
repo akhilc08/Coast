@@ -223,7 +223,7 @@ export default async function HomePage() {
       {/* ── FOOTER ───────────────────────────────────────────── */}
       <footer className="flex items-center justify-between bg-[#0f172a] px-8 py-10">
         <div className="text-[18px] font-extrabold tracking-[-0.5px] text-white">
-          Coast<span className="text-[#3b82f6]">.</span>
+          Coast<span className="text-[#2563eb]">.</span>
         </div>
         <div className="flex gap-6">
           {['Inventory', 'How It Works', 'For Sellers', 'Sign In'].map(l => (

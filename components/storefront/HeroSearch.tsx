@@ -54,7 +54,7 @@ export function HeroSearch() {
         <Search size={18} className="shrink-0 text-[#9ca3af]" />
         <input
           ref={inputRef}
-          placeholder="Search make, model, or year…"
+          placeholder="Search make, model, or keyword…"
           className="flex-1 bg-transparent text-[16px] text-[#111] outline-none placeholder:text-[#9ca3af]"
         />
 
