@@ -226,8 +226,8 @@ export default async function HomePage() {
           Coast<span className="text-[#2563eb]">.</span>
         </div>
         <div className="flex gap-6">
-          {['Inventory', 'How It Works', 'For Sellers', 'Sign In'].map(l => (
-            <Link key={l} href={l === 'Inventory' ? '/inventory' : l === 'Sign In' ? '/login' : '#'} className="text-[13px] text-[#64748b] hover:text-white transition-colors">
+          {['Inventory', 'For Sellers', 'Sign In'].map(l => (
+            <Link key={l} href={l === 'Inventory' ? '/inventory' : l === 'For Sellers' ? '/sellers' : '/login'} className="text-[13px] text-[#64748b] hover:text-white transition-colors">
               {l}
             </Link>
           ))}
