@@ -3,7 +3,6 @@ import { Bot, PenLine, Truck } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getListings } from '@/lib/queries/listings'
 import { getSellerStatsBulk } from '@/lib/queries/reviews'
-import { HeroSearch } from '@/components/storefront/HeroSearch'
 import { ListingCard } from '@/components/storefront/ListingCard'
 
 export default async function HomePage() {
@@ -53,8 +52,6 @@ export default async function HomePage() {
           Browse thousands of AI-graded vehicles at true wholesale prices. Buy, sign, and arrange delivery — entirely online.
         </p>
 
-        {/* Interactive search + pills */}
-        <HeroSearch />
       </section>
 
       {/* ── STATS STRIP ──────────────────────────────────────── */}
@@ -122,42 +119,6 @@ export default async function HomePage() {
               Browse All Inventory
             </Link>
           </div>
-        </div>
-      </section>
-
-      {/* ── HOW IT WORKS ─────────────────────────────────────── */}
-      <section id="how-it-works" className="bg-[#0f172a] px-8 py-[72px] text-center">
-        <p className="mb-3 text-[12px] font-semibold uppercase tracking-[2px] text-[#3b82f6]">Simple process</p>
-        <h2 className="mb-4 text-[40px] font-extrabold tracking-[-1.5px] text-white">From search to lot in days.</h2>
-        <p className="mx-auto mb-14 max-w-[420px] text-[16px] leading-[1.6] text-[#94a3b8]">
-          No auction travel. No offline paperwork. The entire deal happens on Coast.
-        </p>
-
-        <div className="mx-auto grid max-w-[900px] grid-cols-4 gap-0.5">
-          {[
-            { n: '1', title: 'Search',  desc: 'Browse AI-graded inventory from vetted wholesale sellers. Filter anything.' },
-            { n: '2', title: 'Review',  desc: 'Full photo gallery, AI condition grade, and vehicle history — no surprises.' },
-            { n: '3', title: 'Buy',     desc: 'Purchase at true wholesale price. No auction fees or floor premiums.' },
-            { n: '4', title: 'Deliver', desc: 'E-sign all documents and arrange transport to your lot — all in one place.' },
-          ].map((step, i) => (
-            <div
-              key={step.n}
-              className={`relative bg-[#1e293b] px-7 py-8 text-left ${
-                i === 0 ? 'rounded-l-[16px]' : i === 3 ? 'rounded-r-[16px]' : ''
-              }`}
-            >
-              <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#2563eb] text-[14px] font-extrabold text-white">
-                {step.n}
-              </div>
-              <h3 className="mb-2 text-[16px] font-bold text-white">{step.title}</h3>
-              <p className="text-[13px] leading-[1.6] text-[#94a3b8]">{step.desc}</p>
-              {i < 3 && (
-                <div className="absolute right-[-10px] top-1/2 z-10 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-[#2563eb] text-[10px] text-white">
-                  →
-                </div>
-              )}
-            </div>
-          ))}
         </div>
       </section>
 
