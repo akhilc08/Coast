@@ -36,12 +36,14 @@ export default async function PublicLayout({ children }: { children: React.React
               <LogoutButton />
             </>
           ) : (
-            <Link
-              href="/signup"
-              className="rounded-lg bg-[#2563eb] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8] transition-colors"
-            >
-              Get Started
-            </Link>
+            <>
+              <Link href="/login" className="text-sm font-medium text-[#6b7280] hover:text-[#111] transition-colors">
+                Log in
+              </Link>
+              <Link href="/signup" className="rounded-lg bg-[#2563eb] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8] transition-colors">
+                Sign up
+              </Link>
+            </>
           )}
         </nav>
 
