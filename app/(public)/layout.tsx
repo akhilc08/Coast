@@ -24,11 +24,7 @@ export default async function PublicLayout({ children }: { children: React.React
           <Link href="/sellers" className="hidden text-sm font-medium text-[#6b7280] hover:text-[#111] md:block">
             Sellers
           </Link>
-          <a href="#how-it-works" className="hidden text-sm font-medium text-[#6b7280] hover:text-[#111] md:block">
-            How It Works
-          </a>
-
-          {user ? (
+{user ? (
             <>
               {role === 'admin' && (
                 <Link href="/admin" className="text-sm font-medium text-[#6b7280] hover:text-[#111]">Admin</Link>
