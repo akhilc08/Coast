@@ -4,9 +4,10 @@ import { createClient } from '@/lib/supabase/server'
 import { getSellerStats } from '@/lib/queries/reviews'
 import { PhotoGallery } from '@/components/storefront/PhotoGallery'
 import { GradeBadge } from '@/components/ui/GradeBadge'
-import { SellerRatingBadge } from '@/components/reviews/SellerRatingBadge'
+import { StarRating } from '@/components/reviews/StarRating'
+import { getPublicSellerProfile } from '@/lib/queries/reviews'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, ChevronRight } from 'lucide-react'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -53,9 +54,12 @@ export default async function ListingDetailPage({
   const canBuy = !!user && role === 'consumer'
   const isSold = listing.status === 'sold'
 
-  const sellerStats = listing.seller_id
-    ? await getSellerStats(listing.seller_id)
-    : null
+  const [sellerStats, sellerProfile] = listing.seller_id
+    ? await Promise.all([
+        getSellerStats(listing.seller_id),
+        getPublicSellerProfile(listing.seller_id),
+      ])
+    : [null, null]
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const photos = (listing.listing_photos ?? [])
@@ -201,12 +205,48 @@ export default async function ListingDetailPage({
                 )}
               </div>
 
-              {listing.seller_id && (
-                <div className="mt-5 pt-5 border-t border-[#f5f5f4]">
-                  <SellerRatingBadge stats={sellerStats} sellerId={listing.seller_id} />
-                </div>
-              )}
             </div>
+
+            {/* Seller Information */}
+            {listing.seller_id && (
+              <Link
+                href={`/sellers/${listing.seller_id}`}
+                className="group block rounded-2xl border border-[#e7e5e4] bg-white px-8 py-7 transition-colors hover:border-[#a8a29e]"
+              >
+                <div className="flex items-center justify-between">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-[#a8a29e]">
+                    Seller Information
+                  </p>
+                  <ChevronRight className="h-4 w-4 text-[#a8a29e] transition-transform group-hover:translate-x-0.5" />
+                </div>
+
+                <div className="mt-4">
+                  <p className="text-lg font-semibold text-[#1c1917]">
+                    {sellerProfile?.company ?? sellerProfile?.full_name ?? 'View Seller'}
+                  </p>
+                  {sellerProfile?.company && sellerProfile?.full_name && (
+                    <p className="mt-0.5 text-sm text-[#78716c]">{sellerProfile.full_name}</p>
+                  )}
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-[#f5f5f4]">
+                  {sellerStats ? (
+                    <div className="flex items-center gap-2.5">
+                      <StarRating rating={Math.round(sellerStats.avg_rating)} />
+                      <span className="text-sm font-semibold text-[#1c1917]">{sellerStats.avg_rating}</span>
+                      <span className="text-sm text-[#a8a29e]">
+                        ({sellerStats.review_count} {sellerStats.review_count === 1 ? 'review' : 'reviews'})
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-[#a8a29e]">No reviews yet</p>
+                  )}
+                  <p className="mt-2 text-xs text-blue-600 group-hover:text-blue-500 transition-colors">
+                    View seller profile &rarr;
+                  </p>
+                </div>
+              </Link>
+            )}
 
             {/* ANNOUNCEMENTS */}
             {hasAnnouncements && (
