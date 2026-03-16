@@ -23,7 +23,7 @@ export default function SellersPage() {
 
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section
-        className="relative overflow-hidden px-8 pb-20 pt-16 text-center"
+        className="relative overflow-hidden px-6 pb-20 pt-16 text-center"
         style={{ background: 'linear-gradient(160deg, #eff6ff 0%, #dbeafe 40%, #fff 100%)' }}
       >
         <div
@@ -34,23 +34,23 @@ export default function SellersPage() {
           }}
         />
 
-        <div className="relative mb-4 inline-flex items-center gap-1.5 rounded-full border border-[rgba(37,99,235,0.2)] bg-[rgba(37,99,235,0.08)] px-3 py-[5px] text-[12px] font-semibold uppercase tracking-[0.5px] text-[#2563eb]">
+        <div className="relative mb-5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(37,99,235,0.2)] bg-[rgba(37,99,235,0.08)] px-3 py-[5px] text-[12px] font-semibold uppercase tracking-widest text-[#2563eb]">
           For Wholesale Dealers
         </div>
 
-        <h1 className="relative mb-4 text-[52px] font-extrabold leading-[1.05] tracking-[-2.5px] text-[#0f172a]">
+        <h1 className="relative mb-5 text-4xl font-extrabold leading-tight tracking-tight text-[#0f172a] sm:text-5xl">
           Sell your inventory
           <br />
           <span className="text-[#2563eb]">directly to consumers.</span>
         </h1>
 
-        <p className="relative mx-auto mb-10 max-w-[500px] text-[18px] font-normal leading-[1.6] text-[#64748b]">
+        <p className="relative mx-auto mb-10 max-w-xl text-lg font-normal leading-relaxed text-[#64748b]">
           Coast connects licensed wholesale dealers with retail consumers — no auction fees, no middlemen. List your vehicles, get paid at wholesale plus margin.
         </p>
 
         <a
           href="#contact"
-          className="relative inline-block rounded-[10px] bg-[#2563eb] px-8 py-[14px] text-[15px] font-bold text-white hover:bg-[#1d4ed8] transition-colors"
+          className="relative inline-block rounded-[10px] bg-[#2563eb] px-8 py-3.5 text-[15px] font-semibold text-white hover:bg-[#1d4ed8] transition-colors"
         >
           Get in touch
         </a>
@@ -58,9 +58,9 @@ export default function SellersPage() {
 
       {/* ── HOW IT WORKS ─────────────────────────────────────── */}
       <section className="bg-[#0f172a] px-8 py-[72px] text-center">
-        <p className="mb-3 text-[12px] font-semibold uppercase tracking-[2px] text-[#3b82f6]">Simple process</p>
-        <h2 className="mb-4 text-[36px] font-extrabold tracking-[-1.5px] text-white">List once. Sell fast.</h2>
-        <p className="mx-auto mb-14 max-w-[420px] text-[16px] leading-[1.6] text-[#94a3b8]">
+        <p className="mb-3 text-[12px] font-semibold uppercase tracking-widest text-[#3b82f6]">Simple process</p>
+        <h2 className="mb-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">List once. Sell fast.</h2>
+        <p className="mx-auto mb-14 max-w-md text-base leading-relaxed text-[#94a3b8]">
           We handle the consumer side. You focus on acquiring great inventory.
         </p>
 
@@ -94,7 +94,7 @@ export default function SellersPage() {
 
       {/* ── WHY COAST ────────────────────────────────────────── */}
       <section className="bg-[#f8fafc] px-8 py-16">
-        <h2 className="mb-12 text-center text-[32px] font-extrabold tracking-[-1px] text-[#0f172a]">
+        <h2 className="mb-12 text-center text-3xl font-extrabold tracking-tight text-[#0f172a]">
           Why dealers choose Coast
         </h2>
         <div className="mx-auto grid max-w-[900px] grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -135,7 +135,7 @@ export default function SellersPage() {
       <section id="contact" className="px-8 py-20">
         <div className="mx-auto max-w-[560px]">
           <div className="mb-10 text-center">
-            <h2 className="mb-3 text-[36px] font-extrabold tracking-[-1.5px] text-[#0f172a]">Get in touch</h2>
+            <h2 className="mb-3 text-3xl font-extrabold tracking-tight text-[#0f172a]">Get in touch</h2>
             <p className="text-[16px] leading-[1.6] text-[#64748b]">
               Interested in listing your inventory on Coast? Send us a message and we'll get back to you within one business day.
             </p>
