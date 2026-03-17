@@ -9,8 +9,14 @@ export default async function AccountPage() {
 
   if (!user) redirect('/login')
 
-  const role = user.app_metadata?.role ?? 'consumer'
-  const name = user.user_metadata?.full_name ?? user.email
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name, role')
+    .eq('id', user.id)
+    .single()
+
+  const role = profile?.role ?? user.app_metadata?.role ?? 'consumer'
+  const name = profile?.full_name ?? user.user_metadata?.full_name ?? user.email
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">
