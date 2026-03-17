@@ -4,8 +4,8 @@ import { createAdminClient } from '@/lib/supabase/admin'
 const STATUS_TABS = [
   { label: 'All', value: 'all' },
   { label: 'Paid', value: 'paid' },
-  { label: 'Signing', value: 'signing' },
-  { label: 'Complete', value: 'complete' },
+  { label: 'Signed', value: 'signed' },
+  { label: 'Delivered', value: 'delivered' },
 ]
 
 const STATUS_LABELS: Record<string, string> = {
@@ -13,7 +13,7 @@ const STATUS_LABELS: Record<string, string> = {
   paid: 'Paid',
   documents_sent: 'Signing',
   documents_signed: 'Signed',
-  complete: 'Complete',
+  complete: 'Delivered',
   cancelled: 'Cancelled',
   refunded: 'Refunded',
 }
@@ -22,7 +22,7 @@ const STATUS_STYLES: Record<string, string> = {
   pending_payment: 'border-[#e7e5e4] bg-[#f5f4f0] text-[#78716c]',
   paid: 'border-blue-200 bg-blue-50 text-blue-700',
   documents_sent: 'border-amber-200 bg-amber-50 text-amber-700',
-  documents_signed: 'border-green-200 bg-green-50 text-green-700',
+  documents_signed: 'border-amber-200 bg-amber-50 text-amber-700',
   complete: 'border-green-200 bg-green-50 text-green-700',
   cancelled: 'border-red-200 bg-red-50 text-red-700',
   refunded: 'border-red-200 bg-red-50 text-red-700',
@@ -82,10 +82,10 @@ export default async function AdminOrdersPage({
 
   if (status === 'paid') {
     query = query.eq('status', 'paid')
-  } else if (status === 'signing') {
-    query = query.eq('status', 'documents_sent')
-  } else if (status === 'complete') {
-    query = query.in('status', ['documents_signed', 'complete'])
+  } else if (status === 'signed') {
+    query = query.eq('status', 'documents_signed')
+  } else if (status === 'delivered') {
+    query = query.eq('status', 'complete')
   }
 
   const { data: orders, error } = await query
