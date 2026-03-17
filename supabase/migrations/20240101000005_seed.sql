@@ -1,6 +1,8 @@
 -- Migration 005: Seed — demo wholesaler + 30 active vehicle listings
 -- Safe to run on a fresh DB. Skips gracefully if the wholesaler already exists.
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 DO $$
 DECLARE
   seller uuid := '00000000-dead-beef-0000-000000000001';
@@ -23,7 +25,7 @@ BEGIN
     'authenticated',
     'authenticated',
     'demo-wholesaler@coast.dev',
-    crypt('DemoPass123!', gen_salt('bf')),
+    extensions.crypt('DemoPass123!', extensions.gen_salt('bf')),
     NOW(),
     '{"provider":"email","providers":["email"],"role":"wholesaler"}'::jsonb,
     '{"full_name":"Demo Auto Group"}'::jsonb,
