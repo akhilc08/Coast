@@ -34,6 +34,7 @@ export async function createDraftAction(
     .single()
 
   if (error) return { error: error.message }
+  revalidatePath('/seller/dashboard')
   return { id: data.id }
 }
 
