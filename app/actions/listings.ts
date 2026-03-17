@@ -13,9 +13,12 @@ export async function createDraftAction(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
+  const { createAdminClient } = await import('@/lib/supabase/admin')
+  const admin = createAdminClient()
+
   const title = vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : vin
 
-  const { data, error } = await supabase
+  const { data, error } = await admin
     .from('listings')
     .insert({
       seller_id:   user.id,
