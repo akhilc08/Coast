@@ -42,6 +42,9 @@ export async function createWholesalerAction(
     return { error: error?.message ?? 'Failed to create user' }
   }
 
+  // Backfill company into profiles (trigger only copies full_name)
+  await admin.from('profiles').update({ company: businessName }).eq('id', newUser.user.id)
+
   return { success: true, userId: newUser.user.id }
 }
 
