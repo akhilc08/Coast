@@ -57,13 +57,13 @@ function OrderStatusBadge({ status }: { status: string }) {
   )
 }
 
-interface Order {
+interface OrderRow {
   id: string
+  buyer_id: string
   price_cents: number
   status: string
   created_at: string
-  listings: { make: string; model: string; year: number } | null
-  profiles: { email: string | null } | null
+  listings: { make: string; model: string; year: number } | { make: string; model: string; year: number }[] | null
 }
 
 export default async function AdminOrdersPage({
@@ -77,7 +77,7 @@ export default async function AdminOrdersPage({
   const supabase = createAdminClient()
   let query = supabase
     .from('orders')
-    .select('id, price_cents, status, created_at, listings!inner(make, model, year), profiles!buyer_id(email)')
+    .select('id, buyer_id, price_cents, status, created_at, listings(make, model, year)')
     .order('created_at', { ascending: false })
 
   if (status === 'paid') {
@@ -91,10 +91,24 @@ export default async function AdminOrdersPage({
   const { data: orders, error } = await query
 
   if (error) {
-    throw new Error(`Failed to fetch orders: ${error.message}`)
+    return (
+      <div>
+        <h1 className="text-2xl font-bold text-[#1c1917]">Orders</h1>
+        <p className="mt-4 text-sm text-red-600">Failed to load orders: {error.message}</p>
+      </div>
+    )
   }
 
-  const rows = (orders ?? []) as unknown as Order[]
+  const rows = (orders ?? []) as unknown as OrderRow[]
+
+  // Fetch buyer emails from auth.users
+  const buyerEmailMap: Record<string, string> = {}
+  if (rows.length > 0) {
+    const { data: usersData } = await supabase.auth.admin.listUsers({ perPage: 1000 })
+    for (const user of usersData?.users ?? []) {
+      if (user.email) buyerEmailMap[user.id] = user.email
+    }
+  }
 
   return (
     <div>
@@ -149,24 +163,29 @@ export default async function AdminOrdersPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e7e5e4] text-sm">
-              {rows.map((order) => (
-                <tr key={order.id} className="transition-colors hover:bg-[#faf9f6]">
-                  <td className="px-4 py-3 font-mono text-xs text-[#78716c]">
-                    {order.id.slice(0, 8)}
-                  </td>
-                  <td className="px-4 py-3 font-medium text-[#1c1917]">
-                    {order.listings
-                      ? `${order.listings.year} ${order.listings.make} ${order.listings.model}`
-                      : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-[#78716c]">{order.profiles?.email ?? '—'}</td>
-                  <td className="px-4 py-3 text-[#1c1917]">{formatPrice(order.price_cents)}</td>
-                  <td className="px-4 py-3">
-                    <OrderStatusBadge status={order.status} />
-                  </td>
-                  <td className="px-4 py-3 text-[#78716c]">{formatDate(order.created_at)}</td>
-                </tr>
-              ))}
+              {rows.map((order) => {
+                const listing = Array.isArray(order.listings) ? order.listings[0] : order.listings
+                return (
+                  <tr key={order.id} className="transition-colors hover:bg-[#faf9f6]">
+                    <td className="px-4 py-3 font-mono text-xs text-[#78716c]">
+                      {order.id.slice(0, 8)}
+                    </td>
+                    <td className="px-4 py-3 font-medium text-[#1c1917]">
+                      {listing
+                        ? `${listing.year} ${listing.make} ${listing.model}`
+                        : '—'}
+                    </td>
+                    <td className="px-4 py-3 text-[#78716c]">
+                      {buyerEmailMap[order.buyer_id] ?? '—'}
+                    </td>
+                    <td className="px-4 py-3 text-[#1c1917]">{formatPrice(order.price_cents)}</td>
+                    <td className="px-4 py-3">
+                      <OrderStatusBadge status={order.status} />
+                    </td>
+                    <td className="px-4 py-3 text-[#78716c]">{formatDate(order.created_at)}</td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         )}

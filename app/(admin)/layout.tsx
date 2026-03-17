@@ -15,7 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="flex min-h-screen bg-[#faf9f6] text-[#1c1917]">
       <aside className="flex w-56 flex-shrink-0 flex-col border-r border-[#e7e5e4] bg-white">
         <div className="px-6 py-5">
-          <span className="[font-family:var(--font-serif-display)] text-base text-[#1c1917]">Coast Admin</span>
+          <Link href="/" className="[font-family:var(--font-serif-display)] text-base text-[#1c1917] hover:opacity-70 transition-opacity">Coast Admin</Link>
         </div>
         <AdminNav />
         <div className="mt-auto border-t border-[#e7e5e4] p-4">
