@@ -41,7 +41,7 @@ export function LoginForm() {
     if (role === 'admin') {
       router.push('/admin')
     } else if (role === 'wholesaler') {
-      router.push('/seller')
+      router.push('/seller/dashboard')
     } else {
       router.push('/')
     }
