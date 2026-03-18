@@ -12,7 +12,7 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
     .from('listings')
     .select(`
       *,
-      listing_photos(id, storage_key, position),
+      listing_photos(id, storage_key, position, slot_type),
       listing_documents(id, storage_key, document_type, file_name)
     `)
     .eq('id', id)

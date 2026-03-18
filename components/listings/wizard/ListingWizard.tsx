@@ -92,7 +92,7 @@ export function ListingWizard({ listingId, initialData }: ListingWizardProps) {
       {step === 'photos' && draftId && (
         <StepPhotos
           listingId={draftId}
-          initialPhotos={(initialData?.listing_photos as { id: string; storage_key: string; position: number }[]) ?? []}
+          initialPhotos={(initialData?.listing_photos as { id: string; storage_key: string; position: number; slot_type: string | null }[]) ?? []}
           onSave={advance}
         />
       )}
