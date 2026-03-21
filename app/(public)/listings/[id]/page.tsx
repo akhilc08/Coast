@@ -6,8 +6,10 @@ import { PhotoGallery } from '@/components/storefront/PhotoGallery'
 import { GradeBadge } from '@/components/ui/GradeBadge'
 import { StarRating } from '@/components/reviews/StarRating'
 import { getPublicSellerProfile } from '@/lib/queries/reviews'
+import { ConditionReport } from '@/components/listings/ConditionReport'
 import Link from 'next/link'
 import { ArrowLeft, ChevronRight } from 'lucide-react'
+import type { AiConditionData } from '@/lib/types/condition'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -81,7 +83,17 @@ export default async function ListingDetailPage({
 
   const hasAnnouncements = announcements.length > 0 || !!listing.overall_notes
 
-  // ── Condition sub-sections ─────────────────────────────────────────────────
+  // ── AI condition data (new) ────────────────────────────────────────────────
+  const aiCondition: AiConditionData | null = listing.ai_condition_exterior
+    ? {
+        exterior:   listing.ai_condition_exterior,
+        interior:   listing.ai_condition_interior,
+        mechanical: listing.ai_condition_mechanical,
+        tires:      listing.ai_condition_tires,
+      }
+    : null
+
+  // ── Legacy condition sub-sections (fallback for older listings) ────────────
   const exteriorItems = [
     { label: 'Paint', value: conditionLabel(listing.paint_condition), color: conditionColor(listing.paint_condition) },
     { label: 'Body',  value: conditionLabel(listing.body_condition),  color: conditionColor(listing.body_condition) },
@@ -101,7 +113,7 @@ export default async function ListingDetailPage({
     { label: 'Tires',        value: conditionLabel(listing.tire_condition),         color: conditionColor(listing.tire_condition) },
   ].filter(i => i.value) as { label: string; value: string; color: string }[]
 
-  const hasConditionReport = exteriorItems.length > 0 || interiorItems.length > 0 || mechanicalItems.length > 0
+  const hasLegacyCondition = !aiCondition && (exteriorItems.length > 0 || interiorItems.length > 0 || mechanicalItems.length > 0)
 
   // ── Vehicle details table ──────────────────────────────────────────────────
   const vehicleDetails: [string, string | number][] = ([
@@ -285,20 +297,40 @@ export default async function ListingDetailPage({
               </div>
             )}
 
-            {/* Full Condition Report */}
-            {hasConditionReport && (
+            {/* AI Condition Report (new — PDF extracted) */}
+            {aiCondition && (
+              <div className="rounded-2xl border border-[#e7e5e4] bg-white px-8 py-7">
+                <div className="mb-5 flex items-center gap-3">
+                  <h2 className="text-[11px] font-bold uppercase tracking-widest text-[#1c1917]">
+                    Condition Report
+                  </h2>
+                  <span className="rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-600">
+                    AI Verified
+                  </span>
+                </div>
+                <p className="mb-4 text-xs text-[#a8a29e]">
+                  Click any section to see the full inspection details and rating explanation.
+                </p>
+                <ConditionReport
+                  exterior={aiCondition.exterior}
+                  interior={aiCondition.interior}
+                  mechanical={aiCondition.mechanical}
+                  tires={aiCondition.tires}
+                />
+              </div>
+            )}
+
+            {/* Legacy Condition Report (fallback for older listings) */}
+            {hasLegacyCondition && (
               <div className="rounded-2xl border border-[#e7e5e4] bg-white px-8 py-7">
                 <h2 className="mb-6 text-[11px] font-bold uppercase tracking-widest text-[#1c1917]">
                   Full Condition Report
                 </h2>
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-                  {/* Exterior */}
                   {exteriorItems.length > 0 && (
                     <div className="rounded-xl border border-[#e7e5e4] p-5">
-                      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-[#a8a29e]">
-                        Exterior
-                      </p>
+                      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-[#a8a29e]">Exterior</p>
                       <p className="mb-4 text-[11px] text-[#a8a29e]">{exteriorItems.length} items assessed</p>
                       {exteriorItems.map(item => (
                         <ConditionRow key={item.label} label={item.label} value={item.value} color={item.color} />
@@ -308,13 +340,9 @@ export default async function ListingDetailPage({
                       )}
                     </div>
                   )}
-
-                  {/* Interior */}
                   {interiorItems.length > 0 && (
                     <div className="rounded-xl border border-[#e7e5e4] p-5">
-                      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-[#a8a29e]">
-                        Interior
-                      </p>
+                      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-[#a8a29e]">Interior</p>
                       <p className="mb-4 text-[11px] text-[#a8a29e]">{interiorItems.length} items assessed</p>
                       {interiorItems.map(item => (
                         <ConditionRow key={item.label} label={item.label} value={item.value} color={item.color} />
@@ -324,13 +352,9 @@ export default async function ListingDetailPage({
                       )}
                     </div>
                   )}
-
-                  {/* Mechanicals */}
                   {mechanicalItems.length > 0 && (
                     <div className="rounded-xl border border-[#e7e5e4] p-5">
-                      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-[#a8a29e]">
-                        Mechanicals
-                      </p>
+                      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-[#a8a29e]">Mechanicals</p>
                       <p className="mb-4 text-[11px] text-[#a8a29e]">{mechanicalItems.length} items assessed</p>
                       {mechanicalItems.map(item => (
                         <ConditionRow key={item.label} label={item.label} value={item.value} color={item.color} />
@@ -342,7 +366,6 @@ export default async function ListingDetailPage({
                   )}
                 </div>
 
-                {/* Tire tread depth */}
                 {listing.tire_tread_depth != null && (
                   <div className="mt-5 flex items-center justify-between rounded-xl border border-[#e7e5e4] px-5 py-4">
                     <span className="text-sm font-medium text-[#78716c]">Tire Tread Depth</span>

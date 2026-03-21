@@ -1,6 +1,6 @@
-export type Step = 'vin' | 'details' | 'condition' | 'condition_review' | 'photos' | 'review'
+export type Step = 'vin' | 'details' | 'condition' | 'condition_review' | 'photos' | 'documents' | 'review'
 
-export const STEPS: Step[] = ['vin', 'details', 'condition', 'condition_review', 'photos', 'review']
+export const STEPS: Step[] = ['vin', 'details', 'condition', 'condition_review', 'photos', 'documents', 'review']
 
 export const STEP_LABELS: Record<Step, string> = {
   vin:              'VIN Lookup',
@@ -8,5 +8,6 @@ export const STEP_LABELS: Record<Step, string> = {
   condition:        'Upload Report',
   condition_review: 'Condition Review',
   photos:           'Photos',
+  documents:        'Documents',
   review:           'Review & Publish',
 }
