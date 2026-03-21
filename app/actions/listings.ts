@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import type { DetailsStepInput, ConditionStepInput } from '@/lib/validations/listing'
 import type { VehicleDetails } from '@/lib/nhtsa'
+import type { AiConditionData } from '@/lib/types/condition'
+import { worstRatingToGrade } from '@/lib/types/condition'
 
 export async function createDraftAction(
   vin: string,
@@ -176,6 +178,54 @@ export async function addDocumentAction(
   })
 
   if (error) return { error: error.message }
+  return { success: true }
+}
+
+export async function saveAiConditionAction(
+  listingId:  string,
+  data:       AiConditionData,
+  pdfStorageKey: string
+): Promise<{ success: true } | { error: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const ratings = [
+    data.exterior.rating,
+    data.interior.rating,
+    data.mechanical.rating,
+    data.tires.rating,
+  ]
+  const overallGrade = worstRatingToGrade(ratings)
+
+  const { error } = await supabase
+    .from('listings')
+    .update({
+      ai_condition_exterior:   data.exterior,
+      ai_condition_interior:   data.interior,
+      ai_condition_mechanical: data.mechanical,
+      ai_condition_tires:      data.tires,
+      condition_locked:        true,
+      condition_pdf_key:       pdfStorageKey,
+      overall_grade:           overallGrade,
+      updated_at:              new Date().toISOString(),
+    })
+    .eq('id', listingId)
+    .eq('seller_id', user.id)
+
+  if (error) return { error: error.message }
+
+  // Register the PDF as a listing document
+  await supabase.from('listing_documents').upsert(
+    {
+      listing_id:    listingId,
+      storage_key:   pdfStorageKey,
+      document_type: 'inspection_report',
+      file_name:     'Inspection Report',
+    },
+    { onConflict: 'listing_id,storage_key' }
+  )
+
   return { success: true }
 }
 
