@@ -215,16 +215,22 @@ export async function saveAiConditionAction(
 
   if (error) return { error: error.message }
 
-  // Register the PDF as a listing document
-  await supabase.from('listing_documents').upsert(
-    {
+  // Register the PDF as a listing document (only if not already recorded)
+  const { data: existing } = await supabase
+    .from('listing_documents')
+    .select('id')
+    .eq('listing_id', listingId)
+    .eq('storage_key', pdfStorageKey)
+    .maybeSingle()
+
+  if (!existing) {
+    await supabase.from('listing_documents').insert({
       listing_id:    listingId,
       storage_key:   pdfStorageKey,
       document_type: 'inspection_report',
       file_name:     'Inspection Report',
-    },
-    { onConflict: 'listing_id,storage_key' }
-  )
+    })
+  }
 
   return { success: true }
 }
