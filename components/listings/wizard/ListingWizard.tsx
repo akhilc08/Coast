@@ -7,7 +7,6 @@ import { StepVinLookup } from './StepVinLookup'
 import { StepVehicleDetails } from './StepVehicleDetails'
 import { StepCondition } from './StepCondition'
 import { StepPhotos } from './StepPhotos'
-import { StepDocuments } from './StepDocuments'
 import { StepReview } from './StepReview'
 import type { ConditionStepInput } from '@/lib/validations/listing'
 
@@ -97,18 +96,7 @@ export function ListingWizard({ listingId, initialData }: ListingWizardProps) {
         />
       )}
 
-      {step === 'documents' && draftId && (
-        <StepDocuments
-          listingId={draftId}
-          initialDocs={
-            (initialData?.listing_documents as { id: string; storage_key: string; document_type: string; file_name: string }[] | undefined)
-              ?.filter(d => d.document_type !== 'inspection_report') ?? []
-          }
-          onSave={advance}
-        />
-      )}
-
-      {step === 'review' && draftId && (
+{step === 'review' && draftId && (
         <StepReview listingId={draftId} />
       )}
     </div>
