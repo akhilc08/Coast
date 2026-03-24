@@ -6,7 +6,6 @@ import { WizardProgress } from './WizardProgress'
 import { StepVinLookup } from './StepVinLookup'
 import { StepVehicleDetails } from './StepVehicleDetails'
 import { StepPhotos } from './StepPhotos'
-import { StepDocuments } from './StepDocuments'
 import { StepReview } from './StepReview'
 
 interface ListingWizardProps {
@@ -54,17 +53,6 @@ export function ListingWizard({ listingId, initialData }: ListingWizardProps) {
           <StepPhotos
             listingId={draftId}
             initialPhotos={(initialData?.listing_photos as { id: string; storage_key: string; position: number; slot_type: string | null }[]) ?? []}
-            onSave={advance}
-          />
-        )}
-
-        {step === 'documents' && draftId && (
-          <StepDocuments
-            listingId={draftId}
-            initialDocs={
-              (initialData?.listing_documents as { id: string; storage_key: string; document_type: string; file_name: string }[] | undefined)
-                ?.filter(d => d.document_type !== 'inspection_report') ?? []
-            }
             onSave={advance}
           />
         )}
