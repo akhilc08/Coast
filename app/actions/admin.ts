@@ -3,6 +3,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createWholesalerSchema, type CreateWholesalerInput } from '@/lib/validations/admin'
+import type { AiConditionData } from '@/lib/types/condition'
+import { worstRatingToGrade } from '@/lib/types/condition'
 
 async function requireAdmin() {
   const supabase = await createClient()
@@ -63,6 +65,56 @@ export async function banUserAction(
   })
 
   if (error) return { error: error.message }
+  return { success: true }
+}
+
+export async function adminSaveAiConditionAction(
+  listingId: string,
+  data: AiConditionData,
+  pdfStorageKey: string
+): Promise<{ success: true } | { error: string }> {
+  try {
+    await requireAdmin()
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Unauthorized' }
+  }
+
+  const admin = createAdminClient()
+  const ratings = [data.exterior.rating, data.interior.rating, data.mechanical.rating, data.tires.rating]
+  const overallGrade = worstRatingToGrade(ratings)
+
+  const { error } = await admin
+    .from('listings')
+    .update({
+      ai_condition_exterior:   data.exterior,
+      ai_condition_interior:   data.interior,
+      ai_condition_mechanical: data.mechanical,
+      ai_condition_tires:      data.tires,
+      condition_locked:        true,
+      condition_pdf_key:       pdfStorageKey,
+      overall_grade:           overallGrade,
+      updated_at:              new Date().toISOString(),
+    })
+    .eq('id', listingId)
+
+  if (error) return { error: error.message }
+
+  const { data: existing } = await admin
+    .from('listing_documents')
+    .select('id')
+    .eq('listing_id', listingId)
+    .eq('storage_key', pdfStorageKey)
+    .maybeSingle()
+
+  if (!existing) {
+    await admin.from('listing_documents').insert({
+      listing_id:    listingId,
+      storage_key:   pdfStorageKey,
+      document_type: 'inspection_report',
+      file_name:     pdfStorageKey.split('/').pop() ?? 'inspection_report.pdf',
+    })
+  }
+
   return { success: true }
 }
 

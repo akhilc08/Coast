@@ -144,7 +144,7 @@ export default async function AdminListingsPage({
                 >
                   <td className="px-4 py-3">
                     <Link
-                      href={`/listings/${listing.id}`}
+                      href={`/admin/listings/${listing.id}`}
                       className="block text-[#1c1917] font-medium hover:underline"
                     >
                       {listing.year} {listing.make} {listing.model}
