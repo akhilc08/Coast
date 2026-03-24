@@ -3,7 +3,7 @@ import { STEPS, STEP_LABELS, type Step } from './steps'
 export function WizardProgress({ current }: { current: Step }) {
   const currentIdx = STEPS.indexOf(current)
   return (
-    <div className="mb-8 flex items-center justify-center">
+    <div className="flex items-center justify-center">
       {STEPS.map((step, i) => (
         <div key={step} className="flex items-center">
           <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${

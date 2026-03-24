@@ -48,8 +48,11 @@ export function ListingWizard({ listingId, initialData }: ListingWizardProps) {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <WizardProgress current={step} />
+    <div>
+      <div className="mb-8">
+        <WizardProgress current={step} />
+      </div>
+      <div className="mx-auto max-w-2xl">
 
       {step === 'vin' && (
         <StepVinLookup
@@ -125,6 +128,7 @@ export function ListingWizard({ listingId, initialData }: ListingWizardProps) {
       {step === 'review' && draftId && (
         <StepReview listingId={draftId} />
       )}
+      </div>
     </div>
   )
 }
