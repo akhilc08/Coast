@@ -102,6 +102,9 @@ export default async function AdminUsersPage({
                 Company
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#78716c]">
+                Tier
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#78716c]">
                 Status
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#78716c]">
@@ -119,7 +122,7 @@ export default async function AdminUsersPage({
             {filtered.length === 0 ? (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={7}
                   className="px-4 py-8 text-center text-[#a8a29e]"
                 >
                   No users found.
@@ -147,6 +150,19 @@ export default async function AdminUsersPage({
                   </td>
                   <td className="px-4 py-3 text-[#78716c]">
                     {user.company ?? '—'}
+                  </td>
+                  <td className="px-4 py-3">
+                    {user.sellerTier ? (
+                      <span className={`text-xs rounded-full px-2 py-0.5 border ${
+                        user.sellerTier === 'trusted'
+                          ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                          : 'border-[#e7e5e4] bg-[#f5f4f0] text-[#78716c]'
+                      }`}>
+                        {user.sellerTier.charAt(0).toUpperCase() + user.sellerTier.slice(1)}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-[#a8a29e]">—</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     {user.isBanned ? (

@@ -1,5 +1,7 @@
 import { test } from '@playwright/test'
 
 test.describe('checkout flow', () => {
-  test.fixme('shows order confirmation page after successful checkout')
+  test('shows order confirmation page after successful checkout', async () => {
+    test.fixme()
+  })
 })

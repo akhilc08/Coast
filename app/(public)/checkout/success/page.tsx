@@ -103,6 +103,14 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
           </div>
         </div>
 
+        {/* Cancellation policy */}
+        <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-left">
+          <p className="text-xs font-semibold text-amber-800">Seller Cancellation Policy</p>
+          <p className="mt-1 text-xs text-amber-700">
+            If the seller cancels after sale completion, a 10% penalty on the sale price applies: 5% goes to the buyer as credit, 5% is retained by Coast.
+          </p>
+        </div>
+
         {/* Actions */}
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Link

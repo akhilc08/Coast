@@ -5,11 +5,14 @@ import { DashboardListings } from '@/components/seller/DashboardListings'
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 
+  // Fetch all listings with first photo
   const { data: listings } = await supabase
     .from('listings')
     .select('id, vin, make, model, year, price_cents, status, created_at, listing_photos(id, storage_key, position)')
     .eq('seller_id', user!.id)
+    .in('status', ['active', 'draft', 'paused', 'pending_inspection', 'archived'])
     .order('created_at', { ascending: false })
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!

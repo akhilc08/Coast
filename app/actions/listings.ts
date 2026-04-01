@@ -109,7 +109,7 @@ export async function publishListingAction(
 
   const { error } = await supabase
     .from('listings')
-    .update({ status: 'active', updated_at: new Date().toISOString() })
+    .update({ status: 'active', published_at: new Date().toISOString(), updated_at: new Date().toISOString() })
     .eq('id', listingId)
     .eq('seller_id', user.id)
 

@@ -2,6 +2,7 @@
 
 import { useRef } from 'react'
 import { SlottedPhotoUpload } from '@/components/listings/SlottedPhotoUpload'
+import { BulkPhotoUpload } from '@/components/listings/BulkPhotoUpload'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, Upload, Sparkles } from 'lucide-react'
 import { PHOTO_SECTIONS } from '@/lib/photo-slots'
@@ -124,7 +125,7 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
         <Button
           type="button"
           onClick={onSave}
-          className="w-full bg-blue-600 text-white hover:bg-blue-500"
+          className={`${onBack ? 'flex-1' : 'w-full'} bg-blue-600 text-white hover:bg-blue-500`}
         >
           Continue
         </Button>
