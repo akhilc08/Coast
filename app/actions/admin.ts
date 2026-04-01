@@ -135,3 +135,56 @@ export async function unbanUserAction(
   if (error) return { error: error.message }
   return { success: true }
 }
+
+export async function setSellerTierAction(
+  userId: string,
+  tier: 1 | 2
+): Promise<{ success: true } | { error: string }> {
+  try {
+    await requireAdmin()
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Unauthorized' }
+  }
+
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from('profiles')
+    .update({ seller_tier: tier })
+    .eq('id', userId)
+
+  if (error) return { error: error.message }
+  return { success: true }
+}
+
+export async function adminUpdateListingAction(
+  listingId: string,
+  fields: {
+    price_cents?: number
+    make?: string
+    model?: string
+    year?: number
+    mileage?: number
+    color?: string
+    condition_notes?: string
+    pickup_zip?: string
+  }
+): Promise<{ success: true } | { error: string }> {
+  try {
+    await requireAdmin()
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Unauthorized' }
+  }
+
+  const admin = createAdminClient()
+  const title = fields.year && fields.make && fields.model
+    ? `${fields.year} ${fields.make} ${fields.model}`
+    : undefined
+
+  const { error } = await admin
+    .from('listings')
+    .update({ ...fields, ...(title ? { title } : {}), updated_at: new Date().toISOString() })
+    .eq('id', listingId)
+
+  if (error) return { error: error.message }
+  return { success: true }
+}

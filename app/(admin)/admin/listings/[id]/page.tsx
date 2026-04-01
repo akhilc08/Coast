@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { AdminConditionUpload } from '@/components/admin/AdminConditionUpload'
 import { AdminApproveButton } from '@/components/admin/AdminApproveButton'
+import { AdminListingEditForm } from '@/components/admin/AdminListingEditForm'
 
 function formatPrice(cents: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(cents / 100)
@@ -14,7 +15,7 @@ export default async function AdminListingDetailPage({ params }: { params: Promi
 
   const { data: listing } = await supabase
     .from('listings')
-    .select('id, vin, make, model, year, price_cents, status, grade, condition_locked, created_at, profiles!seller_id(full_name, company, email)')
+    .select('id, vin, make, model, year, price_cents, mileage, color, condition_notes, pickup_zip, status, grade, condition_locked, created_at, profiles!seller_id(full_name, company, email)')
     .eq('id', id)
     .single()
 
@@ -67,6 +68,26 @@ export default async function AdminListingDetailPage({ params }: { params: Promi
             <span className="text-[#1c1917] capitalize">{value}</span>
           </div>
         ))}
+      </div>
+
+      {/* Edit Listing */}
+      <div className="mt-8">
+        <h2 className="mb-4 text-lg font-semibold text-[#1c1917]">Edit Listing</h2>
+        <div className="rounded-lg border border-[#e7e5e4] bg-white p-6">
+          <AdminListingEditForm
+            listingId={listing.id}
+            initialData={{
+              make: listing.make,
+              model: listing.model,
+              year: listing.year,
+              mileage: listing.mileage ?? null,
+              price_cents: listing.price_cents,
+              color: listing.color ?? null,
+              condition_notes: listing.condition_notes ?? null,
+              pickup_zip: listing.pickup_zip ?? null,
+            }}
+          />
+        </div>
       </div>
 
       {/* Condition Report */}
