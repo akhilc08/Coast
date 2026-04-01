@@ -18,6 +18,8 @@ export default async function AccountPage() {
   const role = profile?.role ?? user.app_metadata?.role ?? 'consumer'
   const name = profile?.full_name ?? user.user_metadata?.full_name ?? user.email
 
+  if (role === 'wholesaler') redirect('/seller/dashboard')
+
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">
       <h1 className="text-2xl font-bold text-[#1c1917]">Account</h1>
@@ -38,7 +40,7 @@ export default async function AccountPage() {
           ))}
         </div>
 
-        {(role === 'wholesaler' || role === 'admin') && (
+        {role === 'admin' && (
           <a
             href="/seller/dashboard"
             className="block rounded-lg border border-[#e7e5e4] py-3 text-center text-sm text-[#57534e] transition-colors hover:border-[#a8a29e] hover:text-[#1c1917]"

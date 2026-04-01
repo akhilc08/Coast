@@ -29,7 +29,7 @@ export default async function PublicLayout({ children }: { children: React.React
               {role === 'admin' && (
                 <Link href="/admin" className="text-sm font-medium text-[#6b7280] hover:text-[#111]">Admin</Link>
               )}
-              {role === 'seller' && (
+              {role === 'wholesaler' && (
                 <Link href="/seller/dashboard" className="text-sm font-medium text-[#6b7280] hover:text-[#111]">Dashboard</Link>
               )}
               {role === 'consumer' && (
