@@ -11,9 +11,10 @@ import { StepReview } from './StepReview'
 interface ListingWizardProps {
   listingId?:   string
   initialData?: Record<string, unknown>
+  sellerTier?:  'beginner' | 'trusted'
 }
 
-export function ListingWizard({ listingId, initialData }: ListingWizardProps) {
+export function ListingWizard({ listingId, initialData, sellerTier = 'beginner' }: ListingWizardProps) {
   const initialStep: Step = listingId ? 'details' : 'vin'
 
   const [step, setStep]       = useState<Step>(initialStep)
@@ -24,6 +25,13 @@ export function ListingWizard({ listingId, initialData }: ListingWizardProps) {
     const idx = STEPS.indexOf(step)
     if (idx < STEPS.length - 1) setStep(STEPS[idx + 1])
   }
+
+  function goBack() {
+    const idx = STEPS.indexOf(step)
+    if (idx > 0) setStep(STEPS[idx - 1])
+  }
+
+  const isPublished = initialData?.status === 'active'
 
   return (
     <div>
@@ -46,6 +54,7 @@ export function ListingWizard({ listingId, initialData }: ListingWizardProps) {
             listingId={draftId}
             initialData={vinData ?? initialData}
             onSave={advance}
+            onBack={listingId ? undefined : goBack}
           />
         )}
 
@@ -54,11 +63,17 @@ export function ListingWizard({ listingId, initialData }: ListingWizardProps) {
             listingId={draftId}
             initialPhotos={(initialData?.listing_photos as { id: string; storage_key: string; position: number; slot_type: string | null }[]) ?? []}
             onSave={advance}
+            onBack={goBack}
           />
         )}
 
         {step === 'review' && draftId && (
-          <StepReview listingId={draftId} />
+          <StepReview
+            listingId={draftId}
+            sellerTier={sellerTier}
+            isPublished={isPublished}
+            onBack={goBack}
+          />
         )}
       </div>
     </div>

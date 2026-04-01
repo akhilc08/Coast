@@ -4,8 +4,10 @@ import { GradeBadge } from '@/components/ui/GradeBadge'
 
 const STATUS_TABS = [
   { label: 'All', value: 'all' },
+  { label: 'Pending Inspection', value: 'pending_inspection' },
   { label: 'Draft', value: 'draft' },
   { label: 'Active', value: 'active' },
+  { label: 'Paused', value: 'paused' },
   { label: 'Sold', value: 'sold' },
 ]
 
@@ -31,6 +33,8 @@ function StatusBadge({ status }: { status: string }) {
     draft: 'border-[#e7e5e4] bg-[#f5f4f0] text-[#78716c]',
     active: 'border-green-200 bg-green-50 text-green-700',
     sold: 'border-amber-200 bg-amber-50 text-amber-700',
+    paused: 'border-orange-200 bg-orange-50 text-orange-700',
+    pending_inspection: 'border-yellow-200 bg-yellow-50 text-yellow-700',
   }
   const cls = styles[status] ?? 'border-[#e7e5e4] bg-[#f5f4f0] text-[#78716c]'
   return (

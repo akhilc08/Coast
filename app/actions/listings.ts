@@ -72,7 +72,7 @@ export async function publishListingAction(
   // Guard: pickup_zip must be set before publishing
   const { data: listing } = await supabase
     .from('listings')
-    .select('pickup_zip')
+    .select('pickup_zip, condition_locked')
     .eq('id', listingId)
     .eq('seller_id', user.id)
     .single()
@@ -80,9 +80,26 @@ export async function publishListingAction(
   if (!listing) return { error: 'Listing not found' }
   if (!listing.pickup_zip) return { error: 'Pickup ZIP code is required before publishing. Go back to Vehicle Details and add it.' }
 
+  // Check seller tier — only trusted sellers can self-publish
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('seller_tier')
+    .eq('id', user.id)
+    .single()
+
+  const tier = profile?.seller_tier ?? 'beginner'
+  if (tier === 'beginner') {
+    return { error: 'Your account requires admin review before listings go live. Please submit for review instead.' }
+  }
+
+  // Trusted sellers need inspection report attached
+  if (!listing.condition_locked) {
+    return { error: 'An inspection report must be attached before publishing.' }
+  }
+
   const { error } = await supabase
     .from('listings')
-    .update({ status: 'active', updated_at: new Date().toISOString() })
+    .update({ status: 'active', published_at: new Date().toISOString(), updated_at: new Date().toISOString() })
     .eq('id', listingId)
     .eq('seller_id', user.id)
 
@@ -232,6 +249,135 @@ export async function saveAiConditionAction(
     })
   }
 
+  return { success: true }
+}
+
+export async function pauseListingAction(
+  listingId: string
+): Promise<{ success: true } | { error: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { data: listing } = await supabase
+    .from('listings')
+    .select('status')
+    .eq('id', listingId)
+    .eq('seller_id', user.id)
+    .single()
+
+  if (!listing) return { error: 'Listing not found' }
+  if (listing.status !== 'active') return { error: 'Only active listings can be paused' }
+
+  const { error } = await supabase
+    .from('listings')
+    .update({ status: 'paused', updated_at: new Date().toISOString() })
+    .eq('id', listingId)
+    .eq('seller_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/seller/dashboard')
+  revalidatePath('/')
+  return { success: true }
+}
+
+export async function resumeListingAction(
+  listingId: string
+): Promise<{ success: true } | { error: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { data: listing } = await supabase
+    .from('listings')
+    .select('status')
+    .eq('id', listingId)
+    .eq('seller_id', user.id)
+    .single()
+
+  if (!listing) return { error: 'Listing not found' }
+  if (listing.status !== 'paused') return { error: 'Only paused listings can be resumed' }
+
+  const { error } = await supabase
+    .from('listings')
+    .update({ status: 'active', updated_at: new Date().toISOString() })
+    .eq('id', listingId)
+    .eq('seller_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/seller/dashboard')
+  revalidatePath('/')
+  return { success: true }
+}
+
+export async function deleteListingAction(
+  listingId: string
+): Promise<{ success: true } | { error: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  // Verify ownership
+  const { data: listing } = await supabase
+    .from('listings')
+    .select('id, status')
+    .eq('id', listingId)
+    .eq('seller_id', user.id)
+    .single()
+
+  if (!listing) return { error: 'Listing not found' }
+  if (listing.status === 'sold') return { error: 'Sold listings cannot be deleted' }
+
+  // Delete photos from storage
+  const { data: photos } = await supabase
+    .from('listing_photos')
+    .select('storage_key')
+    .eq('listing_id', listingId)
+
+  if (photos && photos.length > 0) {
+    const { createAdminClient } = await import('@/lib/supabase/admin')
+    const admin = createAdminClient()
+    await admin.storage.from('car-photos').remove(photos.map(p => p.storage_key))
+  }
+
+  // Delete listing (cascades to photos, documents)
+  const { error } = await supabase
+    .from('listings')
+    .delete()
+    .eq('id', listingId)
+    .eq('seller_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/seller/dashboard')
+  revalidatePath('/')
+  return { success: true }
+}
+
+export async function submitForReviewAction(
+  listingId: string
+): Promise<{ success: true } | { error: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { data: listing } = await supabase
+    .from('listings')
+    .select('pickup_zip, status')
+    .eq('id', listingId)
+    .eq('seller_id', user.id)
+    .single()
+
+  if (!listing) return { error: 'Listing not found' }
+  if (!listing.pickup_zip) return { error: 'Pickup ZIP code is required before submitting.' }
+
+  const { error } = await supabase
+    .from('listings')
+    .update({ status: 'pending_inspection', updated_at: new Date().toISOString() })
+    .eq('id', listingId)
+    .eq('seller_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/seller/dashboard')
   return { success: true }
 }
 

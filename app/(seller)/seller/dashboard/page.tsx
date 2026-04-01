@@ -1,101 +1,83 @@
 import { createClient } from '@/lib/supabase/server'
-import Link from 'next/link'
-import { archiveListingAction, publishListingAction } from '@/app/actions/listings'
+import { SellerDashboard } from '@/components/seller/SellerDashboard'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 
+  // Fetch all listings with first photo
   const { data: listings } = await supabase
     .from('listings')
-    .select('id, vin, make, model, year, price_cents, status, created_at')
+    .select('id, vin, make, model, year, price_cents, status, created_at, listing_photos(storage_key, position)')
     .eq('seller_id', user!.id)
+    .in('status', ['active', 'draft', 'paused', 'pending_inspection', 'archived'])
     .order('created_at', { ascending: false })
 
-  const active = listings?.filter(l => l.status === 'active') ?? []
-  const drafts = listings?.filter(l => l.status === 'draft') ?? []
+  // Fetch sold listings with order data
+  const { data: soldOrders } = await supabase
+    .from('orders')
+    .select('id, price_cents, created_at, transport_status, listings(id, vin, make, model, year, price_cents, status, created_at, listing_photos(storage_key, position))')
+    .eq('seller_id', user!.id)
+    .in('status', ['paid', 'documents_sent', 'documents_signed', 'complete'])
+    .order('created_at', { ascending: false })
+
+  // Fetch seller profile for tier
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('seller_tier')
+    .eq('id', user!.id)
+    .single()
+
+  // Fetch unread notification count
+  const { count: notifCount } = await supabase
+    .from('notifications')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user!.id)
+    .eq('read', false)
+
+  function getHeroUrl(photos: { storage_key: string; position: number }[] | null): string | null {
+    if (!photos || photos.length === 0) return null
+    const sorted = [...photos].sort((a, b) => a.position - b.position)
+    return `${supabaseUrl}/storage/v1/object/public/car-photos/${sorted[0].storage_key}`
+  }
+
+  const dashboardListings = (listings ?? []).map(l => ({
+    id: l.id,
+    vin: l.vin,
+    make: l.make,
+    model: l.model,
+    year: l.year,
+    price_cents: l.price_cents,
+    status: l.status as 'active' | 'draft' | 'paused' | 'pending_inspection' | 'sold' | 'archived',
+    created_at: l.created_at,
+    hero_url: getHeroUrl(l.listing_photos as { storage_key: string; position: number }[]),
+  }))
+
+  const soldListings = (soldOrders ?? []).map(o => {
+    const listing = o.listings as unknown as { id: string; vin: string | null; make: string | null; model: string | null; year: number | null; price_cents: number | null; status: string; created_at: string; listing_photos: { storage_key: string; position: number }[] } | null
+    return {
+      id: listing?.id ?? o.id,
+      vin: listing?.vin ?? null,
+      make: listing?.make ?? null,
+      model: listing?.model ?? null,
+      year: listing?.year ?? null,
+      price_cents: listing?.price_cents ?? null,
+      status: 'sold' as const,
+      created_at: listing?.created_at ?? o.created_at,
+      hero_url: getHeroUrl(listing?.listing_photos ?? null),
+      sale_price_cents: o.price_cents,
+      sale_date: o.created_at,
+      transport_status: o.transport_status,
+    }
+  })
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-[#1c1917]">My Listings</h1>
-        <Link href="/seller/listings/new" className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500">
-          + New Listing
-        </Link>
-      </div>
-
-      <section>
-        <h2 className="mb-3 text-sm font-medium uppercase tracking-wider text-[#a8a29e]">Published ({active.length})</h2>
-        {active.length === 0 ? (
-          <p className="text-sm text-[#a8a29e]">No published listings yet.</p>
-        ) : (
-          <div className="overflow-hidden rounded-lg border border-[#e7e5e4]">
-            <table className="w-full text-sm">
-              <thead className="bg-[#faf9f6]">
-                <tr>
-                  <th className="px-4 py-3 text-left font-medium text-[#78716c]">Vehicle</th>
-                  <th className="px-4 py-3 text-left font-medium text-[#78716c]">Price</th>
-                  <th className="px-4 py-3 text-right font-medium text-[#78716c]">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#e7e5e4]">
-                {active.map(listing => (
-                  <tr key={listing.id} className="bg-white hover:bg-[#faf9f6]">
-                    <td className="px-4 py-3 text-[#1c1917]">
-                      {listing.year} {listing.make} {listing.model}
-                      <span className="ml-2 text-xs text-[#a8a29e]">{listing.vin}</span>
-                    </td>
-                    <td className="px-4 py-3 text-[#78716c]">
-                      {listing.price_cents ? `$${(listing.price_cents / 100).toLocaleString()}` : '—'}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <Link href={`/seller/listings/${listing.id}/edit`} className="mr-3 text-blue-600 hover:text-blue-500 text-xs">Edit</Link>
-                      <form action={async () => { 'use server'; await archiveListingAction(listing.id) }} className="inline">
-                        <button type="submit" className="text-[#a8a29e] hover:text-[#78716c] text-xs">Archive</button>
-                      </form>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-
-      <section>
-        <h2 className="mb-3 text-sm font-medium uppercase tracking-wider text-[#a8a29e]">Drafts ({drafts.length})</h2>
-        {drafts.length === 0 ? (
-          <p className="text-sm text-[#a8a29e]">No draft listings.</p>
-        ) : (
-          <div className="overflow-hidden rounded-lg border border-[#e7e5e4]">
-            <table className="w-full text-sm">
-              <thead className="bg-[#faf9f6]">
-                <tr>
-                  <th className="px-4 py-3 text-left font-medium text-[#78716c]">Vehicle</th>
-                  <th className="px-4 py-3 text-left font-medium text-[#78716c]">VIN</th>
-                  <th className="px-4 py-3 text-right font-medium text-[#78716c]">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#e7e5e4]">
-                {drafts.map(listing => (
-                  <tr key={listing.id} className="bg-white hover:bg-[#faf9f6]">
-                    <td className="px-4 py-3 text-[#1c1917]">
-                      {listing.year && listing.make ? `${listing.year} ${listing.make} ${listing.model}` : 'Draft listing'}
-                    </td>
-                    <td className="px-4 py-3 text-xs text-[#a8a29e]">{listing.vin ?? '—'}</td>
-                    <td className="px-4 py-3 text-right">
-                      <Link href={`/seller/listings/${listing.id}/edit`} className="mr-3 text-blue-600 hover:text-blue-500 text-xs">Continue</Link>
-                      <form action={async () => { 'use server'; await publishListingAction(listing.id) }} className="inline">
-                        <button type="submit" className="text-emerald-600 hover:text-emerald-500 text-xs">Publish</button>
-                      </form>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-    </div>
+    <SellerDashboard
+      listings={dashboardListings}
+      soldListings={soldListings}
+      sellerTier={(profile?.seller_tier as 'beginner' | 'trusted') ?? 'beginner'}
+      notificationCount={notifCount ?? 0}
+    />
   )
 }

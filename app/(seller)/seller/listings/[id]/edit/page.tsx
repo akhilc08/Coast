@@ -21,5 +21,17 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
 
   if (!listing) notFound()
 
-  return <ListingWizard initialData={listing} listingId={id} />
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('seller_tier')
+    .eq('id', user.id)
+    .single()
+
+  return (
+    <ListingWizard
+      initialData={listing}
+      listingId={id}
+      sellerTier={(profile?.seller_tier as 'beginner' | 'trusted') ?? 'beginner'}
+    />
+  )
 }

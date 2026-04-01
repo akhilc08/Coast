@@ -29,7 +29,7 @@ export function ListingCard({
   id, make, model, year, mileage, price_cents, grade, heroStorageKey, supabaseUrl
 }: ListingCardProps) {
   const heroUrl = heroStorageKey
-    ? `${supabaseUrl}/storage/v1/render/image/public/car-photos/${heroStorageKey}?width=600&height=450&resize=cover`
+    ? `${supabaseUrl}/storage/v1/object/public/car-photos/${heroStorageKey}`
     : null
 
   const price = price_cents != null

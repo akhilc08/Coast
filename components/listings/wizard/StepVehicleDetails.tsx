@@ -14,9 +14,10 @@ interface StepVehicleDetailsProps {
   listingId: string
   initialData?: Record<string, unknown>
   onSave: () => void
+  onBack?: () => void
 }
 
-export function StepVehicleDetails({ listingId, initialData, onSave }: StepVehicleDetailsProps) {
+export function StepVehicleDetails({ listingId, initialData, onSave, onBack }: StepVehicleDetailsProps) {
   const [serverError, setServerError] = useState<string | null>(null)
 
   const form = useForm<DetailsStepInput & { price: number }>({
@@ -136,9 +137,16 @@ export function StepVehicleDetails({ listingId, initialData, onSave }: StepVehic
             <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">{serverError}</p>
           )}
 
-          <Button type="submit" disabled={form.formState.isSubmitting} className="w-full bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-50">
-            {form.formState.isSubmitting ? 'Saving...' : 'Save & Continue'}
-          </Button>
+          <div className="flex gap-3">
+            {onBack && (
+              <Button type="button" variant="outline" onClick={onBack} className="flex-1 border-[#e7e5e4] text-[#78716c] hover:border-[#1c1917] hover:text-[#1c1917]">
+                Back
+              </Button>
+            )}
+            <Button type="submit" disabled={form.formState.isSubmitting} className={`${onBack ? 'flex-1' : 'w-full'} bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-50`}>
+              {form.formState.isSubmitting ? 'Saving...' : 'Save & Continue'}
+            </Button>
+          </div>
         </form>
       </Form>
     </div>

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { BanToggleButton } from './BanToggleButton'
 import { CreateWholesalerForm } from './CreateWholesalerForm'
+import { SellerTierButton } from '@/components/admin/SellerTierButton'
 
 interface SearchParams {
   status?: string
@@ -14,6 +15,7 @@ interface MergedUser {
   email: string
   role: UserRole
   company: string | null
+  sellerTier: 'beginner' | 'trusted' | null
   isBanned: boolean
   createdAt: string
 }
@@ -33,11 +35,16 @@ export default async function AdminUsersPage({
     console.error('get_admin_users error:', error)
   }
 
+  // Also fetch seller tiers from profiles
+  const { data: profiles } = await admin.from('profiles').select('id, seller_tier')
+  const tierMap = new Map((profiles ?? []).map((p: { id: string; seller_tier: string }) => [p.id, p.seller_tier]))
+
   const mergedUsers: MergedUser[] = (rows ?? []).map((row: { id: string; email: string; role: string; company: string | null; banned_until: string | null; created_at: string }) => ({
     id: row.id,
     email: row.email ?? '',
     role: (row.role as UserRole) ?? 'consumer',
     company: row.company ?? null,
+    sellerTier: row.role === 'wholesaler' ? (tierMap.get(row.id) as 'beginner' | 'trusted' ?? 'beginner') : null,
     isBanned: !!row.banned_until && new Date(row.banned_until) > new Date(),
     createdAt: row.created_at,
   }))
@@ -99,6 +106,9 @@ export default async function AdminUsersPage({
                 Company
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#78716c]">
+                Tier
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#78716c]">
                 Status
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#78716c]">
@@ -113,7 +123,7 @@ export default async function AdminUsersPage({
             {filtered.length === 0 ? (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={7}
                   className="px-4 py-8 text-center text-[#a8a29e]"
                 >
                   No users found.
@@ -143,6 +153,19 @@ export default async function AdminUsersPage({
                     {user.company ?? '—'}
                   </td>
                   <td className="px-4 py-3">
+                    {user.sellerTier ? (
+                      <span className={`text-xs rounded-full px-2 py-0.5 border ${
+                        user.sellerTier === 'trusted'
+                          ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                          : 'border-[#e7e5e4] bg-[#f5f4f0] text-[#78716c]'
+                      }`}>
+                        {user.sellerTier.charAt(0).toUpperCase() + user.sellerTier.slice(1)}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-[#a8a29e]">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
                     {user.isBanned ? (
                       <span className="text-red-600 text-xs font-medium">Banned</span>
                     ) : (
@@ -153,12 +176,20 @@ export default async function AdminUsersPage({
                     {new Date(user.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3">
-                    {user.role !== 'admin' && (
-                      <BanToggleButton
-                        userId={user.id}
-                        isBanned={user.isBanned}
-                      />
-                    )}
+                    <div className="flex items-center gap-2">
+                      {user.role !== 'admin' && (
+                        <BanToggleButton
+                          userId={user.id}
+                          isBanned={user.isBanned}
+                        />
+                      )}
+                      {user.sellerTier && (
+                        <SellerTierButton
+                          userId={user.id}
+                          currentTier={user.sellerTier}
+                        />
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))
