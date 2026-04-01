@@ -16,21 +16,32 @@ interface ListingWizardProps {
 
 export function ListingWizard({ listingId, initialData, sellerTier = 1 }: ListingWizardProps) {
   const initialStep: Step = listingId ? 'details' : 'vin'
+  // When editing an existing listing, treat all steps as already reachable
+  const initialMax:  Step = listingId ? 'review' : 'vin'
 
-  const [step, setStep]       = useState<Step>(initialStep)
-  const [draftId, setDraftId] = useState<string | null>(listingId ?? null)
-  const [vinData, setVinData] = useState<Record<string, unknown> | null>(null)
+  const [step, setStep]           = useState<Step>(initialStep)
+  const [maxReached, setMaxReached] = useState<Step>(initialMax)
+  const [draftId, setDraftId]     = useState<string | null>(listingId ?? null)
+  const [vinData, setVinData]     = useState<Record<string, unknown> | null>(null)
 
   const listingStatus = (initialData?.status as string | undefined) ?? 'draft'
 
   function advance() {
     const idx = STEPS.indexOf(step)
-    if (idx < STEPS.length - 1) setStep(STEPS[idx + 1])
+    if (idx < STEPS.length - 1) {
+      const next = STEPS[idx + 1]
+      setStep(next)
+      if (STEPS.indexOf(next) > STEPS.indexOf(maxReached)) setMaxReached(next)
+    }
   }
 
   function goBack() {
     const idx = STEPS.indexOf(step)
     if (idx > 0) setStep(STEPS[idx - 1])
+  }
+
+  function jumpToStep(target: Step) {
+    setStep(target)
   }
 
   // In edit mode, back from the first editable step (details) has nowhere to go
@@ -39,7 +50,7 @@ export function ListingWizard({ listingId, initialData, sellerTier = 1 }: Listin
   return (
     <div>
       <div className="mb-8">
-        <WizardProgress current={step} />
+        <WizardProgress current={step} maxReached={maxReached} onStepClick={jumpToStep} />
       </div>
       <div className="mx-auto max-w-2xl">
         {step === 'vin' && (

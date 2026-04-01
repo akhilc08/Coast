@@ -3,9 +3,9 @@
 import { useRef } from 'react'
 import { SlottedPhotoUpload } from '@/components/listings/SlottedPhotoUpload'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, Upload } from 'lucide-react'
+import { ChevronLeft, Upload, Sparkles } from 'lucide-react'
 import { PHOTO_SECTIONS } from '@/lib/photo-slots'
-import { buildStorageKey } from '@/lib/storage'
+import { buildStorageKey, getPhotoPublicUrl } from '@/lib/storage'
 import { createClient } from '@/lib/supabase/browser'
 import { toast } from 'sonner'
 
@@ -28,23 +28,13 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
     e.target.value = ''
 
     const supabase = createClient()
-
-    // Determine which slots are already filled
-    const filledSlots = new Set((initialPhotos ?? []).map(p => p.slot_type).filter(Boolean))
-    const emptySlots = allSlots.filter(s => !filledSlots.has(s.id))
-
-    const filesToUpload = files.slice(0, emptySlots.length)
-
-    if (filesToUpload.length === 0) {
-      toast.info('All photo slots are already filled.')
-      return
-    }
+    const filesToUpload = files.slice(0, allSlots.length)
 
     toast.info(`Uploading ${filesToUpload.length} photo${filesToUpload.length > 1 ? 's' : ''}…`)
 
+    // Upload all files without pre-assigning slots
     const results = await Promise.allSettled(
-      filesToUpload.map(async (file, i) => {
-        const slot = emptySlots[i]
+      filesToUpload.map(async (file) => {
         const storageKey = buildStorageKey(listingId, file.name)
 
         const { error: uploadError } = await supabase.storage
@@ -52,24 +42,48 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
           .upload(storageKey, file, { contentType: file.type, cacheControl: '3600', upsert: false })
         if (uploadError) throw uploadError
 
-        const { error: dbError } = await supabase
+        const { data: row, error: dbError } = await supabase
           .from('listing_photos')
-          .insert({ listing_id: listingId, storage_key: storageKey, position: i, slot_type: slot.id })
+          .insert({ listing_id: listingId, storage_key: storageKey, position: 0, slot_type: null })
+          .select('id')
+          .single()
         if (dbError) throw dbError
+
+        return { id: row.id as string, url: getPhotoPublicUrl(storageKey) }
       })
     )
 
+    const succeeded = results.filter(r => r.status === 'fulfilled') as PromiseFulfilledResult<{ id: string; url: string }>[]
     const failed = results.filter(r => r.status === 'rejected').length
-    const succeeded = filesToUpload.length - failed
 
-    if (succeeded > 0) {
-      toast.success(`${succeeded} photo${succeeded > 1 ? 's' : ''} uploaded. You can rearrange them below.`)
-    }
-    if (failed > 0) {
-      toast.error(`${failed} photo${failed > 1 ? 's' : ''} failed to upload.`)
+    if (failed > 0) toast.error(`${failed} photo${failed > 1 ? 's' : ''} failed to upload.`)
+    if (!succeeded.length) return
+
+    const uploadedPhotos = succeeded.map(r => r.value)
+
+    // AI classification
+    toast.info('Classifying photos with AI…')
+    try {
+      const res = await fetch('/api/photos/classify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photos: uploadedPhotos }),
+      })
+      const { assignments } = await res.json() as { assignments: { id: string; slot_type: string }[] }
+
+      if (assignments?.length) {
+        await Promise.all(
+          assignments.map(({ id, slot_type }) =>
+            supabase.from('listing_photos').update({ slot_type }).eq('id', id)
+          )
+        )
+      }
+
+      toast.success(`${uploadedPhotos.length} photo${uploadedPhotos.length > 1 ? 's' : ''} uploaded and classified by AI.`)
+    } catch {
+      toast.success(`${uploadedPhotos.length} photo${uploadedPhotos.length > 1 ? 's' : ''} uploaded. Could not auto-classify.`)
     }
 
-    // Reload page state — simplest approach is to refresh
     window.location.reload()
   }
 
@@ -97,9 +111,10 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
         >
           <Upload className="h-4 w-4" />
           Upload all photos at once
+          <Sparkles className="h-3.5 w-3.5 text-blue-400" />
         </button>
         <p className="mt-1.5 text-center text-xs text-[#a8a29e]">
-          Select multiple files — they'll be auto-assigned to slots. You can swap individual slots below.
+          Select multiple files — AI will classify them into the right slots automatically.
         </p>
       </div>
 

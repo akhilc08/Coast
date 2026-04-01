@@ -31,6 +31,8 @@ export function StepReview({ listingId, listingStatus, sellerTier, onBack }: Ste
       }
       toast.success('Listing published!')
       router.push('/seller/dashboard')
+    } catch {
+      toast.error('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -46,6 +48,8 @@ export function StepReview({ listingId, listingStatus, sellerTier, onBack }: Ste
       }
       toast.success('Submitted for inspection. We\'ll notify you when it\'s live.')
       router.push('/seller/dashboard')
+    } catch {
+      toast.error('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }

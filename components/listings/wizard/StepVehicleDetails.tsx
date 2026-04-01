@@ -30,7 +30,7 @@ export function StepVehicleDetails({ listingId, initialData, listingStatus, onSa
       model:           (initialData?.model as string) ?? '',
       year:            (initialData?.year as number) ?? new Date().getFullYear(),
       mileage:         (initialData?.mileage as number) ?? 0,
-      price:           initialData?.price_cents ? (initialData.price_cents as number) / 100 : 0,
+      price:           initialData?.price_cents ? (initialData.price_cents as number) / 100 : undefined,
       color:           (initialData?.color as string) ?? '',
       condition_notes: (initialData?.condition_notes as string) ?? '',
       pickup_zip:      (initialData?.pickup_zip as string) ?? '',
@@ -40,7 +40,7 @@ export function StepVehicleDetails({ listingId, initialData, listingStatus, onSa
   async function onSubmit(data: DetailsStepInput & { price: number }) {
     setServerError(null)
     const { price, ...rest } = data as { price: number } & Omit<DetailsStepInput, 'price_cents'>
-    const result = await updateListingAction(listingId, { ...rest, price_cents: Math.round(price * 100) })
+    const result = await updateListingAction(listingId, { ...rest, ...(price ? { price_cents: Math.round(price * 100) } : {}) })
     if ('error' in result) {
       setServerError(result.error)
       return
@@ -101,7 +101,7 @@ export function StepVehicleDetails({ listingId, initialData, listingStatus, onSa
             <FormField control={form.control} name={"price" as never} render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-[#78716c]">Price (USD) *</FormLabel>
-                <FormControl><Input type="number" step="0.01" className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="15000" disabled={isPendingInspection} {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl>
+                <FormControl><Input type="number" step="0.01" className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="15000" disabled={isPendingInspection} {...field} value={field.value ?? ''} onChange={e => { const v = parseFloat(e.target.value); field.onChange(isNaN(v) ? undefined : v) }} /></FormControl>
                 <FormMessage className="text-red-500" />
               </FormItem>
             )} />
