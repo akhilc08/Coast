@@ -48,13 +48,28 @@ export async function updateListingAction(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
-  const title = fields.year && fields.make && fields.model
-    ? `${fields.year} ${fields.make} ${fields.model}`
+  // If listing is pending inspection, strip critical locked fields
+  const { data: currentListing } = await supabase
+    .from('listings')
+    .select('status')
+    .eq('id', listingId)
+    .eq('seller_id', user.id)
+    .single()
+
+  let allowedFields = { ...fields }
+  if (currentListing?.status === 'pending_inspection') {
+    const { price_cents, make, model, year, ...rest } = allowedFields
+    void price_cents; void make; void model; void year
+    allowedFields = rest
+  }
+
+  const title = allowedFields.year && allowedFields.make && allowedFields.model
+    ? `${allowedFields.year} ${allowedFields.make} ${allowedFields.model}`
     : undefined
 
   const { error } = await supabase
     .from('listings')
-    .update({ ...fields, ...(title ? { title } : {}), updated_at: new Date().toISOString() })
+    .update({ ...allowedFields, ...(title ? { title } : {}), updated_at: new Date().toISOString() })
     .eq('id', listingId)
     .eq('seller_id', user.id)
 
@@ -70,15 +85,27 @@ export async function publishListingAction(
   if (!user) return { error: 'Not authenticated' }
 
   // Guard: pickup_zip must be set before publishing
-  const { data: listing } = await supabase
-    .from('listings')
-    .select('pickup_zip')
-    .eq('id', listingId)
-    .eq('seller_id', user.id)
-    .single()
+  const [{ data: listing }, { data: profile }] = await Promise.all([
+    supabase
+      .from('listings')
+      .select('pickup_zip, condition_locked')
+      .eq('id', listingId)
+      .eq('seller_id', user.id)
+      .single(),
+    supabase
+      .from('profiles')
+      .select('seller_tier')
+      .eq('id', user.id)
+      .single(),
+  ])
 
   if (!listing) return { error: 'Listing not found' }
   if (!listing.pickup_zip) return { error: 'Pickup ZIP code is required before publishing. Go back to Vehicle Details and add it.' }
+
+  const tier = profile?.seller_tier ?? 1
+  if (tier >= 2 && !listing.condition_locked) {
+    return { error: 'An inspection report must be attached before publishing. Please upload one in the Condition step.' }
+  }
 
   const { error } = await supabase
     .from('listings')
@@ -340,11 +367,14 @@ export async function adminApproveListingAction(
 
   const { data: listing } = await admin
     .from('listings')
-    .select('id, year, make, model, status, profiles!seller_id(email, full_name)')
+    .select('id, year, make, model, status, condition_locked, profiles!seller_id(email, full_name)')
     .eq('id', listingId)
     .single()
 
   if (!listing) return { error: 'Listing not found' }
+  if (!listing.condition_locked) {
+    return { error: 'Cannot approve: no inspection report has been attached to this listing.' }
+  }
 
   const { error } = await admin
     .from('listings')
