@@ -131,7 +131,7 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
 
       {PHOTO_SECTIONS.map(section => (
         <div key={section.id}>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#a8a29e]">
             {section.title}
           </h3>
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
@@ -168,12 +168,12 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
                     <button
                       type="button"
                       onClick={() => handleSlotClick(slot.id)}
-                      className="flex aspect-[4/3] w-full flex-col items-center justify-center rounded-lg border border-dashed border-zinc-700 bg-zinc-900 text-zinc-600 transition-colors hover:border-zinc-500 hover:text-zinc-400"
+                      className="flex aspect-[4/3] w-full flex-col items-center justify-center rounded-lg border border-dashed border-[#e7e5e4] bg-[#faf9f6] text-[#a8a29e] transition-colors hover:border-[#a8a29e] hover:text-[#78716c]"
                     >
                       <Camera className="h-4 w-4" />
                     </button>
                   )}
-                  <p className="mt-1 truncate text-center text-[10px] text-zinc-500">{slot.label}</p>
+                  <p className="mt-1 truncate text-center text-[10px] text-[#a8a29e]">{slot.label}</p>
                 </div>
               )
             })}
@@ -181,7 +181,7 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
         </div>
       ))}
 
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-[#a8a29e]">
         {uploadedCount} {uploadedCount === 1 ? 'photo' : 'photos'} uploaded — all optional
       </p>
     </div>

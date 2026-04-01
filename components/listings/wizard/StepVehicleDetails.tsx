@@ -49,7 +49,7 @@ export function StepVehicleDetails({ listingId, initialData, listingStatus, onSa
   }
 
   return (
-    <div className="rounded-xl border border-[#e7e5e4] bg-white p-6">
+    <div className="rounded-xl border border-[#e7e5e4] bg-white p-4 sm:p-6">
       <h2 className="mb-1 text-xl font-semibold text-[#1c1917]">Vehicle Details</h2>
       <p className="mb-6 text-sm text-[#78716c]">Fill in the vehicle details. Pre-filled fields are editable.</p>
 
@@ -63,7 +63,7 @@ export function StepVehicleDetails({ listingId, initialData, listingStatus, onSa
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit as never)} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField control={form.control} name="make" render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-[#78716c]">Make *</FormLabel>
@@ -80,7 +80,7 @@ export function StepVehicleDetails({ listingId, initialData, listingStatus, onSa
             )} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField control={form.control} name="year" render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-[#78716c]">Year *</FormLabel>
@@ -97,7 +97,7 @@ export function StepVehicleDetails({ listingId, initialData, listingStatus, onSa
             )} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField control={form.control} name={"price" as never} render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-[#78716c]">Price (USD) *</FormLabel>

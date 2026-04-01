@@ -39,7 +39,7 @@ export function StepVinLookup({ onSuccess }: StepVinLookupProps) {
   }
 
   return (
-    <div className="rounded-xl border border-[#e7e5e4] bg-white p-6">
+    <div className="rounded-xl border border-[#e7e5e4] bg-white p-4 sm:p-6">
       <h2 className="mb-1 text-xl font-semibold text-[#1c1917]">VIN Lookup</h2>
       <p className="mb-6 text-sm text-[#78716c]">Enter the Vehicle Identification Number to auto-fill vehicle details.</p>
 

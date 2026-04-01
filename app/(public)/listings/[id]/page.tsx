@@ -138,7 +138,7 @@ export default async function ListingDetailPage({
 
       {/* ── Top nav bar ───────────────────────────────────────────────────── */}
       <div className="sticky top-0 z-20 bg-white border-b border-[#e7e5e4] shadow-sm">
-        <div className="mx-auto max-w-7xl flex items-center gap-8 px-6 py-4">
+        <div className="mx-auto max-w-7xl flex items-center gap-4 sm:gap-8 px-4 sm:px-6 py-4">
           <Link
             href="/inventory"
             className="flex items-center gap-2 text-sm font-medium text-[#78716c] hover:text-[#1c1917] transition-colors whitespace-nowrap"
@@ -170,12 +170,12 @@ export default async function ListingDetailPage({
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
 
           {/* ════════════════════════════════════════════════════════════════
-              LEFT COLUMN
+              LEFT COLUMN (shows below right on mobile, left on desktop)
           ════════════════════════════════════════════════════════════════ */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="order-2 lg:order-1 lg:col-span-2 space-y-6">
 
             {/* Vehicle identity */}
-            <div className="bg-white rounded-2xl border border-[#e7e5e4] px-8 py-7">
+            <div className="bg-white rounded-2xl border border-[#e7e5e4] px-4 sm:px-8 py-5 sm:py-7">
               <h1 className="text-[2rem] font-bold leading-tight text-[#1c1917]">
                 {listing.year} {listing.make} {listing.model}
               </h1>
@@ -223,7 +223,7 @@ export default async function ListingDetailPage({
             {listing.seller_id && (
               <Link
                 href={`/sellers/${listing.seller_id}`}
-                className="group block rounded-2xl border border-[#e7e5e4] bg-white px-8 py-7 transition-colors hover:border-[#a8a29e]"
+                className="group block rounded-2xl border border-[#e7e5e4] bg-white px-4 sm:px-8 py-5 sm:py-7 transition-colors hover:border-[#a8a29e]"
               >
                 <div className="flex items-center justify-between">
                   <p className="text-[11px] font-bold uppercase tracking-widest text-[#a8a29e]">
@@ -263,7 +263,7 @@ export default async function ListingDetailPage({
             {/* ANNOUNCEMENTS */}
             {hasAnnouncements && (
               <div className="rounded-2xl border border-[#e7e5e4] bg-white overflow-hidden">
-                <div className="border-l-4 border-yellow-400 px-8 py-7">
+                <div className="border-l-4 border-yellow-400 px-4 sm:px-8 py-5 sm:py-7">
                   <h2 className="mb-5 text-[11px] font-bold uppercase tracking-widest text-[#1c1917]">
                     Announcements
                   </h2>
@@ -289,7 +289,7 @@ export default async function ListingDetailPage({
 
             {/* Condition notes */}
             {listing.condition_notes && (
-              <div className="rounded-2xl border border-[#e7e5e4] bg-white px-8 py-7">
+              <div className="rounded-2xl border border-[#e7e5e4] bg-white px-4 sm:px-8 py-5 sm:py-7">
                 <h2 className="mb-4 text-[11px] font-bold uppercase tracking-widest text-[#1c1917]">
                   Condition Notes
                 </h2>
@@ -299,7 +299,7 @@ export default async function ListingDetailPage({
 
             {/* AI Condition Report (new — PDF extracted) */}
             {aiCondition && (
-              <div className="rounded-2xl border border-[#e7e5e4] bg-white px-8 py-7">
+              <div className="rounded-2xl border border-[#e7e5e4] bg-white px-4 sm:px-8 py-5 sm:py-7">
                 <div className="mb-5 flex items-center gap-3">
                   <h2 className="text-[11px] font-bold uppercase tracking-widest text-[#1c1917]">
                     Condition Report
@@ -322,7 +322,7 @@ export default async function ListingDetailPage({
 
             {/* Legacy Condition Report (fallback for older listings) */}
             {hasLegacyCondition && (
-              <div className="rounded-2xl border border-[#e7e5e4] bg-white px-8 py-7">
+              <div className="rounded-2xl border border-[#e7e5e4] bg-white px-4 sm:px-8 py-5 sm:py-7">
                 <h2 className="mb-6 text-[11px] font-bold uppercase tracking-widest text-[#1c1917]">
                   Full Condition Report
                 </h2>
@@ -382,7 +382,7 @@ export default async function ListingDetailPage({
 
             {/* Documents */}
             {listing.listing_documents && listing.listing_documents.length > 0 && (
-              <div className="rounded-2xl border border-[#e7e5e4] bg-white px-8 py-7">
+              <div className="rounded-2xl border border-[#e7e5e4] bg-white px-4 sm:px-8 py-5 sm:py-7">
                 <h2 className="mb-5 text-[11px] font-bold uppercase tracking-widest text-[#1c1917]">
                   Documents
                 </h2>
@@ -411,12 +411,12 @@ export default async function ListingDetailPage({
           </div>
 
           {/* ════════════════════════════════════════════════════════════════
-              RIGHT COLUMN (sticky)
+              RIGHT COLUMN (shows first on mobile, sticky sidebar on desktop)
           ════════════════════════════════════════════════════════════════ */}
-          <div className="space-y-5 lg:sticky lg:top-[73px] lg:self-start">
+          <div className="order-1 lg:order-2 space-y-5 lg:sticky lg:top-[73px] lg:self-start">
 
             {/* Price + Buy CTA */}
-            <div className="rounded-2xl border border-[#e7e5e4] bg-white px-6 py-6">
+            <div className="rounded-2xl border border-[#e7e5e4] bg-white px-4 sm:px-6 py-4 sm:py-6">
               <p className="text-[11px] font-semibold uppercase tracking-widest text-[#a8a29e]">
                 Buy It Now
               </p>
@@ -453,7 +453,7 @@ export default async function ListingDetailPage({
             </div>
 
             {/* Condition Grade (AI) */}
-            <div className="rounded-2xl border border-[#e7e5e4] bg-white px-6 py-6">
+            <div className="rounded-2xl border border-[#e7e5e4] bg-white px-4 sm:px-6 py-4 sm:py-6">
               <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-[#a8a29e]">
                 Condition Grade
               </p>
@@ -464,7 +464,7 @@ export default async function ListingDetailPage({
             </div>
 
             {/* Vehicle Details */}
-            <div className="rounded-2xl border border-[#e7e5e4] bg-white px-6 py-6">
+            <div className="rounded-2xl border border-[#e7e5e4] bg-white px-4 sm:px-6 py-4 sm:py-6">
               <h3 className="mb-5 text-[11px] font-bold uppercase tracking-widest text-[#1c1917]">
                 Vehicle Details
               </h3>

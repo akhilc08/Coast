@@ -74,7 +74,7 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
   }
 
   return (
-    <div className="rounded-xl border border-[#e7e5e4] bg-white p-6">
+    <div className="rounded-xl border border-[#e7e5e4] bg-white p-4 sm:p-6">
       <h2 className="mb-1 text-xl font-semibold text-[#1c1917]">Photos</h2>
       <p className="mb-4 text-sm text-[#78716c]">
         Add photos for each section. More photos help buyers decide faster.

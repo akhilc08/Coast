@@ -9,7 +9,7 @@ export default async function PublicLayout({ children }: { children: React.React
 
   return (
     <div className="min-h-screen bg-white text-[#111]">
-      <header className="sticky top-0 z-40 flex h-[60px] items-center gap-8 border-b border-[#e5e7eb] bg-white px-8">
+      <header className="sticky top-0 z-40 flex h-[60px] items-center gap-4 sm:gap-8 border-b border-[#e5e7eb] bg-white px-4 sm:px-8">
 
         {/* Logo */}
         <Link href="/" className="shrink-0 text-[22px] font-extrabold tracking-tight text-[#111]">
