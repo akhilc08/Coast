@@ -11,19 +11,30 @@ import { StepReview } from './StepReview'
 interface ListingWizardProps {
   listingId?:   string
   initialData?: Record<string, unknown>
+  sellerTier?:  number
 }
 
-export function ListingWizard({ listingId, initialData }: ListingWizardProps) {
+export function ListingWizard({ listingId, initialData, sellerTier = 1 }: ListingWizardProps) {
   const initialStep: Step = listingId ? 'details' : 'vin'
 
   const [step, setStep]       = useState<Step>(initialStep)
   const [draftId, setDraftId] = useState<string | null>(listingId ?? null)
   const [vinData, setVinData] = useState<Record<string, unknown> | null>(null)
 
+  const listingStatus = (initialData?.status as string | undefined) ?? 'draft'
+
   function advance() {
     const idx = STEPS.indexOf(step)
     if (idx < STEPS.length - 1) setStep(STEPS[idx + 1])
   }
+
+  function goBack() {
+    const idx = STEPS.indexOf(step)
+    if (idx > 0) setStep(STEPS[idx - 1])
+  }
+
+  // In edit mode, back from the first editable step (details) has nowhere to go
+  const canGoBack = STEPS.indexOf(step) > (listingId ? 1 : 0)
 
   return (
     <div>
@@ -46,6 +57,7 @@ export function ListingWizard({ listingId, initialData }: ListingWizardProps) {
             listingId={draftId}
             initialData={vinData ?? initialData}
             onSave={advance}
+            onBack={canGoBack ? goBack : undefined}
           />
         )}
 
@@ -54,11 +66,17 @@ export function ListingWizard({ listingId, initialData }: ListingWizardProps) {
             listingId={draftId}
             initialPhotos={(initialData?.listing_photos as { id: string; storage_key: string; position: number; slot_type: string | null }[]) ?? []}
             onSave={advance}
+            onBack={goBack}
           />
         )}
 
         {step === 'review' && draftId && (
-          <StepReview listingId={draftId} />
+          <StepReview
+            listingId={draftId}
+            listingStatus={listingStatus}
+            sellerTier={sellerTier}
+            onBack={goBack}
+          />
         )}
       </div>
     </div>

@@ -235,6 +235,147 @@ export async function saveAiConditionAction(
   return { success: true }
 }
 
+export async function pauseListingAction(
+  listingId: string
+): Promise<{ success: true } | { error: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { error } = await supabase
+    .from('listings')
+    .update({ status: 'paused', updated_at: new Date().toISOString() })
+    .eq('id', listingId)
+    .eq('seller_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/seller/dashboard')
+  revalidatePath('/')
+  return { success: true }
+}
+
+export async function unpauseListingAction(
+  listingId: string
+): Promise<{ success: true } | { error: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { error } = await supabase
+    .from('listings')
+    .update({ status: 'active', updated_at: new Date().toISOString() })
+    .eq('id', listingId)
+    .eq('seller_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/seller/dashboard')
+  revalidatePath('/')
+  return { success: true }
+}
+
+export async function deleteListingAction(
+  listingId: string
+): Promise<{ success: true } | { error: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { error } = await supabase
+    .from('listings')
+    .delete()
+    .eq('id', listingId)
+    .eq('seller_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/seller/dashboard')
+  revalidatePath('/')
+  return { success: true }
+}
+
+export async function submitForInspectionAction(
+  listingId: string
+): Promise<{ success: true } | { error: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { data: listing } = await supabase
+    .from('listings')
+    .select('pickup_zip')
+    .eq('id', listingId)
+    .eq('seller_id', user.id)
+    .single()
+
+  if (!listing) return { error: 'Listing not found' }
+  if (!listing.pickup_zip) return { error: 'Pickup ZIP is required before submitting for inspection.' }
+
+  const { error } = await supabase
+    .from('listings')
+    .update({ status: 'pending_inspection', updated_at: new Date().toISOString() })
+    .eq('id', listingId)
+    .eq('seller_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/seller/dashboard')
+  return { success: true }
+}
+
+export async function adminApproveListingAction(
+  listingId: string
+): Promise<{ success: true } | { error: string }> {
+  // Verify caller is admin
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { data: callerProfile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+  if (callerProfile?.role !== 'admin') return { error: 'Not authorized' }
+
+  const { createAdminClient: mkAdmin } = await import('@/lib/supabase/admin')
+  const admin = mkAdmin()
+
+  const { data: listing } = await admin
+    .from('listings')
+    .select('id, year, make, model, status, profiles!seller_id(email, full_name)')
+    .eq('id', listingId)
+    .single()
+
+  if (!listing) return { error: 'Listing not found' }
+
+  const { error } = await admin
+    .from('listings')
+    .update({
+      status: 'active',
+      published_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', listingId)
+
+  if (error) return { error: error.message }
+
+  // Email seller — non-fatal if it fails
+  const sellerProfile = Array.isArray(listing.profiles) ? listing.profiles[0] : listing.profiles
+  if (sellerProfile?.email) {
+    const baseUrl = process.env.NEXT_PUBLIC_URL ?? 'https://drivewithcoast.com'
+    const { resend, FROM_EMAIL } = await import('@/lib/resend')
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: sellerProfile.email,
+      subject: `Your listing is live: ${listing.year} ${listing.make} ${listing.model}`,
+      html: `<p>Hi ${sellerProfile.full_name ?? 'there'},</p><p>Your <strong>${listing.year} ${listing.make} ${listing.model}</strong> has been inspected, approved, and is now live on Coast. Buyers can find and purchase it now.</p><p><a href="${baseUrl}/listings/${listing.id}">View your listing →</a></p><p>— The Coast Team</p>`,
+    }).catch(() => {/* non-fatal */})
+  }
+
+  revalidatePath('/seller/dashboard')
+  revalidatePath('/')
+  revalidatePath(`/admin/listings/${listingId}`)
+  return { success: true }
+}
+
 export async function updateConditionAction(
   listingId: string,
   data: ConditionStepInput

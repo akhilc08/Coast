@@ -4,8 +4,9 @@ import { GradeBadge } from '@/components/ui/GradeBadge'
 
 const STATUS_TABS = [
   { label: 'All', value: 'all' },
-  { label: 'Draft', value: 'draft' },
+  { label: 'Pending Inspection', value: 'pending_inspection' },
   { label: 'Active', value: 'active' },
+  { label: 'Draft', value: 'draft' },
   { label: 'Sold', value: 'sold' },
 ]
 

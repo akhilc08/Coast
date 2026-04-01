@@ -9,14 +9,16 @@ import { updateListingAction } from '@/app/actions/listings'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { ChevronLeft } from 'lucide-react'
 
 interface StepVehicleDetailsProps {
   listingId: string
   initialData?: Record<string, unknown>
   onSave: () => void
+  onBack?: () => void
 }
 
-export function StepVehicleDetails({ listingId, initialData, onSave }: StepVehicleDetailsProps) {
+export function StepVehicleDetails({ listingId, initialData, onSave, onBack }: StepVehicleDetailsProps) {
   const [serverError, setServerError] = useState<string | null>(null)
 
   const form = useForm<DetailsStepInput & { price: number }>({
@@ -141,6 +143,17 @@ export function StepVehicleDetails({ listingId, initialData, onSave }: StepVehic
           </Button>
         </form>
       </Form>
+
+      {onBack && (
+        <button
+          type="button"
+          onClick={onBack}
+          className="mt-4 flex items-center gap-1 text-sm text-[#a8a29e] hover:text-[#78716c] transition-colors"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Back
+        </button>
+      )}
     </div>
   )
 }

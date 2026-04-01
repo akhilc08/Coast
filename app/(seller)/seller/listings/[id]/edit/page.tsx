@@ -8,18 +8,31 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: listing } = await supabase
-    .from('listings')
-    .select(`
-      *,
-      listing_photos(id, storage_key, position, slot_type),
-      listing_documents(id, storage_key, document_type, file_name)
-    `)
-    .eq('id', id)
-    .eq('seller_id', user.id)
-    .single()
+  const [{ data: listing }, { data: profile }] = await Promise.all([
+    supabase
+      .from('listings')
+      .select(`
+        *,
+        listing_photos(id, storage_key, position, slot_type),
+        listing_documents(id, storage_key, document_type, file_name)
+      `)
+      .eq('id', id)
+      .eq('seller_id', user.id)
+      .single(),
+    supabase
+      .from('profiles')
+      .select('seller_tier')
+      .eq('id', user.id)
+      .single(),
+  ])
 
   if (!listing) notFound()
 
-  return <ListingWizard initialData={listing} listingId={id} />
+  return (
+    <ListingWizard
+      initialData={listing}
+      listingId={id}
+      sellerTier={profile?.seller_tier ?? 1}
+    />
+  )
 }
