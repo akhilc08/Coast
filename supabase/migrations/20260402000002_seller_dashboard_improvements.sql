@@ -14,15 +14,18 @@ CREATE TABLE IF NOT EXISTS notifications (
 
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can read own notifications" ON notifications;
 CREATE POLICY "Users can read own notifications"
   ON notifications FOR SELECT
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own notifications" ON notifications;
 CREATE POLICY "Users can update own notifications"
   ON notifications FOR UPDATE
   USING (auth.uid() = user_id);
 
 -- Allow service role (admin) to insert notifications
+DROP POLICY IF EXISTS "Service role can insert notifications" ON notifications;
 CREATE POLICY "Service role can insert notifications"
   ON notifications FOR INSERT
   WITH CHECK (true);
