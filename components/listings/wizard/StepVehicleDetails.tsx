@@ -14,11 +14,13 @@ import { ChevronLeft } from 'lucide-react'
 interface StepVehicleDetailsProps {
   listingId: string
   initialData?: Record<string, unknown>
+  listingStatus?: string
   onSave: () => void
   onBack?: () => void
 }
 
-export function StepVehicleDetails({ listingId, initialData, onSave, onBack }: StepVehicleDetailsProps) {
+export function StepVehicleDetails({ listingId, initialData, listingStatus, onSave, onBack }: StepVehicleDetailsProps) {
+  const isPendingInspection = listingStatus === 'pending_inspection'
   const [serverError, setServerError] = useState<string | null>(null)
 
   const form = useForm<DetailsStepInput & { price: number }>({
@@ -51,20 +53,28 @@ export function StepVehicleDetails({ listingId, initialData, onSave, onBack }: S
       <h2 className="mb-1 text-xl font-semibold text-[#1c1917]">Vehicle Details</h2>
       <p className="mb-6 text-sm text-[#78716c]">Fill in the vehicle details. Pre-filled fields are editable.</p>
 
+      {isPendingInspection && (
+        <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-3">
+          <p className="text-sm text-amber-700">
+            This listing is pending inspection. Make, model, year, and price are locked until inspection is complete.
+          </p>
+        </div>
+      )}
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit as never)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <FormField control={form.control} name="make" render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-[#78716c]">Make *</FormLabel>
-                <FormControl><Input className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="Honda" {...field} /></FormControl>
+                <FormControl><Input className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="Honda" disabled={isPendingInspection} {...field} /></FormControl>
                 <FormMessage className="text-red-500" />
               </FormItem>
             )} />
             <FormField control={form.control} name="model" render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-[#78716c]">Model *</FormLabel>
-                <FormControl><Input className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="Accord" {...field} /></FormControl>
+                <FormControl><Input className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="Accord" disabled={isPendingInspection} {...field} /></FormControl>
                 <FormMessage className="text-red-500" />
               </FormItem>
             )} />
@@ -74,7 +84,7 @@ export function StepVehicleDetails({ listingId, initialData, onSave, onBack }: S
             <FormField control={form.control} name="year" render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-[#78716c]">Year *</FormLabel>
-                <FormControl><Input type="number" className="border-[#e7e5e4] bg-white text-[#1c1917]" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} /></FormControl>
+                <FormControl><Input type="number" className="border-[#e7e5e4] bg-white text-[#1c1917]" disabled={isPendingInspection} {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} /></FormControl>
                 <FormMessage className="text-red-500" />
               </FormItem>
             )} />
@@ -91,7 +101,7 @@ export function StepVehicleDetails({ listingId, initialData, onSave, onBack }: S
             <FormField control={form.control} name={"price" as never} render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-[#78716c]">Price (USD) *</FormLabel>
-                <FormControl><Input type="number" step="0.01" className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="15000" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl>
+                <FormControl><Input type="number" step="0.01" className="border-[#e7e5e4] bg-white text-[#1c1917]" placeholder="15000" disabled={isPendingInspection} {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl>
                 <FormMessage className="text-red-500" />
               </FormItem>
             )} />

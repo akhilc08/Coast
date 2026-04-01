@@ -56,6 +56,7 @@ export function ListingWizard({ listingId, initialData, sellerTier = 1 }: Listin
           <StepVehicleDetails
             listingId={draftId}
             initialData={vinData ?? initialData}
+            listingStatus={listingStatus}
             onSave={advance}
             onBack={canGoBack ? goBack : undefined}
           />
