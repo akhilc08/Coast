@@ -79,6 +79,8 @@ USING (
 -- get_admin_users: include seller_tier
 -- ============================================================
 
+DROP FUNCTION IF EXISTS public.get_admin_users();
+
 CREATE OR REPLACE FUNCTION public.get_admin_users()
 RETURNS TABLE(
   id uuid,
