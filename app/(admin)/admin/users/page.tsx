@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { BanToggleButton } from './BanToggleButton'
 import { CreateWholesalerForm } from './CreateWholesalerForm'
+import { SetSellerTierButton } from './SetSellerTierButton'
 
 interface SearchParams {
   status?: string
@@ -14,6 +15,7 @@ interface MergedUser {
   email: string
   role: UserRole
   company: string | null
+  sellerTier: number
   isBanned: boolean
   createdAt: string
 }
@@ -33,11 +35,12 @@ export default async function AdminUsersPage({
     console.error('get_admin_users error:', error)
   }
 
-  const mergedUsers: MergedUser[] = (rows ?? []).map((row: { id: string; email: string; role: string; company: string | null; banned_until: string | null; created_at: string }) => ({
+  const mergedUsers: MergedUser[] = (rows ?? []).map((row: { id: string; email: string; role: string; company: string | null; seller_tier: number | null; banned_until: string | null; created_at: string }) => ({
     id: row.id,
     email: row.email ?? '',
     role: (row.role as UserRole) ?? 'consumer',
     company: row.company ?? null,
+    sellerTier: row.seller_tier ?? 1,
     isBanned: !!row.banned_until && new Date(row.banned_until) > new Date(),
     createdAt: row.created_at,
   }))
@@ -105,6 +108,9 @@ export default async function AdminUsersPage({
                 Created
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#78716c]">
+                Tier
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#78716c]">
                 Actions
               </th>
             </tr>
@@ -151,6 +157,13 @@ export default async function AdminUsersPage({
                   </td>
                   <td className="px-4 py-3 text-[#78716c]">
                     {new Date(user.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-4 py-3">
+                    {user.role === 'wholesaler' ? (
+                      <SetSellerTierButton userId={user.id} currentTier={user.sellerTier} />
+                    ) : (
+                      <span className="text-xs text-[#a8a29e]">—</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     {user.role !== 'admin' && (
