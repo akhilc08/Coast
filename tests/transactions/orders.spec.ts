@@ -1,5 +1,7 @@
 import { test } from '@playwright/test'
 
 test.describe('purchase history', () => {
-  test.fixme('renders order cards for buyer')
+  test('renders order cards for buyer', async () => {
+    test.fixme()
+  })
 })
