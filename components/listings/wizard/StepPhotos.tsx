@@ -14,7 +14,7 @@ interface StepPhotosProps {
   listingId: string
   initialPhotos: { id: string; storage_key: string; position: number; slot_type: string | null }[]
   onSave: () => void
-  onBack: () => void
+  onBack?: () => void
 }
 
 export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPhotosProps) {
