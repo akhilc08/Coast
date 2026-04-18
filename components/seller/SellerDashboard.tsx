@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { Car, ExternalLink, Pause, Play, Trash2, X } from 'lucide-react'
 import {
   pauseListingAction,
-  resumeListingAction,
+  unpauseListingAction,
   deleteListingAction,
   archiveListingAction,
 } from '@/app/actions/listings'
@@ -233,7 +233,7 @@ function ListingRow({
 
   async function handleResume() {
     setActionLoading(true)
-    const result = await resumeListingAction(listing.id)
+    const result = await unpauseListingAction(listing.id)
     if ('error' in result) toast.error(result.error)
     else toast.success('Listing resumed')
     setActionLoading(false)
