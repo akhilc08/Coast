@@ -15,8 +15,6 @@ export default async function DashboardPage() {
     .in('status', ['active', 'draft', 'paused', 'pending_inspection', 'archived'])
     .order('created_at', { ascending: false })
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-
   const active             = listings?.filter(l => l.status === 'active')            ?? []
   const pendingInspection  = listings?.filter(l => l.status === 'pending_inspection') ?? []
   const paused             = listings?.filter(l => l.status === 'paused')             ?? []
