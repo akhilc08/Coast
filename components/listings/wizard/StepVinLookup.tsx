@@ -12,14 +12,15 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 
 interface StepVinLookupProps {
   onSuccess: (draftId: string, vehicle: import('@/lib/nhtsa').VehicleDetails | null) => void
+  initialVin?: string
 }
 
-export function StepVinLookup({ onSuccess }: StepVinLookupProps) {
+export function StepVinLookup({ onSuccess, initialVin }: StepVinLookupProps) {
   const [serverError, setServerError] = useState<string | null>(null)
 
   const form = useForm<VinStepInput>({
     resolver: zodResolver(vinStepSchema),
-    defaultValues: { vin: '' },
+    defaultValues: { vin: initialVin ?? '' },
   })
 
   async function onSubmit(data: VinStepInput) {
