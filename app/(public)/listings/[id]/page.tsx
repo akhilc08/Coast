@@ -260,71 +260,11 @@ export default async function ListingDetailPage({
               </Link>
             )}
 
-            {/* ANNOUNCEMENTS */}
-            {hasAnnouncements && (
-              <div className="rounded-2xl border border-[#e7e5e4] bg-white overflow-hidden">
-                <div className="border-l-4 border-yellow-400 px-4 sm:px-8 py-5 sm:py-7">
-                  <h2 className="mb-5 text-[11px] font-bold uppercase tracking-widest text-[#1c1917]">
-                    Announcements
-                  </h2>
-                  <div className="divide-y divide-[#f5f5f4]">
-                    {listing.overall_notes && (
-                      <div className="pb-5">
-                        <p className="text-sm font-semibold text-[#1c1917]">General Notes</p>
-                        <p className="mt-1.5 text-sm leading-relaxed text-[#78716c]">{listing.overall_notes}</p>
-                      </div>
-                    )}
-                    {announcements.map((item, i) => (
-                      <div key={i} className="py-4 last:pb-0">
-                        <p className="text-sm font-semibold text-[#1c1917]">{item.label}</p>
-                        {item.detail && (
-                          <p className="mt-1 text-sm text-[#78716c]">{item.detail}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Condition notes */}
-            {listing.condition_notes && (
-              <div className="rounded-2xl border border-[#e7e5e4] bg-white px-4 sm:px-8 py-5 sm:py-7">
-                <h2 className="mb-4 text-[11px] font-bold uppercase tracking-widest text-[#1c1917]">
-                  Condition Notes
-                </h2>
-                <p className="text-sm leading-relaxed text-[#57534e]">{listing.condition_notes}</p>
-              </div>
-            )}
-
-            {/* AI Condition Report (new — PDF extracted) */}
-            {aiCondition && (
-              <div className="rounded-2xl border border-[#e7e5e4] bg-white px-4 sm:px-8 py-5 sm:py-7">
-                <div className="mb-5 flex items-center gap-3">
-                  <h2 className="text-[11px] font-bold uppercase tracking-widest text-[#1c1917]">
-                    Condition Report
-                  </h2>
-                  <span className="rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-600">
-                    AI Verified
-                  </span>
-                </div>
-                <p className="mb-4 text-xs text-[#a8a29e]">
-                  Click any section to see the full inspection details and rating explanation.
-                </p>
-                <ConditionReport
-                  exterior={aiCondition.exterior}
-                  interior={aiCondition.interior}
-                  mechanical={aiCondition.mechanical}
-                  tires={aiCondition.tires}
-                />
-              </div>
-            )}
-
-            {/* Legacy Condition Report (fallback for older listings) */}
+            {/* AI Summarized Report (legacy fields) */}
             {hasLegacyCondition && (
               <div className="rounded-2xl border border-[#e7e5e4] bg-white px-4 sm:px-8 py-5 sm:py-7">
                 <h2 className="mb-6 text-[11px] font-bold uppercase tracking-widest text-[#1c1917]">
-                  Full Condition Report
+                  AI Summarized Report
                 </h2>
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
@@ -380,6 +320,33 @@ export default async function ListingDetailPage({
               </div>
             )}
 
+            {/* ANNOUNCEMENTS */}
+            {hasAnnouncements && (
+              <div className="rounded-2xl border border-[#e7e5e4] bg-white overflow-hidden">
+                <div className="border-l-4 border-yellow-400 px-4 sm:px-8 py-5 sm:py-7">
+                  <h2 className="mb-5 text-[11px] font-bold uppercase tracking-widest text-[#1c1917]">
+                    General Notes
+                  </h2>
+                  <div className="divide-y divide-[#f5f5f4]">
+                    {listing.overall_notes && (
+                      <div className="pb-5">
+                        <p className="text-sm font-semibold text-[#1c1917]">Condition Notes</p>
+                        <p className="mt-1.5 text-sm leading-relaxed text-[#78716c]">{listing.overall_notes}</p>
+                      </div>
+                    )}
+                    {announcements.map((item, i) => (
+                      <div key={i} className="py-4 last:pb-0">
+                        <p className="text-sm font-semibold text-[#1c1917]">{item.label}</p>
+                        {item.detail && (
+                          <p className="mt-1 text-sm text-[#78716c]">{item.detail}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Documents */}
             {listing.listing_documents && listing.listing_documents.length > 0 && (
               <div className="rounded-2xl border border-[#e7e5e4] bg-white px-4 sm:px-8 py-5 sm:py-7">
@@ -407,6 +374,26 @@ export default async function ListingDetailPage({
                 </ul>
               </div>
             )}
+
+            {/* Condition Report — always shown; populated after inspection */}
+            <div className="rounded-2xl border border-[#e7e5e4] bg-white px-4 sm:px-8 py-5 sm:py-7">
+              <div className="mb-5 flex items-center gap-3">
+                <h2 className="text-[11px] font-bold uppercase tracking-widest text-[#1c1917]">
+                  Condition Report
+                </h2>
+                {aiCondition && (
+                  <span className="rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-600">
+                    AI Verified
+                  </span>
+                )}
+              </div>
+              <ConditionReport
+                exterior={aiCondition?.exterior}
+                interior={aiCondition?.interior}
+                mechanical={aiCondition?.mechanical}
+                tires={aiCondition?.tires}
+              />
+            </div>
 
           </div>
 

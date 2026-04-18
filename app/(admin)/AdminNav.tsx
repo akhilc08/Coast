@@ -16,20 +16,20 @@ export function AdminNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="flex flex-col gap-1 p-4">
+    <nav className="flex flex-col gap-1 px-4 py-2">
       {navItems.map(({ href, label, icon: Icon }) => {
         const isActive = pathname === href || (href !== '/admin' && pathname.startsWith(href))
         return (
           <Link
             key={href}
             href={href}
-            className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+            className={`flex items-center gap-3 rounded-lg px-4 py-3 text-[15px] font-medium transition-colors ${
               isActive
                 ? 'bg-[#faf9f6] text-[#1c1917] font-semibold'
                 : 'text-[#78716c] hover:bg-[#faf9f6] hover:text-[#1c1917]'
             }`}
           >
-            <Icon className="h-4 w-4 flex-shrink-0" />
+            <Icon className="h-5 w-5 flex-shrink-0" />
             {label}
           </Link>
         )
