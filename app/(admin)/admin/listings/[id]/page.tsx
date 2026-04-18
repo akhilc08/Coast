@@ -14,12 +14,13 @@ export default async function AdminListingDetailPage({ params }: { params: Promi
   const { id } = await params
   const supabase = createAdminClient()
 
-  const { data: listing } = await supabase
+  const { data: listing, error: listingError } = await supabase
     .from('listings')
-    .select('id, vin, make, model, year, price_cents, mileage, color, condition_notes, pickup_zip, status, grade, condition_locked, created_at, profiles!seller_id(full_name, company, email)')
+    .select('id, vin, make, model, year, price_cents, mileage, color, condition_notes, pickup_zip, status, overall_grade, condition_locked, created_at, profiles!seller_id(full_name, company, email, seller_tier)')
     .eq('id', id)
     .single()
 
+  if (listingError) throw new Error(`Failed to load listing: ${listingError.message}`)
   if (!listing) notFound()
 
   const profile = (Array.isArray(listing.profiles) ? listing.profiles[0] : listing.profiles) as { full_name: string | null; company: string | null; email: string | null; seller_tier: string | null } | null
@@ -75,7 +76,7 @@ export default async function AdminListingDetailPage({ params }: { params: Promi
           ['Seller Tier', (profile?.seller_tier ?? 'beginner').charAt(0).toUpperCase() + (profile?.seller_tier ?? 'beginner').slice(1)],
           ['Price', formatPrice(listing.price_cents)],
           ['Status', statusLabel[listing.status] ?? listing.status],
-          ['Grade', listing.grade ?? 'Not set'],
+          ['Grade', (listing as Record<string, unknown>).overall_grade as string ?? 'Not set'],
           ['Inspection Report', listing.condition_locked ? 'Locked' : 'Not uploaded'],
         ].map(([label, value]) => (
           <div key={label} className="flex justify-between text-sm">
