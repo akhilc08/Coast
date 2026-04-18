@@ -58,7 +58,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── STATS STRIP ──────────────────────────────────────── */}
-      <div className="flex justify-center gap-16 bg-[#0f172a] px-8 py-5">
+      <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:flex sm:justify-center sm:gap-16 bg-[#0f172a] px-8 py-6 sm:py-5">
         {[
           { val: total.toLocaleString(),  lbl: 'Vehicles Available' },
           { val: '$180M+',                lbl: 'Total Transacted' },
