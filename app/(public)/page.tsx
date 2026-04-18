@@ -23,7 +23,7 @@ export default async function HomePage() {
 
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section
-        className="relative overflow-hidden px-8 pb-20 pt-16 text-center"
+        className="relative overflow-hidden px-4 sm:px-8 pb-20 pt-16 text-center"
         style={{ background: 'linear-gradient(160deg, #eff6ff 0%, #dbeafe 40%, #fff 100%)' }}
       >
         {/* Radial overlays */}

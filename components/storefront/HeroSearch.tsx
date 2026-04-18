@@ -49,34 +49,42 @@ export function HeroSearch() {
       {/* Search bar */}
       <form
         onSubmit={handleSearch}
-        className="mx-auto mb-8 flex max-w-[680px] items-center gap-3 rounded-[16px] bg-white px-5 py-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.07),0_20px_40px_-8px_rgba(37,99,235,0.12),0_0_0_1px_rgba(0,0,0,0.06)]"
+        className="mx-auto mb-8 w-full max-w-[680px] rounded-[16px] bg-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.07),0_20px_40px_-8px_rgba(37,99,235,0.12),0_0_0_1px_rgba(0,0,0,0.06)]"
       >
-        <Search size={18} className="shrink-0 text-[#9ca3af]" />
-        <input
-          ref={inputRef}
-          placeholder="Search make, model, or keyword…"
-          className="flex-1 bg-transparent text-[16px] text-[#111] outline-none placeholder:text-[#9ca3af]"
-        />
+        {/* Input row */}
+        <div className="flex items-center gap-3 px-4 py-3">
+          <Search size={18} className="shrink-0 text-[#9ca3af]" />
+          <input
+            ref={inputRef}
+            placeholder="Search make, model, or keyword…"
+            className="flex-1 bg-transparent text-[16px] text-[#111] outline-none placeholder:text-[#9ca3af] min-w-0"
+          />
+        </div>
 
-        <div className="h-7 w-px bg-[#e5e7eb]" />
-        <select
-          value={priceFilter}
-          onChange={e => setPriceFilter(e.target.value)}
-          className="cursor-pointer border-none bg-transparent text-[14px] font-medium text-[#374151] outline-none"
-        >
-          <option value="">Any price</option>
-          <option value="u15">Under $15k</option>
-          <option value="15-25">$15k – $25k</option>
-          <option value="25-40">$25k – $40k</option>
-          <option value="o40">$40k+</option>
-        </select>
+        {/* Divider */}
+        <div className="h-px bg-[#e5e7eb] mx-4" />
 
-        <button
-          type="submit"
-          className="shrink-0 rounded-[10px] bg-[#2563eb] px-7 py-3 text-[15px] font-bold text-white hover:bg-[#1d4ed8] transition-colors"
-        >
-          Search
-        </button>
+        {/* Price + button row */}
+        <div className="flex items-center gap-3 px-4 py-3">
+          <select
+            value={priceFilter}
+            onChange={e => setPriceFilter(e.target.value)}
+            className="flex-1 cursor-pointer border-none bg-transparent text-[14px] font-medium text-[#374151] outline-none"
+          >
+            <option value="">Any price</option>
+            <option value="u15">Under $15k</option>
+            <option value="15-25">$15k – $25k</option>
+            <option value="25-40">$25k – $40k</option>
+            <option value="o40">$40k+</option>
+          </select>
+
+          <button
+            type="submit"
+            className="shrink-0 rounded-[10px] bg-[#2563eb] px-6 py-2.5 text-[15px] font-bold text-white hover:bg-[#1d4ed8] transition-colors"
+          >
+            Search
+          </button>
+        </div>
       </form>
 
       {/* Filter pills */}
