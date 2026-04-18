@@ -17,12 +17,13 @@ const FILTER_PILLS = [
 export function HeroSearch() {
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
+  const mobileInputRef = useRef<HTMLInputElement>(null)
   const [priceFilter, setPriceFilter] = useState('')
   const [activeFilter, setActiveFilter] = useState('All Vehicles')
 
-  function buildUrl(extra: Record<string, string> = {}) {
+  function buildUrl(extra: Record<string, string> = {}, mobile = false) {
     const params = new URLSearchParams()
-    const q = inputRef.current?.value.trim()
+    const q = (mobile ? mobileInputRef.current?.value.trim() : inputRef.current?.value.trim())
     if (q) params.set('q', q)
     if (priceFilter) {
       if (priceFilter === 'u15') params.set('priceMax', '15000')
@@ -46,45 +47,54 @@ export function HeroSearch() {
 
   return (
     <div className="relative">
-      {/* Search bar */}
+      {/* Desktop search bar */}
       <form
         onSubmit={handleSearch}
-        className="mx-auto mb-8 w-full max-w-[680px] rounded-[16px] bg-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.07),0_20px_40px_-8px_rgba(37,99,235,0.12),0_0_0_1px_rgba(0,0,0,0.06)]"
+        className="mx-auto mb-8 hidden sm:flex max-w-[680px] items-center gap-3 rounded-[16px] bg-white px-5 py-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.07),0_20px_40px_-8px_rgba(37,99,235,0.12),0_0_0_1px_rgba(0,0,0,0.06)]"
       >
-        {/* Input row */}
-        <div className="flex items-center gap-3 px-4 py-3">
-          <Search size={18} className="shrink-0 text-[#9ca3af]" />
-          <input
-            ref={inputRef}
-            placeholder="Search make, model, or keyword…"
-            className="flex-1 bg-transparent text-[16px] text-[#111] outline-none placeholder:text-[#9ca3af] min-w-0"
-          />
-        </div>
+        <Search size={18} className="shrink-0 text-[#9ca3af]" />
+        <input
+          ref={inputRef}
+          placeholder="Search make, model, or keyword…"
+          className="flex-1 bg-transparent text-[16px] text-[#111] outline-none placeholder:text-[#9ca3af]"
+        />
+        <div className="h-7 w-px bg-[#e5e7eb]" />
+        <select
+          value={priceFilter}
+          onChange={e => setPriceFilter(e.target.value)}
+          className="cursor-pointer border-none bg-transparent text-[14px] font-medium text-[#374151] outline-none"
+        >
+          <option value="">Any price</option>
+          <option value="u15">Under $15k</option>
+          <option value="15-25">$15k – $25k</option>
+          <option value="25-40">$25k – $40k</option>
+          <option value="o40">$40k+</option>
+        </select>
+        <button
+          type="submit"
+          className="shrink-0 rounded-[10px] bg-[#2563eb] px-7 py-3 text-[15px] font-bold text-white hover:bg-[#1d4ed8] transition-colors"
+        >
+          Search
+        </button>
+      </form>
 
-        {/* Divider */}
-        <div className="h-px bg-[#e5e7eb] mx-4" />
-
-        {/* Price + button row */}
-        <div className="flex items-center gap-3 px-4 py-3">
-          <select
-            value={priceFilter}
-            onChange={e => setPriceFilter(e.target.value)}
-            className="flex-1 cursor-pointer border-none bg-transparent text-[14px] font-medium text-[#374151] outline-none"
-          >
-            <option value="">Any price</option>
-            <option value="u15">Under $15k</option>
-            <option value="15-25">$15k – $25k</option>
-            <option value="25-40">$25k – $40k</option>
-            <option value="o40">$40k+</option>
-          </select>
-
-          <button
-            type="submit"
-            className="shrink-0 rounded-[10px] bg-[#2563eb] px-6 py-2.5 text-[15px] font-bold text-white hover:bg-[#1d4ed8] transition-colors"
-          >
-            Search
-          </button>
-        </div>
+      {/* Mobile search bar */}
+      <form
+        onSubmit={e => { e.preventDefault(); router.push(buildUrl({}, true)) }}
+        className="mx-auto mb-8 flex sm:hidden w-full items-center gap-2 rounded-[14px] bg-white px-4 py-2.5 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.07),0_20px_40px_-8px_rgba(37,99,235,0.12),0_0_0_1px_rgba(0,0,0,0.06)]"
+      >
+        <Search size={16} className="shrink-0 text-[#9ca3af]" />
+        <input
+          ref={mobileInputRef}
+          placeholder="Search make, model…"
+          className="flex-1 min-w-0 bg-transparent text-[15px] text-[#111] outline-none placeholder:text-[#9ca3af]"
+        />
+        <button
+          type="submit"
+          className="shrink-0 rounded-[8px] bg-[#2563eb] px-4 py-2 text-[14px] font-bold text-white hover:bg-[#1d4ed8] transition-colors"
+        >
+          Search
+        </button>
       </form>
 
       {/* Filter pills */}
