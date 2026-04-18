@@ -2,7 +2,7 @@
 import { EventCallbackHelper } from '@dropbox/sign'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getSignatureRequestApi } from '@/lib/dropboxsign'
-import { resend, FROM_EMAIL } from '@/lib/resend'
+import { getResend, FROM_EMAIL } from '@/lib/resend'
 import { DocumentsCompleteEmail } from '@/lib/email/documents-complete'
 import { render } from '@react-email/components'
 import * as React from 'react'
@@ -147,7 +147,7 @@ async function handleAllSigned(signatureRequestId: string, apiKey: string): Prom
       // --- Send NOTF-04: documents complete email ---
       const buyerName = buyer.full_name ?? buyer.email ?? 'Valued Customer'
 
-      await resend.emails.send({
+      await getResend().emails.send({
         from:    FROM_EMAIL,
         to:      buyer.email ?? '',
         subject: `Your signed documents are ready — ${vehicleTitle}`,

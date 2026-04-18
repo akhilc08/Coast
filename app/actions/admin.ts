@@ -156,7 +156,7 @@ export async function approveListingAction(
 
     // Also send email notification
     try {
-      const { resend, FROM_EMAIL } = await import('@/lib/resend')
+      const { getResend, FROM_EMAIL } = await import('@/lib/resend')
       const { data: profile } = await admin
         .from('profiles')
         .select('email')
@@ -167,7 +167,7 @@ export async function approveListingAction(
       const { data: authUser } = await admin.auth.admin.getUserById(listing.seller_id)
       const email = authUser?.user?.email
       if (email) {
-        await resend.emails.send({
+        await getResend().emails.send({
           from: FROM_EMAIL,
           to: email,
           subject: 'Your listing has been approved on Coast',

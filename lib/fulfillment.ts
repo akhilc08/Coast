@@ -2,7 +2,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getSignatureRequestApi } from '@/lib/dropboxsign'
 import { SignatureRequestSendRequest, SubSignatureRequestSigner, RequestDetailedFile } from '@dropbox/sign'
-import { resend, FROM_EMAIL } from '@/lib/resend'
+import { getResend, FROM_EMAIL } from '@/lib/resend'
 import { generatePurchaseAgreement } from '@/lib/pdf/purchase-agreement'
 import { generateBillOfSale } from '@/lib/pdf/bill-of-sale'
 import { SigningRequestEmail } from '@/lib/email/signing-request'
@@ -202,7 +202,7 @@ async function _generateDocuments(orderId: string): Promise<void> {
     const baseUrl  = process.env.NEXT_PUBLIC_URL ?? 'https://coastautos.com'
     const orderUrl = `${baseUrl}/account/orders/${orderId}`
 
-    await resend.emails.send({
+    await getResend().emails.send({
       from:    FROM_EMAIL,
       to:      buyer.email ?? '',
       subject: `Your documents are ready to sign — ${vehicleTitle}`,

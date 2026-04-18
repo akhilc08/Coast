@@ -1,8 +1,7 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { SlottedPhotoUpload } from '@/components/listings/SlottedPhotoUpload'
-import { BulkPhotoUpload } from '@/components/listings/BulkPhotoUpload'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, Upload, Sparkles } from 'lucide-react'
 import { PHOTO_SECTIONS } from '@/lib/photo-slots'
@@ -19,6 +18,8 @@ interface StepPhotosProps {
 
 export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPhotosProps) {
   const bulkInputRef = useRef<HTMLInputElement>(null)
+  const [photos, setPhotos] = useState(initialPhotos)
+  const [slottedKey, setSlottedKey] = useState(0)
 
   // Flatten all slots in order for bulk assignment
   const allSlots = PHOTO_SECTIONS.flatMap(s => s.slots)
@@ -64,28 +65,58 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
 
     // AI classification
     toast.info('Classifying photos with AI…')
+
+    // Already-occupied slots so we don't double-assign
+    const occupiedSlots = new Set(photos.map(p => p.slot_type).filter(Boolean) as string[])
+    const availableSlots = allSlots.map(s => s.id).filter(id => !occupiedSlots.has(id))
+
+    let assignmentMap: Record<string, string> = {}
     try {
-      const res = await fetch('/api/photos/classify', {
+      const res = await fetch('/api/listings/organize-photos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ photos: uploadedPhotos }),
       })
       const { assignments } = await res.json() as { assignments: { id: string; slot_type: string }[] }
-
       if (assignments?.length) {
-        await Promise.all(
-          assignments.map(({ id, slot_type }) =>
-            supabase.from('listing_photos').update({ slot_type }).eq('id', id)
-          )
-        )
+        assignmentMap = Object.fromEntries(assignments.map(a => [a.id, a.slot_type]))
       }
-
-      toast.success(`${uploadedPhotos.length} photo${uploadedPhotos.length > 1 ? 's' : ''} uploaded and classified by AI.`)
     } catch {
-      toast.success(`${uploadedPhotos.length} photo${uploadedPhotos.length > 1 ? 's' : ''} uploaded. Could not auto-classify.`)
+      // fall through to sequential assignment below
     }
 
-    window.location.reload()
+    // For any photo the AI didn't classify, assign sequentially to the next available slot
+    const usedByAI = new Set(Object.values(assignmentMap))
+    const remainingSlots = availableSlots.filter(s => !usedByAI.has(s))
+    let slotIdx = 0
+    const finalMap: Record<string, string> = { ...assignmentMap }
+    for (const p of uploadedPhotos) {
+      if (!finalMap[p.id] && slotIdx < remainingSlots.length) {
+        finalMap[p.id] = remainingSlots[slotIdx++]
+      }
+    }
+
+    // Persist slot assignments to DB
+    await Promise.allSettled(
+      Object.entries(finalMap).map(([id, slot_type]) =>
+        supabase.from('listing_photos').update({ slot_type }).eq('id', id)
+      )
+    )
+
+    const newPhotos = uploadedPhotos.map(p => ({
+      id: p.id,
+      storage_key: p.url.split('/car-photos/')[1] ?? p.url,
+      position: 0,
+      slot_type: finalMap[p.id] ?? null,
+    }))
+    setPhotos(prev => [...prev, ...newPhotos])
+    setSlottedKey(k => k + 1)
+    const classified = Object.keys(assignmentMap).length
+    if (classified > 0) {
+      toast.success(`${uploadedPhotos.length} photo${uploadedPhotos.length > 1 ? 's' : ''} uploaded and sorted by AI.`)
+    } else {
+      toast.success(`${uploadedPhotos.length} photo${uploadedPhotos.length > 1 ? 's' : ''} uploaded and assigned to slots.`)
+    }
   }
 
   return (
@@ -119,7 +150,7 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
         </p>
       </div>
 
-      <SlottedPhotoUpload listingId={listingId} initialPhotos={initialPhotos} />
+      <SlottedPhotoUpload key={slottedKey} listingId={listingId} initialPhotos={photos} />
 
       <div className="mt-6 flex flex-col gap-2">
         <Button

@@ -1,6 +1,6 @@
 import { stripe } from '@/lib/stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { resend, FROM_EMAIL, ADMIN_EMAIL } from '@/lib/resend'
+import { getResend, FROM_EMAIL, ADMIN_EMAIL } from '@/lib/resend'
 import { OrderConfirmationEmail } from '@/lib/email/order-confirmation'
 import { AdminOrderAlertEmail } from '@/lib/email/admin-order-alert'
 import { render } from '@react-email/components'
@@ -140,7 +140,7 @@ export async function POST(request: Request) {
     // Send NOTF-01 and NOTF-02 directly — they must complete within the webhook's 5-second window
     await Promise.allSettled([
       // NOTF-01: Buyer confirmation
-      resend.emails.send({
+      getResend().emails.send({
         from: FROM_EMAIL,
         to: buyerEmail,
         subject: `Order Confirmed — ${vehicleTitle}`,
@@ -155,7 +155,7 @@ export async function POST(request: Request) {
         ),
       }),
       // NOTF-02: Admin order alert
-      resend.emails.send({
+      getResend().emails.send({
         from: FROM_EMAIL,
         to: ADMIN_EMAIL,
         subject: `New Order: ${vehicleTitle} — ${orderNumber}`,

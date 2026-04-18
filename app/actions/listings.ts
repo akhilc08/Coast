@@ -391,8 +391,8 @@ export async function adminApproveListingAction(
   const sellerProfile = Array.isArray(listing.profiles) ? listing.profiles[0] : listing.profiles
   if (sellerProfile?.email) {
     const baseUrl = process.env.NEXT_PUBLIC_URL ?? 'https://drivewithcoast.com'
-    const { resend, FROM_EMAIL } = await import('@/lib/resend')
-    await resend.emails.send({
+    const { getResend, FROM_EMAIL } = await import('@/lib/resend')
+    await getResend().emails.send({
       from: FROM_EMAIL,
       to: sellerProfile.email,
       subject: `Your listing is live: ${listing.year} ${listing.make} ${listing.model}`,

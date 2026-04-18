@@ -3,16 +3,18 @@ import Anthropic from '@anthropic-ai/sdk'
 
 const anthropic = new Anthropic()
 
-const VALID_CATEGORIES = [
-  'exterior_front',
-  'exterior_rear',
-  'exterior_side',
-  'interior_dashboard',
-  'interior_seats',
-  'engine',
-  'wheels',
-  'damage',
-  'other',
+const VALID_SLOT_TYPES = [
+  'front', 'rear', 'hood', 'roof', 'left_side', 'right_side',
+  'front_left_corner', 'front_right_corner', 'front_left_lateral', 'front_right_lateral',
+  'left_lateral_low', 'right_lateral_low', 'rear_left_corner', 'rear_right_corner',
+  'rear_left_lateral', 'rear_right_lateral', 'front_left_wheel', 'front_right_wheel',
+  'rear_left_wheel', 'rear_right_wheel', 'left_rocker_panel', 'right_rocker_panel',
+  'left_frame', 'right_frame', 'front_frame', 'rear_frame',
+  'front_left_interior', 'front_right_interior', 'rear_left_interior', 'rear_right_interior',
+  'dashboard', 'center_stack', 'gauge_cluster', 'headliner', 'odometer',
+  'engine', 'engine_oil', 'under_oil_cap', 'engine_coolant', 'emissions_sticker',
+  'readiness_monitors', 'obdii_codes',
+  'vin_sticker', 'keys', 'damage',
 ] as const
 
 interface PhotoInput {
@@ -29,46 +31,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No photos provided' }, { status: 400 })
     }
 
-    // Process photos in batches to avoid overwhelming the API
-    const results: { id: string; category: string }[] = []
-
-    // Build a single prompt with all photo URLs for efficiency
     const content: Anthropic.MessageCreateParams['messages'][0]['content'] = []
 
     for (const photo of photos) {
-      content.push({
-        type: 'image' as const,
-        source: {
-          type: 'url' as const,
-          url: photo.url,
-        },
-      })
-      content.push({
-        type: 'text' as const,
-        text: `Photo ID: ${photo.id}`,
-      })
+      content.push({ type: 'image' as const, source: { type: 'url' as const, url: photo.url } })
+      content.push({ type: 'text' as const, text: `Photo ID: ${photo.id}` })
     }
 
     content.push({
       type: 'text' as const,
-      text: `Categorize each photo above into one of these categories:
-- exterior_front: Front view of the vehicle
-- exterior_rear: Rear view of the vehicle
-- exterior_side: Side view of the vehicle
-- interior_dashboard: Dashboard/instrument panel
-- interior_seats: Seats (front or rear)
-- engine: Engine bay
-- wheels: Wheels/tires
-- damage: Visible damage areas
-- other: Anything else (VIN plates, keys, documents, etc.)
+      text: `You are classifying vehicle inspection photos. Assign each photo to exactly one slot_type from this list:
 
-Respond ONLY with a JSON array of objects with "id" and "category" fields. No markdown, no explanation. Example:
-[{"id":"abc","category":"exterior_front"},{"id":"def","category":"interior_seats"}]`,
+EXTERIOR: front, rear, hood, roof, left_side, right_side, front_left_corner, front_right_corner, front_left_lateral, front_right_lateral, left_lateral_low, right_lateral_low, rear_left_corner, rear_right_corner, rear_left_lateral, rear_right_lateral, front_left_wheel, front_right_wheel, rear_left_wheel, rear_right_wheel, left_rocker_panel, right_rocker_panel, left_frame, right_frame, front_frame, rear_frame
+
+INTERIOR: front_left_interior, front_right_interior, rear_left_interior, rear_right_interior, dashboard, center_stack, gauge_cluster, headliner, odometer
+
+MECHANICAL: engine, engine_oil, under_oil_cap, engine_coolant, emissions_sticker, readiness_monitors, obdii_codes
+
+MISC: vin_sticker, keys, damage
+
+Respond ONLY with a JSON array. No markdown. Example:
+[{"id":"abc","slot_type":"front"},{"id":"def","slot_type":"dashboard"}]`,
     })
 
     const message = await anthropic.messages.create({
       model: 'claude-3-5-haiku-20241022',
-      max_tokens: 1024,
+      max_tokens: 4096,
       messages: [{ role: 'user', content }],
     })
 
@@ -77,29 +65,27 @@ Respond ONLY with a JSON array of objects with "id" and "category" fields. No ma
       .map(block => block.text)
       .join('')
 
-    // Parse the JSON response
-    const parsed = JSON.parse(responseText) as { id: string; category: string }[]
+    // Strip markdown code fences if present
+    const jsonText = responseText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim()
+    const parsed = JSON.parse(jsonText) as { id: string; slot_type: string }[]
 
-    for (const item of parsed) {
-      const category = VALID_CATEGORIES.includes(item.category as typeof VALID_CATEGORIES[number])
-        ? item.category
-        : 'other'
-      results.push({ id: item.id, category })
-    }
+    const assignments = parsed.map(item => ({
+      id: item.id,
+      slot_type: VALID_SLOT_TYPES.includes(item.slot_type as typeof VALID_SLOT_TYPES[number])
+        ? item.slot_type
+        : 'damage',
+    }))
 
-    // For any photos not categorized, default to 'other'
+    // Default any unclassified photos to null
     for (const photo of photos) {
-      if (!results.find(r => r.id === photo.id)) {
-        results.push({ id: photo.id, category: 'other' })
+      if (!assignments.find(a => a.id === photo.id)) {
+        assignments.push({ id: photo.id, slot_type: 'damage' })
       }
     }
 
-    return NextResponse.json({ results })
+    return NextResponse.json({ assignments })
   } catch (error) {
     console.error('Photo organization error:', error)
-    return NextResponse.json(
-      { error: 'Failed to organize photos' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to organize photos' }, { status: 500 })
   }
 }
