@@ -16,14 +16,26 @@ export default async function AdminListingDetailPage({ params }: { params: Promi
 
   const { data: listing, error: listingError } = await supabase
     .from('listings')
-    .select('id, vin, make, model, year, price_cents, mileage, color, condition_notes, pickup_zip, status, overall_grade, condition_locked, created_at, profiles!seller_id(full_name, company, email, seller_tier)')
+    .select('id, vin, make, model, year, price_cents, mileage, color, condition_notes, pickup_zip, status, overall_grade, condition_locked, created_at, seller_id, profiles!seller_id(full_name, company)')
     .eq('id', id)
     .single()
 
   if (listingError) throw new Error(`Failed to load listing: ${listingError.message}`)
   if (!listing) notFound()
 
-  const profile = (Array.isArray(listing.profiles) ? listing.profiles[0] : listing.profiles) as { full_name: string | null; company: string | null; email: string | null; seller_tier: string | null } | null
+  const profile = (Array.isArray(listing.profiles) ? listing.profiles[0] : listing.profiles) as { full_name: string | null; company: string | null } | null
+
+  // Fetch seller email + tier from auth/profiles (not in FK join)
+  let sellerEmail: string | null = null
+  let sellerTier: string | null = null
+  if (listing.seller_id) {
+    const [{ data: authUser }, { data: profileRow }] = await Promise.all([
+      supabase.auth.admin.getUserById(listing.seller_id as string),
+      supabase.from('profiles').select('seller_tier').eq('id', listing.seller_id as string).single(),
+    ])
+    sellerEmail = authUser?.user?.email ?? null
+    sellerTier = (profileRow as { seller_tier?: string } | null)?.seller_tier ?? null
+  }
 
   const canApprove = listing.status === 'pending_inspection' && !!listing.condition_locked
 
@@ -72,8 +84,8 @@ export default async function AdminListingDetailPage({ params }: { params: Promi
         <p className="text-xs font-medium uppercase tracking-wider text-[#a8a29e]">Details</p>
         {[
           ['Seller', profile?.company ?? profile?.full_name ?? '—'],
-          ['Email', profile?.email ?? '—'],
-          ['Seller Tier', (profile?.seller_tier ?? 'beginner').charAt(0).toUpperCase() + (profile?.seller_tier ?? 'beginner').slice(1)],
+          ['Email', sellerEmail ?? '—'],
+          ['Seller Tier', sellerTier ?? '—'],
           ['Price', formatPrice(listing.price_cents)],
           ['Status', statusLabel[listing.status] ?? listing.status],
           ['Grade', (listing as Record<string, unknown>).overall_grade as string ?? 'Not set'],
