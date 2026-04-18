@@ -59,7 +59,7 @@ export function PhotoGallery({ photos }: { photos: Photo[] }) {
               </span>
             )}
             {photo.slotType && (
-              <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-[11px] font-semibold text-white whitespace-nowrap">
+              <span className="absolute bottom-1.5 left-1.5 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white leading-tight">
                 {SLOT_LABEL[photo.slotType]?.split(' — ')[1] ?? photo.slotType.replace(/_/g, ' ')}
               </span>
             )}
