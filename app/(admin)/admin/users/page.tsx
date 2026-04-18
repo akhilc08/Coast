@@ -154,11 +154,11 @@ export default async function AdminUsersPage({
                   <td className="px-4 py-3">
                     {user.sellerTier ? (
                       <span className={`text-xs rounded-full px-2 py-0.5 border ${
-                        user.sellerTier === 'trusted'
+                        user.sellerTier >= 2
                           ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                           : 'border-[#e7e5e4] bg-[#f5f4f0] text-[#78716c]'
                       }`}>
-                        {user.sellerTier.charAt(0).toUpperCase() + user.sellerTier.slice(1)}
+                        {user.sellerTier >= 2 ? 'Trusted' : 'Standard'}
                       </span>
                     ) : (
                       <span className="text-xs text-[#a8a29e]">—</span>
