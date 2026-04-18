@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { STEPS, type Step } from './steps'
 import { WizardProgress } from './WizardProgress'
 import { StepVinLookup } from './StepVinLookup'
@@ -15,16 +16,28 @@ interface ListingWizardProps {
 }
 
 export function ListingWizard({ listingId, initialData, sellerTier = 1 }: ListingWizardProps) {
-  const initialStep: Step = listingId ? 'details' : 'vin'
-  // When editing an existing listing, treat all steps as already reachable
+  const router      = useRouter()
+  const pathname    = usePathname()
+  const searchParams = useSearchParams()
+
+  const defaultStep: Step = listingId ? 'details' : 'vin'
+  const urlStep = searchParams.get('step') as Step | null
+  const initialStep: Step = (urlStep && STEPS.includes(urlStep)) ? urlStep : defaultStep
   const initialMax:  Step = listingId ? 'review' : 'vin'
 
-  const [step, setStep]           = useState<Step>(initialStep)
+  const [step, _setStep]          = useState<Step>(initialStep)
   const [maxReached, setMaxReached] = useState<Step>(initialMax)
   const [draftId, setDraftId]     = useState<string | null>(listingId ?? null)
   const [vinData, setVinData]     = useState<Record<string, unknown> | null>(null)
 
   const listingStatus = (initialData?.status as string | undefined) ?? 'draft'
+
+  const setStep = useCallback((next: Step) => {
+    _setStep(next)
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('step', next)
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+  }, [pathname, router, searchParams])
 
   function advance() {
     const idx = STEPS.indexOf(step)

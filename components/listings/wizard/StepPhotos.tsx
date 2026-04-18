@@ -66,52 +66,82 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
     // AI classification
     toast.info('Classifying photos with AI…')
 
-    // Already-occupied slots so we don't double-assign
-    const occupiedSlots = new Set(photos.map(p => p.slot_type).filter(Boolean) as string[])
-    const availableSlots = allSlots.map(s => s.id).filter(id => !occupiedSlots.has(id))
-
-    let assignmentMap: Record<string, string> = {}
+    type Assignment = { id: string; slot_type: string; confidence: number }
+    let aiAssignments: Assignment[] = []
     try {
       const res = await fetch('/api/listings/organize-photos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ photos: uploadedPhotos }),
       })
-      const { assignments } = await res.json() as { assignments: { id: string; slot_type: string }[] }
-      if (assignments?.length) {
-        assignmentMap = Object.fromEntries(assignments.map(a => [a.id, a.slot_type]))
-      }
+      const { assignments } = await res.json() as { assignments: Assignment[] }
+      if (assignments?.length) aiAssignments = assignments
     } catch {
       // fall through to sequential assignment below
     }
 
-    // For any photo the AI didn't classify, assign sequentially to the next available slot
-    const usedByAI = new Set(Object.values(assignmentMap))
-    const remainingSlots = availableSlots.filter(s => !usedByAI.has(s))
+    // Build map of existing slot → photo for potential replacement
+    const existingSlotMap = new Map(
+      photos.filter(p => p.slot_type).map(p => [p.slot_type!, p])
+    )
+
+    // Decide what to do with each AI-assigned photo
+    const CONFIDENCE_THRESHOLD = 0.75
+    const finalMap: Record<string, string> = {}
+    const photosToDelete: { id: string; storage_key: string }[] = []
+
+    for (const a of aiAssignments) {
+      const existing = existingSlotMap.get(a.slot_type)
+      if (!existing) {
+        // Slot is free — assign directly
+        finalMap[a.id] = a.slot_type
+      } else if (a.confidence >= CONFIDENCE_THRESHOLD) {
+        // High-confidence match — replace existing photo
+        photosToDelete.push({ id: existing.id, storage_key: existing.storage_key })
+        existingSlotMap.delete(a.slot_type)
+        finalMap[a.id] = a.slot_type
+      }
+      // Low confidence + occupied → fall through to sequential assignment below
+    }
+
+    // For any photo not yet assigned, fill next available slot sequentially
+    const usedSlots = new Set([
+      ...Object.values(finalMap),
+      ...[...existingSlotMap.keys()],
+    ])
+    const remainingSlots = allSlots.map(s => s.id).filter(id => !usedSlots.has(id))
     let slotIdx = 0
-    const finalMap: Record<string, string> = { ...assignmentMap }
     for (const p of uploadedPhotos) {
       if (!finalMap[p.id] && slotIdx < remainingSlots.length) {
         finalMap[p.id] = remainingSlots[slotIdx++]
       }
     }
 
-    // Persist slot assignments to DB
+    // Delete replaced photos from storage + DB
+    await Promise.allSettled(
+      photosToDelete.map(async ({ id, storage_key }) => {
+        await supabase.storage.from('car-photos').remove([storage_key])
+        await supabase.from('listing_photos').delete().eq('id', id)
+      })
+    )
+
+    // Persist new slot assignments to DB
     await Promise.allSettled(
       Object.entries(finalMap).map(([id, slot_type]) =>
         supabase.from('listing_photos').update({ slot_type }).eq('id', id)
       )
     )
 
+    const deletedIds = new Set(photosToDelete.map(d => d.id))
     const newPhotos = uploadedPhotos.map(p => ({
       id: p.id,
       storage_key: p.url.split('/car-photos/')[1] ?? p.url,
       position: 0,
       slot_type: finalMap[p.id] ?? null,
     }))
-    setPhotos(prev => [...prev, ...newPhotos])
+    setPhotos(prev => [...prev.filter(p => !deletedIds.has(p.id)), ...newPhotos])
     setSlottedKey(k => k + 1)
-    const classified = Object.keys(assignmentMap).length
+    const classified = aiAssignments.filter(a => finalMap[a.id]).length
     if (classified > 0) {
       toast.success(`${uploadedPhotos.length} photo${uploadedPhotos.length > 1 ? 's' : ''} uploaded and sorted by AI.`)
     } else {

@@ -141,8 +141,7 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
                 <div key={slot.id} className="group">
                   {photo ? (
                     <div
-                      className="relative aspect-[4/3] cursor-pointer overflow-hidden rounded-lg"
-                      onClick={() => handleSlotClick(slot.id)}
+                      className="relative aspect-[4/3] overflow-hidden rounded-lg"
                     >
                       <img
                         src={photo.url}
@@ -157,7 +156,7 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
                         <button
                           type="button"
                           onClick={(e) => handleDelete(slot.id, e)}
-                          className="absolute right-1 top-1 rounded-full bg-black/70 p-0.5 opacity-0 transition-opacity group-hover:opacity-100"
+                          className="absolute right-1 top-1 rounded-full bg-black/70 p-0.5 opacity-100"
                           aria-label={`Remove ${slot.label}`}
                         >
                           <X className="h-3 w-3 text-white" />
