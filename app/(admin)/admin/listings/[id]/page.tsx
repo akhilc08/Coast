@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { AdminConditionUpload } from '@/components/admin/AdminConditionUpload'
 import { AdminApproveButton } from '@/components/admin/AdminApproveButton'
+import { ApproveListingButton } from '@/components/admin/ApproveListingButton'
 import { AdminListingEditForm } from '@/components/admin/AdminListingEditForm'
 
 function formatPrice(cents: number) {
