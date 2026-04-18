@@ -182,13 +182,13 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
 
       <SlottedPhotoUpload key={slottedKey} listingId={listingId} initialPhotos={photos} />
 
-      <div className="mt-6 flex flex-col gap-2">
+      <div className="mt-6 flex flex-col gap-2 px-0 sm:-mx-2">
         <Button
           type="button"
           onClick={onSave}
-          className={`${onBack ? 'flex-1' : 'w-full'} bg-blue-600 text-white hover:bg-blue-500`}
+          className="w-full bg-blue-600 text-white hover:bg-blue-500"
         >
-          Continue
+          Save &amp; Continue
         </Button>
         <button
           type="button"
