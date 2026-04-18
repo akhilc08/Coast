@@ -44,16 +44,18 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
     return map
   })
 
+  const [dragOver, setDragOver] = useState<string | null>(null)
+
   function handleSlotClick(slotId: string) {
     pendingSlotRef.current = slotId
     fileInputRef.current?.click()
   }
 
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    const slotId = pendingSlotRef.current
-    if (!file || !slotId) return
-    e.target.value = ''
+  async function uploadFileToSlot(file: File, slotId: string) {
+    if (!file.type.startsWith('image/')) {
+      toast.error('Only image files are supported')
+      return
+    }
 
     const storageKey = buildStorageKey(listingId, file.name)
     const existingPhoto = slotPhotos[slotId]
@@ -98,6 +100,35 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
     }
   }
 
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    const slotId = pendingSlotRef.current
+    if (!file || !slotId) return
+    e.target.value = ''
+    await uploadFileToSlot(file, slotId)
+  }
+
+  function handleDragOver(e: React.DragEvent, slotId: string) {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(slotId)
+  }
+
+  function handleDragLeave(e: React.DragEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(null)
+  }
+
+  async function handleDrop(e: React.DragEvent, slotId: string) {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(null)
+    const file = e.dataTransfer.files?.[0]
+    if (!file) return
+    await uploadFileToSlot(file, slotId)
+  }
+
   async function handleDelete(slotId: string, e: React.MouseEvent) {
     e.stopPropagation()
     const photo = slotPhotos[slotId]
@@ -137,11 +168,15 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {section.slots.map(slot => {
               const photo = slotPhotos[slot.id]
+              const isOver = dragOver === slot.id
               return (
                 <div key={slot.id} className="group">
                   {photo ? (
                     <div
                       className="relative aspect-[4/3] overflow-hidden rounded-lg"
+                      onDragOver={(e) => handleDragOver(e, slot.id)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, slot.id)}
                     >
                       <img
                         src={photo.url}
@@ -167,7 +202,14 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
                     <button
                       type="button"
                       onClick={() => handleSlotClick(slot.id)}
-                      className="flex aspect-[4/3] w-full flex-col items-center justify-center rounded-lg border border-dashed border-[#e7e5e4] bg-[#faf9f6] text-[#a8a29e] transition-colors hover:border-[#a8a29e] hover:text-[#78716c]"
+                      onDragOver={(e) => handleDragOver(e, slot.id)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, slot.id)}
+                      className={`flex aspect-[4/3] w-full flex-col items-center justify-center rounded-lg border border-dashed transition-colors ${
+                        isOver
+                          ? 'border-blue-400 bg-blue-50 text-blue-500'
+                          : 'border-[#e7e5e4] bg-[#faf9f6] text-[#a8a29e] hover:border-[#a8a29e] hover:text-[#78716c]'
+                      }`}
                     >
                       <Camera className="h-4 w-4" />
                     </button>
