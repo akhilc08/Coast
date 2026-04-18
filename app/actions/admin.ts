@@ -136,7 +136,6 @@ export async function approveListingAction(
     .single()
 
   if (!listing) return { error: 'Listing not found' }
-  if (!listing.condition_locked) return { error: 'Cannot approve without a locked condition report' }
 
   const { error } = await admin
     .from('listings')

@@ -5,6 +5,7 @@ import { useDropzone } from 'react-dropzone'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/browser'
 import { adminSaveAiConditionAction } from '@/app/actions/admin'
+import { addDocumentAction } from '@/app/actions/listings'
 import type { AiConditionData } from '@/lib/types/condition'
 import { ratingBg, ratingLabel } from '@/lib/types/condition'
 
@@ -49,11 +50,12 @@ const sectionClass = 'rounded-xl border border-[#e7e5e4] bg-white p-6 mb-4'
 export function AdminConditionUpload({ listingId, alreadyLocked }: AdminConditionUploadProps) {
   const router = useRouter()
   const [file, setFile]         = useState<File | null>(null)
-  const [progress, setProgress] = useState<'idle' | 'uploading' | 'analyzing'>('idle')
+  const [progress, setProgress] = useState<'idle' | 'uploading' | 'analyzing' | 'saving'>('idle')
   const [error, setError]       = useState<string | null>(null)
   const [aiData, setAiData]     = useState<AiConditionData | null>(null)
   const [pdfKey, setPdfKey]     = useState<string>('')
   const [saving, setSaving]     = useState(false)
+  const [docSaved, setDocSaved] = useState(false)
 
   const onDrop = useCallback((accepted: File[]) => {
     const f = accepted[0]
@@ -67,6 +69,28 @@ export function AdminConditionUpload({ listingId, alreadyLocked }: AdminConditio
     onDrop,
     onDropRejected: () => setError('Only PDF files up to 20 MB are accepted'),
   })
+
+  async function handleSaveDocument() {
+    if (!file) return
+    setError(null)
+    setProgress('saving')
+    try {
+      const supabase   = createClient()
+      const storageKey = `${listingId}/docs/${crypto.randomUUID()}.pdf`
+      const { error: uploadError } = await supabase.storage
+        .from('car-documents')
+        .upload(storageKey, file, { contentType: 'application/pdf', cacheControl: '3600', upsert: false })
+      if (uploadError) throw new Error(uploadError.message)
+      const result = await addDocumentAction(listingId, storageKey, 'inspection_report', file.name)
+      if ('error' in result) throw new Error(result.error)
+      setDocSaved(true)
+      router.refresh()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to save document')
+    } finally {
+      setProgress('idle')
+    }
+  }
 
   async function handleAnalyze() {
     if (!file) return
@@ -174,14 +198,24 @@ export function AdminConditionUpload({ listingId, alreadyLocked }: AdminConditio
       )}
 
       {!aiData && (
-        <button
-          type="button"
-          onClick={handleAnalyze}
-          disabled={!file || progress !== 'idle'}
-          className="mt-4 w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {progress !== 'idle' ? 'Working…' : 'Analyze Report with Claude AI'}
-        </button>
+        <div className="mt-4 flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={handleSaveDocument}
+            disabled={!file || progress !== 'idle' || docSaved}
+            className="w-full rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {progress === 'saving' ? 'Saving…' : docSaved ? 'Document Saved ✓' : 'Save Inspection Report'}
+          </button>
+          <button
+            type="button"
+            disabled
+            title="AI analysis coming soon"
+            className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white opacity-40 cursor-not-allowed"
+          >
+            Analyze Report with Claude AI (coming soon)
+          </button>
+        </div>
       )}
 
       {/* Review extracted data */}

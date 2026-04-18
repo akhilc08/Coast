@@ -372,9 +372,6 @@ export async function adminApproveListingAction(
     .single()
 
   if (fetchError || !listing) return { error: fetchError?.message ?? 'Listing not found' }
-  if (!listing.condition_locked) {
-    return { error: 'Cannot approve: no inspection report has been attached to this listing.' }
-  }
 
   const { error } = await admin
     .from('listings')

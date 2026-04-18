@@ -37,7 +37,7 @@ export default async function AdminListingDetailPage({ params }: { params: Promi
     sellerTier = (profileRow as { seller_tier?: string } | null)?.seller_tier ?? null
   }
 
-  const canApprove = listing.status === 'pending_inspection' && !!listing.condition_locked
+  const canApprove = listing.status === 'pending_inspection'
 
   const statusLabel: Record<string, string> = {
     draft: 'Draft',
@@ -128,15 +128,7 @@ export default async function AdminListingDetailPage({ params }: { params: Promi
       {listing.status === 'pending_inspection' && (
         <div className="mt-8">
           <h2 className="mb-4 text-lg font-semibold text-[#1c1917]">Approval</h2>
-          {canApprove ? (
-            <ApproveListingButton listingId={listing.id} />
-          ) : (
-            <div className="rounded-lg border border-[#e7e5e4] bg-[#faf9f6] p-4">
-              <p className="text-sm text-[#78716c]">
-                Upload and lock the condition report before approving this listing.
-              </p>
-            </div>
-          )}
+          <ApproveListingButton listingId={listing.id} />
         </div>
       )}
     </div>
