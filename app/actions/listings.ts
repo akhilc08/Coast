@@ -365,13 +365,13 @@ export async function adminApproveListingAction(
   const { createAdminClient: mkAdmin } = await import('@/lib/supabase/admin')
   const admin = mkAdmin()
 
-  const { data: listing } = await admin
+  const { data: listing, error: fetchError } = await admin
     .from('listings')
-    .select('id, year, make, model, status, condition_locked, profiles!seller_id(email, full_name)')
+    .select('id, year, make, model, status, condition_locked, seller_id')
     .eq('id', listingId)
     .single()
 
-  if (!listing) return { error: 'Listing not found' }
+  if (fetchError || !listing) return { error: fetchError?.message ?? 'Listing not found' }
   if (!listing.condition_locked) {
     return { error: 'Cannot approve: no inspection report has been attached to this listing.' }
   }
@@ -388,16 +388,22 @@ export async function adminApproveListingAction(
   if (error) return { error: error.message }
 
   // Email seller — non-fatal if it fails
-  const sellerProfile = Array.isArray(listing.profiles) ? listing.profiles[0] : listing.profiles
-  if (sellerProfile?.email) {
-    const baseUrl = process.env.NEXT_PUBLIC_URL ?? 'https://drivewithcoast.com'
-    const { getResend, FROM_EMAIL } = await import('@/lib/resend')
-    await getResend().emails.send({
-      from: FROM_EMAIL,
-      to: sellerProfile.email,
-      subject: `Your listing is live: ${listing.year} ${listing.make} ${listing.model}`,
-      html: `<p>Hi ${sellerProfile.full_name ?? 'there'},</p><p>Your <strong>${listing.year} ${listing.make} ${listing.model}</strong> has been inspected, approved, and is now live on Coast. Buyers can find and purchase it now.</p><p><a href="${baseUrl}/listings/${listing.id}">View your listing →</a></p><p>— The Coast Team</p>`,
-    }).catch(() => {/* non-fatal */})
+  if (listing.seller_id) {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_URL ?? 'https://drivewithcoast.com'
+      const { getResend, FROM_EMAIL } = await import('@/lib/resend')
+      const { data: authUser } = await admin.auth.admin.getUserById(listing.seller_id as string)
+      const { data: sellerProfile } = await admin.from('profiles').select('full_name').eq('id', listing.seller_id as string).single()
+      const email = authUser?.user?.email
+      if (email) {
+        await getResend().emails.send({
+          from: FROM_EMAIL,
+          to: email,
+          subject: `Your listing is live: ${listing.year} ${listing.make} ${listing.model}`,
+          html: `<p>Hi ${(sellerProfile as { full_name?: string } | null)?.full_name ?? 'there'},</p><p>Your <strong>${listing.year} ${listing.make} ${listing.model}</strong> has been inspected, approved, and is now live on Coast. Buyers can find and purchase it now.</p><p><a href="${baseUrl}/listings/${listing.id}">View your listing →</a></p><p>— The Coast Team</p>`,
+        })
+      }
+    } catch {/* non-fatal */}
   }
 
   revalidatePath('/seller/dashboard')

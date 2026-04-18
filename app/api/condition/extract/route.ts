@@ -57,82 +57,86 @@ Return ONLY a valid JSON object with no additional text and no markdown code blo
 Use null for numeric values not found in the report. Use empty arrays for lists with no items. Make reasonable assessments for ratings based on the totality of findings in each section.`
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const formData = await req.formData()
-  const storageKey = formData.get('storageKey') as string
-  const listingId  = formData.get('listingId')  as string
-
-  if (!storageKey || !listingId) {
-    return NextResponse.json({ error: 'Missing storageKey or listingId' }, { status: 400 })
-  }
-
-  // Verify listing belongs to the requesting user
-  const { data: listing } = await supabase
-    .from('listings')
-    .select('id')
-    .eq('id', listingId)
-    .eq('seller_id', user.id)
-    .single()
-
-  if (!listing) return NextResponse.json({ error: 'Listing not found' }, { status: 404 })
-
-  // Download the PDF from Supabase storage
-  const admin = createAdminClient()
-  const { data: fileBlob, error: downloadError } = await admin.storage
-    .from('car-documents')
-    .download(storageKey)
-
-  if (downloadError || !fileBlob) {
-    return NextResponse.json({ error: 'Failed to download PDF' }, { status: 500 })
-  }
-
-  const buffer = await fileBlob.arrayBuffer()
-  const base64 = Buffer.from(buffer).toString('base64')
-
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-
-  const response = await client.messages.create({
-    model:      'claude-sonnet-4-6',
-    max_tokens: 4096,
-    messages: [{
-      role:    'user',
-      content: [
-        {
-          type:   'document',
-          source: {
-            type:       'base64',
-            media_type: 'application/pdf',
-            data:       base64,
-          },
-        } as never,
-        {
-          type: 'text',
-          text: EXTRACTION_PROMPT,
-        },
-      ],
-    }],
-  })
-
-  const rawText = response.content.find(b => b.type === 'text')
-  if (!rawText || rawText.type !== 'text') {
-    return NextResponse.json({ error: 'No response from AI' }, { status: 500 })
-  }
-
-  let data: AiConditionData
   try {
-    // Strip potential markdown fences if model includes them despite instruction
-    const cleaned = rawText.text
-      .replace(/^```json\s*/i, '')
-      .replace(/^```\s*/i, '')
-      .replace(/\s*```$/i, '')
-      .trim()
-    data = JSON.parse(cleaned)
-  } catch {
-    return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 })
-  }
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  return NextResponse.json({ data })
+    const formData = await req.formData()
+    const storageKey = formData.get('storageKey') as string
+    const listingId  = formData.get('listingId')  as string
+
+    if (!storageKey || !listingId) {
+      return NextResponse.json({ error: 'Missing storageKey or listingId' }, { status: 400 })
+    }
+
+    // Admins can analyze any listing; sellers can only analyze their own
+    const isAdmin = user.app_metadata?.role === 'admin'
+    const admin = createAdminClient()
+    const listingQuery = isAdmin
+      ? admin.from('listings').select('id').eq('id', listingId).single()
+      : supabase.from('listings').select('id').eq('id', listingId).eq('seller_id', user.id).single()
+
+    const { data: listing } = await listingQuery
+    if (!listing) return NextResponse.json({ error: 'Listing not found' }, { status: 404 })
+
+    // Download the PDF from Supabase storage
+    const { data: fileBlob, error: downloadError } = await admin.storage
+      .from('car-documents')
+      .download(storageKey)
+
+    if (downloadError || !fileBlob) {
+      return NextResponse.json({ error: `Failed to download PDF: ${downloadError?.message ?? 'unknown'}` }, { status: 500 })
+    }
+
+    const buffer = await fileBlob.arrayBuffer()
+    const base64 = Buffer.from(buffer).toString('base64')
+
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+
+    const response = await client.messages.create({
+      model:      'claude-sonnet-4-6',
+      max_tokens: 4096,
+      messages: [{
+        role:    'user',
+        content: [
+          {
+            type:   'document',
+            source: {
+              type:       'base64',
+              media_type: 'application/pdf',
+              data:       base64,
+            },
+          } as never,
+          {
+            type: 'text',
+            text: EXTRACTION_PROMPT,
+          },
+        ],
+      }],
+    })
+
+    const rawText = response.content.find(b => b.type === 'text')
+    if (!rawText || rawText.type !== 'text') {
+      return NextResponse.json({ error: 'No response from AI' }, { status: 500 })
+    }
+
+    let data: AiConditionData
+    try {
+      const cleaned = rawText.text
+        .replace(/^```json\s*/i, '')
+        .replace(/^```\s*/i, '')
+        .replace(/\s*```$/i, '')
+        .trim()
+      data = JSON.parse(cleaned)
+    } catch {
+      return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 })
+    }
+
+    return NextResponse.json({ data })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unexpected error'
+    console.error('[condition/extract]', err)
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
 }

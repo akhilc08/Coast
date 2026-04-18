@@ -157,13 +157,6 @@ export async function approveListingAction(
     // Also send email notification
     try {
       const { getResend, FROM_EMAIL } = await import('@/lib/resend')
-      const { data: profile } = await admin
-        .from('profiles')
-        .select('email')
-        .eq('id', listing.seller_id)
-        .single()
-
-      // Get seller email from auth
       const { data: authUser } = await admin.auth.admin.getUserById(listing.seller_id)
       const email = authUser?.user?.email
       if (email) {
