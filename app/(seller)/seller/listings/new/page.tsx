@@ -15,7 +15,7 @@ export default async function NewListingPage() {
 
   return (
     <ListingWizard
-      sellerTier={(profile?.seller_tier as 'beginner' | 'trusted') ?? 'beginner'}
+      sellerTier={(profile?.seller_tier as number) ?? 1}
     />
   )
 }
