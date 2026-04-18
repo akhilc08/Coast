@@ -69,6 +69,7 @@ export function ListingWizard({ listingId, initialData, sellerTier = 1 }: Listin
         {step === 'vin' && (
           <StepVinLookup
             initialVin={(initialData?.vin as string | undefined) ?? undefined}
+            existingListingId={draftId ?? undefined}
             onSuccess={(id, vehicle) => {
               setDraftId(id)
               if (vehicle) setVinData({ make: vehicle.make, model: vehicle.model, year: vehicle.year })

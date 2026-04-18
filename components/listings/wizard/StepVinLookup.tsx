@@ -13,9 +13,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 interface StepVinLookupProps {
   onSuccess: (draftId: string, vehicle: import('@/lib/nhtsa').VehicleDetails | null) => void
   initialVin?: string
+  existingListingId?: string
 }
 
-export function StepVinLookup({ onSuccess, initialVin }: StepVinLookupProps) {
+export function StepVinLookup({ onSuccess, initialVin, existingListingId }: StepVinLookupProps) {
   const [serverError, setServerError] = useState<string | null>(null)
 
   const form = useForm<VinStepInput>({
@@ -29,6 +30,12 @@ export function StepVinLookup({ onSuccess, initialVin }: StepVinLookupProps) {
 
     // Attempt NHTSA lookup — failure is OK, wholesaler can fill manually
     const vehicle = await decodeVin(vin)
+
+    // If a draft already exists for this listing, reuse it instead of creating a duplicate
+    if (existingListingId) {
+      onSuccess(existingListingId, vehicle)
+      return
+    }
 
     const result = await createDraftAction(vin, vehicle)
     if ('error' in result) {
