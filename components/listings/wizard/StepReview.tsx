@@ -55,22 +55,6 @@ export function StepReview({ listingId, listingStatus, sellerTier, onBack }: Ste
     }
   }
 
-  async function handleSubmitForReview() {
-    setSubmitting(true)
-    try {
-      const result = await submitForReviewAction(listingId)
-      if ('error' in result) {
-        toast.error(result.error)
-        return
-      }
-      toast.success('Listing submitted for review! You\'ll be notified when it goes live.')
-      router.push('/seller/dashboard')
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  const isBeginner = sellerTier === 'beginner'
 
   return (
     <div className="rounded-xl border border-[#e7e5e4] bg-white p-4 sm:p-6">
