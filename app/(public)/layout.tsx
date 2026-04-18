@@ -21,12 +21,14 @@ export default async function PublicLayout({ children }: { children: React.React
           <Link href="/inventory" className="hidden text-sm font-medium text-[#6b7280] hover:text-[#111] md:block">
             Browse
           </Link>
-          <Link href="/about" className="hidden text-sm font-medium text-[#6b7280] hover:text-[#111] md:block">
+          <Link href="/sellers" className="hidden text-sm font-medium text-[#6b7280] hover:text-[#111] md:block">
             About
           </Link>
-          <Link href="/seller/dashboard" className="hidden text-sm font-medium text-[#6b7280] hover:text-[#111] md:block">
-            Sellers
-          </Link>
+          {role !== 'wholesaler' && (
+            <Link href="/seller/dashboard" className="hidden text-sm font-medium text-[#6b7280] hover:text-[#111] md:block">
+              Sellers
+            </Link>
+          )}
 {user ? (
             <>
               {role === 'admin' && (
