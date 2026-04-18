@@ -18,7 +18,7 @@ export default async function AdminListingDetailPage({ params }: { params: Promi
 
   const { data: listing, error: listingError } = await supabase
     .from('listings')
-    .select('id, vin, make, model, year, price_cents, mileage, color, condition_notes, pickup_zip, status, overall_grade, condition_locked, created_at, seller_id, ai_condition_exterior, ai_condition_interior, ai_condition_mechanical, ai_condition_tires, profiles!seller_id(full_name, company), listing_photos(id, storage_key, position)')
+    .select('id, vin, make, model, year, price_cents, mileage, color, condition_notes, pickup_zip, status, overall_grade, condition_locked, created_at, seller_id, ai_condition_exterior, ai_condition_interior, ai_condition_mechanical, ai_condition_tires, profiles!seller_id(full_name, company), listing_photos(id, storage_key, position, slot_type)')
     .eq('id', id)
     .single()
 
@@ -42,7 +42,8 @@ export default async function AdminListingDetailPage({ params }: { params: Promi
   const canApprove = listing.status === 'pending_inspection'
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const photos = ((listing as Record<string, unknown>).listing_photos as { id: string; storage_key: string; position: number }[] ?? [])
+  const photos = ((listing as Record<string, unknown>).listing_photos as { id: string; storage_key: string; position: number; slot_type: string | null }[] ?? [])
+    .filter(p => p.slot_type != null)
     .sort((a, b) => a.position - b.position)
 
   const aiCondition: AiConditionData | null = (listing as Record<string, unknown>).ai_condition_exterior

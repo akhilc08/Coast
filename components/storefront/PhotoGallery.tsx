@@ -4,12 +4,20 @@ import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { useState } from 'react'
 import 'yet-another-react-lightbox/styles.css'
+import 'yet-another-react-lightbox/plugins/captions.css'
+import { PHOTO_SECTIONS } from '@/lib/photo-slots'
+import Captions from 'yet-another-react-lightbox/plugins/captions'
 
 const Lightbox = dynamic(() => import('yet-another-react-lightbox'), { ssr: false })
+
+const SLOT_LABEL: Record<string, string> = Object.fromEntries(
+  PHOTO_SECTIONS.flatMap(s => s.slots.map(slot => [slot.id, `${s.title} — ${slot.label}`]))
+)
 
 interface Photo {
   url: string
   storageKey: string
+  slotType?: string | null
 }
 
 export function PhotoGallery({ photos }: { photos: Photo[] }) {
@@ -24,7 +32,10 @@ export function PhotoGallery({ photos }: { photos: Photo[] }) {
     )
   }
 
-  const slides = photos.map(p => ({ src: p.url }))
+  const slides = photos.map(p => ({
+    src: p.url,
+    title: p.slotType ? SLOT_LABEL[p.slotType] ?? p.slotType.replace(/_/g, ' ') : undefined,
+  }))
 
   return (
     <>
@@ -37,7 +48,7 @@ export function PhotoGallery({ photos }: { photos: Photo[] }) {
           >
             <Image
               src={photo.url}
-              alt={`Vehicle photo ${i + 1}`}
+              alt={photo.slotType ? (SLOT_LABEL[photo.slotType] ?? photo.slotType) : `Vehicle photo ${i + 1}`}
               fill
               className="object-cover transition-opacity hover:opacity-90"
               sizes={i === 0 ? '100vw' : '33vw'}
@@ -45,6 +56,11 @@ export function PhotoGallery({ photos }: { photos: Photo[] }) {
             {i === 0 && (
               <span className="absolute left-2 top-2 rounded-full bg-[#1c1917]/70 px-2 py-0.5 text-xs text-white">
                 {photos.length} photos
+              </span>
+            )}
+            {photo.slotType && (
+              <span className="absolute bottom-1.5 left-1.5 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white leading-tight">
+                {SLOT_LABEL[photo.slotType]?.split(' — ')[1] ?? photo.slotType.replace(/_/g, ' ')}
               </span>
             )}
           </button>
@@ -56,6 +72,8 @@ export function PhotoGallery({ photos }: { photos: Photo[] }) {
         close={() => setOpen(false)}
         index={index}
         slides={slides}
+        plugins={[Captions]}
+        captions={{ showToggle: false, descriptionTextAlign: 'center' }}
       />
     </>
   )

@@ -66,8 +66,9 @@ export default async function ListingDetailPage({
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const photos = (listing.listing_photos ?? [])
     .sort((a: { position: number }, b: { position: number }) => a.position - b.position)
-    .map((p: { storage_key: string }) => ({
+    .map((p: { storage_key: string; slot_type?: string | null }) => ({
       storageKey: p.storage_key,
+      slotType: p.slot_type ?? null,
       url: `${supabaseUrl}/storage/v1/object/public/car-photos/${p.storage_key}`,
     }))
 
