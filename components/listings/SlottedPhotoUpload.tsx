@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { Camera, X, Loader2 } from 'lucide-react'
-import { PHOTO_SECTIONS } from '@/lib/photo-slots'
+import { PHOTO_SECTIONS, PHOTO_SLOT_ORDER } from '@/lib/photo-slots'
 import { buildStorageKey, getPhotoPublicUrl } from '@/lib/storage'
 import { createClient } from '@/lib/supabase/browser'
 import { toast } from 'sonner'
@@ -160,13 +160,17 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
         onChange={handleFileChange}
       />
 
-      {PHOTO_SECTIONS.map(section => (
+      {PHOTO_SECTIONS.map(section => {
+        const orderedSlots = [...section.slots].sort(
+          (a, b) => (PHOTO_SLOT_ORDER[a.id] ?? 999) - (PHOTO_SLOT_ORDER[b.id] ?? 999)
+        )
+        return (
         <div key={section.id}>
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#a8a29e]">
             {section.title}
           </h3>
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-            {section.slots.map(slot => {
+            {orderedSlots.map(slot => {
               const photo = slotPhotos[slot.id]
               const isOver = dragOver === slot.id
               return (
@@ -220,7 +224,8 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
             })}
           </div>
         </div>
-      ))}
+        )
+      })}
 
       <p className="text-xs text-[#a8a29e]">
         {uploadedCount} {uploadedCount === 1 ? 'photo' : 'photos'} uploaded — all optional
