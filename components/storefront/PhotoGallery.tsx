@@ -7,6 +7,7 @@ import 'yet-another-react-lightbox/styles.css'
 import 'yet-another-react-lightbox/plugins/captions.css'
 import { PHOTO_SECTIONS } from '@/lib/photo-slots'
 import Captions from 'yet-another-react-lightbox/plugins/captions'
+import Zoom from 'yet-another-react-lightbox/plugins/zoom'
 
 const Lightbox = dynamic(() => import('yet-another-react-lightbox'), { ssr: false })
 
@@ -72,7 +73,8 @@ export function PhotoGallery({ photos }: { photos: Photo[] }) {
         close={() => setOpen(false)}
         index={index}
         slides={slides}
-        plugins={[Captions]}
+        plugins={[Captions, Zoom]}
+        zoom={{ maxZoomPixelRatio: 3, zoomInMultiplier: 2, doubleTapDelay: 300, doubleClickDelay: 300 }}
         captions={{ showToggle: false, descriptionTextAlign: 'center' }}
       />
     </>
