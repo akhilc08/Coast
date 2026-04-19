@@ -17,30 +17,7 @@ const VALID_SLOT_TYPES = [
   'vin_sticker', 'keys', 'damage',
 ] as const
 
-interface PhotoInput {
-  id: string
-  url: string
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
-    const photos = body.photos as PhotoInput[]
-
-    if (!photos || !Array.isArray(photos) || photos.length === 0) {
-      return NextResponse.json({ error: 'No photos provided' }, { status: 400 })
-    }
-
-    const content: Anthropic.MessageCreateParams['messages'][0]['content'] = []
-
-    for (const photo of photos) {
-      content.push({ type: 'image' as const, source: { type: 'url' as const, url: photo.url } })
-      content.push({ type: 'text' as const, text: `Photo ID: ${photo.id}` })
-    }
-
-    content.push({
-      type: 'text' as const,
-      text: `You are a vehicle inspection photo classifier. Each photo above is labeled with its Photo ID.
+const PROMPT_SUFFIX = `You are a vehicle inspection photo classifier. Each photo above is labeled with its Photo ID.
 
 For EACH photo, follow this two-step process:
 1. Briefly describe what you see: camera angle, distance, what fills the frame, and whether it is exterior/interior/mechanical.
@@ -133,40 +110,76 @@ Example:
 [
   {"id":"abc-123","reasoning":"Straight-on front view, grille and both headlights centered, no side body visible","slot_type":"front","confidence":0.96},
   {"id":"def-456","reasoning":"Full-width dashboard in frame, shot from driver seat looking at instrument panel","slot_type":"dashboard","confidence":0.91}
-]`,
-    })
+]`
 
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 8192,
-      messages: [{ role: 'user', content }],
-    })
+interface PhotoInput {
+  id: string
+  url: string
+}
 
-    const responseText = message.content
-      .filter((block): block is Anthropic.TextBlock => block.type === 'text')
-      .map(block => block.text)
-      .join('')
+type Assignment = { id: string; slot_type: string; confidence: number }
 
-    // Strip markdown code fences if present
-    const jsonText = responseText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim()
-    const parsed = JSON.parse(jsonText) as { id: string; slot_type: string; confidence?: number; reasoning?: string }[]
+const BATCH_SIZE = 8
 
-    const assignments = parsed.map(item => ({
-      id: item.id,
-      slot_type: VALID_SLOT_TYPES.includes(item.slot_type as typeof VALID_SLOT_TYPES[number])
-        ? item.slot_type
-        : 'damage',
-      confidence: typeof item.confidence === 'number' ? item.confidence : 0.5,
-    }))
+async function classifyBatch(batch: PhotoInput[]): Promise<Assignment[]> {
+  const content: Anthropic.MessageCreateParams['messages'][0]['content'] = []
 
-    // Default any unclassified photos
-    for (const photo of photos) {
-      if (!assignments.find(a => a.id === photo.id)) {
-        assignments.push({ id: photo.id, slot_type: 'damage', confidence: 0 })
+  for (const photo of batch) {
+    content.push({ type: 'image' as const, source: { type: 'url' as const, url: photo.url } })
+    content.push({ type: 'text' as const, text: `Photo ID: ${photo.id}` })
+  }
+
+  content.push({ type: 'text' as const, text: PROMPT_SUFFIX })
+
+  const message = await anthropic.messages.create({
+    model: 'claude-opus-4-7',
+    max_tokens: 4096,
+    messages: [{ role: 'user', content }],
+  })
+
+  const responseText = message.content
+    .filter((block): block is Anthropic.TextBlock => block.type === 'text')
+    .map(block => block.text)
+    .join('')
+
+  const jsonText = responseText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim()
+  const parsed = JSON.parse(jsonText) as { id: string; slot_type: string; confidence?: number }[]
+
+  return parsed.map(item => ({
+    id: item.id,
+    slot_type: VALID_SLOT_TYPES.includes(item.slot_type as typeof VALID_SLOT_TYPES[number])
+      ? item.slot_type
+      : 'damage',
+    confidence: typeof item.confidence === 'number' ? item.confidence : 0.5,
+  }))
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const photos = body.photos as PhotoInput[]
+
+    if (!photos || !Array.isArray(photos) || photos.length === 0) {
+      return NextResponse.json({ error: 'No photos provided' }, { status: 400 })
+    }
+
+    // Process in batches of BATCH_SIZE for better accuracy
+    const batches: PhotoInput[][] = []
+    for (let i = 0; i < photos.length; i += BATCH_SIZE) {
+      batches.push(photos.slice(i, i + BATCH_SIZE))
+    }
+
+    const allAssignments: Assignment[] = []
+    for (const batch of batches) {
+      try {
+        const batchResults = await classifyBatch(batch)
+        allAssignments.push(...batchResults)
+      } catch {
+        // If a batch fails, those photos remain unassigned (no fallback)
       }
     }
 
-    return NextResponse.json({ assignments })
+    return NextResponse.json({ assignments: allAssignments })
   } catch (error) {
     console.error('Photo organization error:', error)
     return NextResponse.json({ error: 'Failed to organize photos' }, { status: 500 })

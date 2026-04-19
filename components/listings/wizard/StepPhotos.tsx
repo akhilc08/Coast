@@ -85,36 +85,23 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
       photos.filter(p => p.slot_type).map(p => [p.slot_type!, p])
     )
 
-    // Decide what to do with each AI-assigned photo
-    const CONFIDENCE_THRESHOLD = 0.75
+    // Only accept AI assignments above confidence threshold — no sequential fallback
+    const CONFIDENCE_THRESHOLD = 0.65
     const finalMap: Record<string, string> = {}
     const photosToDelete: { id: string; storage_key: string }[] = []
 
     for (const a of aiAssignments) {
+      if (a.confidence < CONFIDENCE_THRESHOLD) continue
       const existing = existingSlotMap.get(a.slot_type)
       if (!existing) {
-        // Slot is free — assign directly
         finalMap[a.id] = a.slot_type
-      } else if (a.confidence >= CONFIDENCE_THRESHOLD) {
-        // High-confidence match — replace existing photo
+      } else if (a.confidence >= 0.85) {
+        // Only replace an existing photo if very high confidence
         photosToDelete.push({ id: existing.id, storage_key: existing.storage_key })
         existingSlotMap.delete(a.slot_type)
         finalMap[a.id] = a.slot_type
       }
-      // Low confidence + occupied → fall through to sequential assignment below
-    }
-
-    // For any photo not yet assigned, fill next available slot sequentially
-    const usedSlots = new Set([
-      ...Object.values(finalMap),
-      ...[...existingSlotMap.keys()],
-    ])
-    const remainingSlots = allSlots.map(s => s.id).filter(id => !usedSlots.has(id))
-    let slotIdx = 0
-    for (const p of uploadedPhotos) {
-      if (!finalMap[p.id] && slotIdx < remainingSlots.length) {
-        finalMap[p.id] = remainingSlots[slotIdx++]
-      }
+      // Otherwise leave the existing photo in place — seller can fix manually
     }
 
     // Delete replaced photos from storage + DB
@@ -141,11 +128,14 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
     }))
     setPhotos(prev => [...prev.filter(p => !deletedIds.has(p.id)), ...newPhotos])
     setSlottedKey(k => k + 1)
-    const classified = aiAssignments.filter(a => finalMap[a.id]).length
-    if (classified > 0) {
+    const classified = Object.keys(finalMap).length
+    const unclassified = uploadedPhotos.length - classified
+    if (classified > 0 && unclassified === 0) {
       toast.success(`${uploadedPhotos.length} photo${uploadedPhotos.length > 1 ? 's' : ''} uploaded and sorted by AI.`)
+    } else if (classified > 0) {
+      toast.success(`${classified} photo${classified > 1 ? 's' : ''} sorted by AI. Place the remaining ${unclassified} manually.`)
     } else {
-      toast.success(`${uploadedPhotos.length} photo${uploadedPhotos.length > 1 ? 's' : ''} uploaded and assigned to slots.`)
+      toast.info(`${uploadedPhotos.length} photo${uploadedPhotos.length > 1 ? 's' : ''} uploaded — drag each one into the correct slot below.`)
     }
   }
 
