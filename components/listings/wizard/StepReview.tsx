@@ -131,7 +131,7 @@ export function StepReview({ listingId, listingStatus, sellerTier, onBack }: Ste
               onClick={() => router.push('/seller/dashboard')}
               className="w-full border-[#e7e5e4] text-[#78716c] hover:border-[#1c1917] hover:text-[#1c1917]"
             >
-              Save as Draft
+              {isPending ? 'Save Changes' : 'Save as Draft'}
             </Button>
           </>
         )}

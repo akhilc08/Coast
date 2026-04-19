@@ -39,7 +39,8 @@ interface DashboardListingsProps {
 
 function heroUrl(listing: Listing, supabaseUrl: string): string | null {
   const photos = listing.listing_photos ?? []
-  const hero = photos.slice().sort((a, b) => {
+  const preferred = photos.find(p => p.slot_type === 'front_left_corner')
+  const hero = preferred ?? photos.slice().sort((a, b) => {
     const ai = a.slot_type != null ? (PHOTO_SLOT_ORDER[a.slot_type] ?? 999) : a.position
     const bi = b.slot_type != null ? (PHOTO_SLOT_ORDER[b.slot_type] ?? 999) : b.position
     return ai - bi
