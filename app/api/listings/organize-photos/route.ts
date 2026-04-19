@@ -155,6 +155,7 @@ async function classifyBatch(batch: PhotoInput[]): Promise<Assignment[]> {
     .join('')
 
   const jsonText = responseText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim()
+  console.log('[organize-photos] raw response:', jsonText.slice(0, 500))
   const parsed = JSON.parse(jsonText) as { id: string; slot_type: string; confidence?: number }[]
 
   return parsed.map(item => ({
@@ -182,15 +183,17 @@ export async function POST(request: NextRequest) {
     }
 
     const allAssignments: Assignment[] = []
-    for (const batch of batches) {
+    for (let i = 0; i < batches.length; i++) {
       try {
-        const batchResults = await classifyBatch(batch)
+        const batchResults = await classifyBatch(batches[i])
+        console.log(`[organize-photos] batch ${i + 1}/${batches.length}: ${batchResults.length} classified`)
         allAssignments.push(...batchResults)
-      } catch {
-        // If a batch fails, those photos remain unassigned (no fallback)
+      } catch (err) {
+        console.error(`[organize-photos] batch ${i + 1}/${batches.length} failed:`, err)
       }
     }
 
+    console.log(`[organize-photos] total: ${allAssignments.length} assignments for ${photos.length} photos`)
     return NextResponse.json({ assignments: allAssignments })
   } catch (error) {
     console.error('Photo organization error:', error)
