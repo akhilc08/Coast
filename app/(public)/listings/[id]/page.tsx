@@ -10,35 +10,7 @@ import { ConditionReport } from '@/components/listings/ConditionReport'
 import Link from 'next/link'
 import { ArrowLeft, ChevronRight } from 'lucide-react'
 import type { AiConditionData } from '@/lib/types/condition'
-
-// ACV-style display order: 3/4 corner shots first, then sides, then straight shots, etc.
-const DISPLAY_ORDER: string[] = [
-  // Exterior — corners first (hero angles)
-  'front_left_corner', 'front_right_corner', 'rear_left_corner', 'rear_right_corner',
-  // Sides
-  'left_side', 'right_side',
-  // Straight shots
-  'front', 'rear', 'hood', 'roof',
-  // Laterals
-  'front_left_lateral', 'front_right_lateral', 'rear_left_lateral', 'rear_right_lateral',
-  'left_lateral_low', 'right_lateral_low',
-  // Wheels
-  'front_left_wheel', 'front_right_wheel', 'rear_left_wheel', 'rear_right_wheel',
-  // Rocker panels & frames
-  'left_rocker_panel', 'right_rocker_panel',
-  'left_frame', 'right_frame', 'front_frame', 'rear_frame',
-  // Interior
-  'front_left_interior', 'front_right_interior', 'rear_left_interior', 'rear_right_interior',
-  'dashboard', 'center_stack', 'gauge_cluster', 'headliner', 'odometer',
-  // Mechanicals
-  'engine', 'engine_oil', 'under_oil_cap', 'engine_coolant',
-  'emissions_sticker', 'readiness_monitors', 'obdii_codes',
-  // Misc
-  'vin_sticker', 'keys', 'damage',
-]
-const SLOT_ORDER: Record<string, number> = Object.fromEntries(
-  DISPLAY_ORDER.map((id, i) => [id, i])
-)
+import { PHOTO_SLOT_ORDER } from '@/lib/photo-slots'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -95,8 +67,8 @@ export default async function ListingDetailPage({
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const photos = (listing.listing_photos ?? [])
     .sort((a: { position: number; slot_type?: string | null }, b: { position: number; slot_type?: string | null }) => {
-      const ai = a.slot_type != null ? (SLOT_ORDER[a.slot_type] ?? 999) : a.position
-      const bi = b.slot_type != null ? (SLOT_ORDER[b.slot_type] ?? 999) : b.position
+      const ai = a.slot_type != null ? (PHOTO_SLOT_ORDER[a.slot_type] ?? 999) : a.position
+      const bi = b.slot_type != null ? (PHOTO_SLOT_ORDER[b.slot_type] ?? 999) : b.position
       return ai - bi
     })
     .map((p: { storage_key: string; slot_type?: string | null }) => ({

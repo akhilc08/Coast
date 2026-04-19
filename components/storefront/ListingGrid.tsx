@@ -1,5 +1,6 @@
 import { ListingCard } from './ListingCard'
 import type { SellerStats } from '@/lib/queries/reviews'
+import { PHOTO_SLOT_ORDER } from '@/lib/photo-slots'
 
 interface Listing {
   id: string
@@ -10,7 +11,7 @@ interface Listing {
   mileage: number | null
   price_cents: number | null
   grade: string | null
-  listing_photos: { storage_key: string; position: number }[]
+  listing_photos: { storage_key: string; position: number; slot_type?: string | null }[]
 }
 
 interface ListingGridProps {
@@ -32,7 +33,12 @@ export function ListingGrid({ listings, supabaseUrl, sellerStatsMap }: ListingGr
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {listings.map(listing => {
         const heroPhoto = listing.listing_photos
-          ?.sort((a, b) => a.position - b.position)[0]
+          ?.slice()
+          .sort((a, b) => {
+            const ai = a.slot_type != null ? (PHOTO_SLOT_ORDER[a.slot_type] ?? 999) : a.position
+            const bi = b.slot_type != null ? (PHOTO_SLOT_ORDER[b.slot_type] ?? 999) : b.position
+            return ai - bi
+          })[0]
 
         return (
           <ListingCard

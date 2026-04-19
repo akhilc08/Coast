@@ -9,6 +9,27 @@ export interface PhotoSection {
   slots: PhotoSlot[]
 }
 
+// ACV-style display order for storefront photo galleries
+export const PHOTO_DISPLAY_ORDER: string[] = [
+  'front_left_corner', 'front_right_corner', 'rear_left_corner', 'rear_right_corner',
+  'left_side', 'right_side',
+  'front', 'rear', 'hood', 'roof',
+  'front_left_lateral', 'front_right_lateral', 'rear_left_lateral', 'rear_right_lateral',
+  'left_lateral_low', 'right_lateral_low',
+  'front_left_wheel', 'front_right_wheel', 'rear_left_wheel', 'rear_right_wheel',
+  'left_rocker_panel', 'right_rocker_panel',
+  'left_frame', 'right_frame', 'front_frame', 'rear_frame',
+  'front_left_interior', 'front_right_interior', 'rear_left_interior', 'rear_right_interior',
+  'dashboard', 'center_stack', 'gauge_cluster', 'headliner', 'odometer',
+  'engine', 'engine_oil', 'under_oil_cap', 'engine_coolant',
+  'emissions_sticker', 'readiness_monitors', 'obdii_codes',
+  'vin_sticker', 'keys', 'damage',
+]
+
+export const PHOTO_SLOT_ORDER: Record<string, number> = Object.fromEntries(
+  PHOTO_DISPLAY_ORDER.map((id, i) => [id, i])
+)
+
 export const PHOTO_SECTIONS: PhotoSection[] = [
   {
     id: 'exterior',
