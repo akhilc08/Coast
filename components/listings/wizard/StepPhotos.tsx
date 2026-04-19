@@ -74,10 +74,12 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ photos: uploadedPhotos }),
       })
-      const { assignments } = await res.json() as { assignments: Assignment[] }
-      if (assignments?.length) aiAssignments = assignments
-    } catch {
-      // fall through to sequential assignment below
+      const json = await res.json() as { assignments?: Assignment[]; error?: string }
+      if (!res.ok) throw new Error(json.error ?? 'Classification failed')
+      if (json.assignments?.length) aiAssignments = json.assignments
+    } catch (err) {
+      console.error('AI classification error:', err)
+      toast.error('AI classification failed — place photos manually')
     }
 
     // Build map of existing slot → photo for potential replacement
@@ -85,23 +87,20 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
       photos.filter(p => p.slot_type).map(p => [p.slot_type!, p])
     )
 
-    // Only accept AI assignments above confidence threshold — no sequential fallback
-    const CONFIDENCE_THRESHOLD = 0.65
+    // Accept all AI assignments — trust Claude, no confidence cutoff
     const finalMap: Record<string, string> = {}
     const photosToDelete: { id: string; storage_key: string }[] = []
 
     for (const a of aiAssignments) {
-      if (a.confidence < CONFIDENCE_THRESHOLD) continue
       const existing = existingSlotMap.get(a.slot_type)
       if (!existing) {
         finalMap[a.id] = a.slot_type
       } else if (a.confidence >= 0.85) {
-        // Only replace an existing photo if very high confidence
+        // Replace existing only if very high confidence
         photosToDelete.push({ id: existing.id, storage_key: existing.storage_key })
         existingSlotMap.delete(a.slot_type)
         finalMap[a.id] = a.slot_type
       }
-      // Otherwise leave the existing photo in place — seller can fix manually
     }
 
     // Delete replaced photos from storage + DB
@@ -130,12 +129,10 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
     setSlottedKey(k => k + 1)
     const classified = Object.keys(finalMap).length
     const unclassified = uploadedPhotos.length - classified
-    if (classified > 0 && unclassified === 0) {
+    if (unclassified === 0) {
       toast.success(`${uploadedPhotos.length} photo${uploadedPhotos.length > 1 ? 's' : ''} uploaded and sorted by AI.`)
-    } else if (classified > 0) {
-      toast.success(`${classified} photo${classified > 1 ? 's' : ''} sorted by AI. Place the remaining ${unclassified} manually.`)
     } else {
-      toast.info(`${uploadedPhotos.length} photo${uploadedPhotos.length > 1 ? 's' : ''} uploaded — drag each one into the correct slot below.`)
+      toast.success(`${uploadedPhotos.length} uploaded — ${classified} sorted by AI, ${unclassified} couldn't be identified and need placement.`)
     }
   }
 
