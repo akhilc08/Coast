@@ -10,7 +10,7 @@ export default async function DashboardPage() {
   // Fetch all listings with first photo
   const { data: listings } = await supabase
     .from('listings')
-    .select('id, vin, make, model, year, price_cents, status, created_at, listing_photos(id, storage_key, position)')
+    .select('id, vin, make, model, year, price_cents, status, created_at, listing_photos(id, storage_key, position, slot_type)')
     .eq('seller_id', user!.id)
     .in('status', ['active', 'draft', 'paused', 'pending_inspection', 'archived'])
     .order('created_at', { ascending: false })

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { ExternalLink, Pencil, Play, Trash2, Clock, CheckCircle, PauseCircle, FileText, ShoppingBag } from 'lucide-react'
 import { unpauseListingAction } from '@/app/actions/listings'
+import { PHOTO_SLOT_ORDER } from '@/lib/photo-slots'
 import { ListingDeleteModal } from './ListingDeleteModal'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
@@ -12,6 +13,7 @@ interface Photo {
   id: string
   storage_key: string
   position: number
+  slot_type?: string | null
 }
 
 interface Listing {
@@ -37,7 +39,11 @@ interface DashboardListingsProps {
 
 function heroUrl(listing: Listing, supabaseUrl: string): string | null {
   const photos = listing.listing_photos ?? []
-  const hero = photos.sort((a, b) => a.position - b.position)[0]
+  const hero = photos.slice().sort((a, b) => {
+    const ai = a.slot_type != null ? (PHOTO_SLOT_ORDER[a.slot_type] ?? 999) : a.position
+    const bi = b.slot_type != null ? (PHOTO_SLOT_ORDER[b.slot_type] ?? 999) : b.position
+    return ai - bi
+  })[0]
   if (!hero) return null
   return `${supabaseUrl}/storage/v1/object/public/car-photos/${hero.storage_key}`
 }
