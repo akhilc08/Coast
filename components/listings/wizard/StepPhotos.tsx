@@ -1,9 +1,9 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useId } from 'react'
 import { SlottedPhotoUpload } from '@/components/listings/SlottedPhotoUpload'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, Upload, Sparkles } from 'lucide-react'
+import { ChevronLeft, Upload, Sparkles, Loader2 } from 'lucide-react'
 import { PHOTO_SECTIONS } from '@/lib/photo-slots'
 import { buildStorageKey, getPhotoPublicUrl } from '@/lib/storage'
 import { createClient } from '@/lib/supabase/browser'
@@ -16,10 +16,39 @@ interface StepPhotosProps {
   onBack?: () => void
 }
 
+// Resize a File to max 1024px on longest side, JPEG at 80% quality — small enough for API payloads
+function resizeToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    const objectUrl = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+      const MAX = 1024
+      let { width, height } = img
+      if (width > MAX || height > MAX) {
+        if (width > height) { height = Math.round((height * MAX) / width); width = MAX }
+        else { width = Math.round((width * MAX) / height); height = MAX }
+      }
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      canvas.getContext('2d')!.drawImage(img, 0, 0, width, height)
+      resolve(canvas.toDataURL('image/jpeg', 0.8).split(',')[1])
+    }
+    img.onerror = reject
+    img.src = objectUrl
+  })
+}
+
+const CLASSIFY_BATCH = 6
+
 export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPhotosProps) {
   const bulkInputRef = useRef<HTMLInputElement>(null)
   const [photos, setPhotos] = useState(initialPhotos)
   const [slottedKey, setSlottedKey] = useState(0)
+  const [uploading, setUploading] = useState(false)
+  const [status, setStatus] = useState('')
+  const toastId = useId()
 
   // Flatten all slots in order for bulk assignment
   const allSlots = PHOTO_SECTIONS.flatMap(s => s.slots)
@@ -32,17 +61,23 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
     const supabase = createClient()
     const filesToUpload = files.slice(0, allSlots.length)
 
-    toast.info(`Uploading ${filesToUpload.length} photo${filesToUpload.length > 1 ? 's' : ''}…`)
+    setUploading(true)
+    setStatus(`Uploading ${filesToUpload.length} photo${filesToUpload.length > 1 ? 's' : ''}…`)
+    toast.loading(`Uploading ${filesToUpload.length} photo${filesToUpload.length > 1 ? 's' : ''}…`, { id: toastId })
 
-    // Upload all files without pre-assigning slots
     const results = await Promise.allSettled(
       filesToUpload.map(async (file) => {
         const storageKey = buildStorageKey(listingId, file.name)
 
-        const { error: uploadError } = await supabase.storage
-          .from('car-photos')
-          .upload(storageKey, file, { contentType: file.type, cacheControl: '3600', upsert: false })
-        if (uploadError) throw uploadError
+        // Resize for classification and upload original in parallel
+        const [base64, uploadResult] = await Promise.all([
+          resizeToBase64(file),
+          supabase.storage
+            .from('car-photos')
+            .upload(storageKey, file, { contentType: file.type, cacheControl: '3600', upsert: false }),
+        ])
+
+        if (uploadResult.error) throw uploadResult.error
 
         const { data: row, error: dbError } = await supabase
           .from('listing_photos')
@@ -51,11 +86,15 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
           .single()
         if (dbError) throw dbError
 
-        return { id: row.id as string, url: getPhotoPublicUrl(storageKey) }
+        return {
+          id: row.id as string,
+          url: getPhotoPublicUrl(storageKey),
+          base64,
+        }
       })
     )
 
-    const succeeded = results.filter(r => r.status === 'fulfilled') as PromiseFulfilledResult<{ id: string; url: string }>[]
+    const succeeded = results.filter(r => r.status === 'fulfilled') as PromiseFulfilledResult<{ id: string; url: string; base64: string }>[]
     const failed = results.filter(r => r.status === 'rejected').length
 
     if (failed > 0) toast.error(`${failed} photo${failed > 1 ? 's' : ''} failed to upload.`)
@@ -63,23 +102,30 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
 
     const uploadedPhotos = succeeded.map(r => r.value)
 
-    // AI classification
-    toast.info('Classifying photos with AI…')
+    // AI classification — send resized base64 in small batches to stay under payload limits
+    setStatus('Classifying photos with AI…')
+    toast.loading('Classifying photos with AI — this takes about 30 seconds…', { id: toastId })
 
     type Assignment = { id: string; slot_type: string; confidence: number }
-    let aiAssignments: Assignment[] = []
+    const aiAssignments: Assignment[] = []
     try {
-      const res = await fetch('/api/listings/organize-photos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ photos: uploadedPhotos }),
-      })
-      const json = await res.json() as { assignments?: Assignment[]; error?: string }
-      if (!res.ok) throw new Error(json.error ?? 'Classification failed')
-      if (json.assignments?.length) aiAssignments = json.assignments
+      for (let i = 0; i < uploadedPhotos.length; i += CLASSIFY_BATCH) {
+        const chunk = uploadedPhotos.slice(i, i + CLASSIFY_BATCH)
+        const res = await fetch('/api/listings/organize-photos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            photos: chunk.map(p => ({ id: p.id, base64: p.base64 })),
+          }),
+        })
+        const json = await res.json() as { assignments?: Assignment[]; errors?: string[]; error?: string }
+        if (!res.ok) throw new Error(json.error ?? 'Classification failed')
+        if (json.errors?.length) console.error('[classify] batch errors:', json.errors)
+        if (json.assignments?.length) aiAssignments.push(...json.assignments)
+      }
     } catch (err) {
       console.error('AI classification error:', err)
-      toast.error('AI classification failed — place photos manually')
+      toast.error('AI classification failed — place photos manually', { id: toastId })
     }
 
     // Build map of existing slot → photo for potential replacement
@@ -127,12 +173,14 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
     }))
     setPhotos(prev => [...prev.filter(p => !deletedIds.has(p.id)), ...newPhotos])
     setSlottedKey(k => k + 1)
+    setUploading(false)
+    setStatus('')
     const classified = Object.keys(finalMap).length
     const unclassified = uploadedPhotos.length - classified
     if (unclassified === 0) {
-      toast.success(`${uploadedPhotos.length} photo${uploadedPhotos.length > 1 ? 's' : ''} uploaded and sorted by AI.`)
+      toast.success(`${uploadedPhotos.length} photo${uploadedPhotos.length > 1 ? 's' : ''} uploaded and sorted by AI.`, { id: toastId })
     } else {
-      toast.success(`${uploadedPhotos.length} uploaded — ${classified} sorted by AI, ${unclassified} couldn't be identified and need placement.`)
+      toast.success(`${uploadedPhotos.length} uploaded — ${classified} sorted by AI, ${unclassified} need placement.`, { id: toastId })
     }
   }
 
@@ -155,15 +203,25 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
         />
         <button
           type="button"
+          disabled={uploading}
           onClick={() => bulkInputRef.current?.click()}
-          className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#e7e5e4] bg-[#faf9f6] py-3 text-sm text-[#78716c] hover:border-blue-400 hover:text-blue-600 transition-colors"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#e7e5e4] bg-[#faf9f6] py-3 text-sm text-[#78716c] hover:border-blue-400 hover:text-blue-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:border-[#e7e5e4] disabled:hover:text-[#78716c]"
         >
-          <Upload className="h-4 w-4" />
-          Upload all photos at once
-          <Sparkles className="h-3.5 w-3.5 text-blue-400" />
+          {uploading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {status || 'Working…'}
+            </>
+          ) : (
+            <>
+              <Upload className="h-4 w-4" />
+              Upload all photos at once
+              <Sparkles className="h-3.5 w-3.5 text-blue-400" />
+            </>
+          )}
         </button>
         <p className="mt-1.5 text-center text-xs text-[#a8a29e]">
-          Select multiple files — AI will classify them into the right slots automatically.
+          {uploading ? 'AI is analyzing your photos — hang tight, this takes about 30 seconds.' : 'Select multiple files — AI will classify them into the right slots automatically.'}
         </p>
       </div>
 

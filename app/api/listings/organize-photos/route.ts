@@ -112,22 +112,26 @@ Example:
   {"id":"def-456","reasoning":"Full-width dashboard in frame, shot from driver seat looking at instrument panel","slot_type":"dashboard","confidence":0.91}
 ]`
 
-export const maxDuration = 60
+export const maxDuration = 120
 
 interface PhotoInput {
   id: string
-  url: string
+  base64: string
+  mediaType?: 'image/jpeg' | 'image/png' | 'image/webp'
 }
 
 type Assignment = { id: string; slot_type: string; confidence: number }
 
-const BATCH_SIZE = 8
+const BATCH_SIZE = 6
 
 async function classifyBatch(batch: PhotoInput[]): Promise<Assignment[]> {
   const content: Anthropic.MessageCreateParams['messages'][0]['content'] = []
 
   for (const photo of batch) {
-    content.push({ type: 'image' as const, source: { type: 'url' as const, url: photo.url } })
+    content.push({
+      type: 'image' as const,
+      source: { type: 'base64' as const, media_type: photo.mediaType ?? 'image/jpeg', data: photo.base64 },
+    })
     content.push({ type: 'text' as const, text: `Photo ID: ${photo.id}` })
   }
 
@@ -144,8 +148,15 @@ async function classifyBatch(batch: PhotoInput[]): Promise<Assignment[]> {
     .map(block => block.text)
     .join('')
 
-  const jsonText = responseText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim()
-  console.log('[organize-photos] raw response:', jsonText.slice(0, 500))
+  console.log('[organize-photos] raw response:', responseText.slice(0, 800))
+
+  // Extract JSON array from anywhere in the response — handles markdown fences and preamble text
+  const start = responseText.indexOf('[')
+  const end = responseText.lastIndexOf(']')
+  if (start === -1 || end === -1 || end < start) {
+    throw new Error(`No JSON array found in response. Response was: ${responseText.slice(0, 200)}`)
+  }
+  const jsonText = responseText.slice(start, end + 1)
   const parsed = JSON.parse(jsonText) as { id: string; slot_type: string; confidence?: number }[]
 
   return parsed.map(item => ({
@@ -161,30 +172,43 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const photos = body.photos as PhotoInput[]
+    console.log(`[organize-photos] received ${photos?.length ?? 0} photos, first has base64: ${!!(photos?.[0]?.base64)}`)
 
     if (!photos || !Array.isArray(photos) || photos.length === 0) {
       return NextResponse.json({ error: 'No photos provided' }, { status: 400 })
     }
 
-    // Process in batches of BATCH_SIZE for better accuracy
     const batches: PhotoInput[][] = []
     for (let i = 0; i < photos.length; i += BATCH_SIZE) {
       batches.push(photos.slice(i, i + BATCH_SIZE))
     }
 
+    console.log(`[organize-photos] ${photos.length} photos → ${batches.length} batches`)
+
+    // Run all batches in parallel for speed
+    const batchResults = await Promise.allSettled(
+      batches.map((batch, i) =>
+        classifyBatch(batch).then(results => {
+          console.log(`[organize-photos] batch ${i + 1}/${batches.length}: ${results.length} classified`)
+          return results
+        })
+      )
+    )
+
     const allAssignments: Assignment[] = []
-    for (let i = 0; i < batches.length; i++) {
-      try {
-        const batchResults = await classifyBatch(batches[i])
-        console.log(`[organize-photos] batch ${i + 1}/${batches.length}: ${batchResults.length} classified`)
-        allAssignments.push(...batchResults)
-      } catch (err) {
-        console.error(`[organize-photos] batch ${i + 1}/${batches.length} failed:`, err)
+    const errors: string[] = []
+    for (const result of batchResults) {
+      if (result.status === 'fulfilled') {
+        allAssignments.push(...result.value)
+      } else {
+        const msg = result.reason instanceof Error ? result.reason.message : String(result.reason)
+        console.error('[organize-photos] batch failed:', msg)
+        errors.push(msg)
       }
     }
 
     console.log(`[organize-photos] total: ${allAssignments.length} assignments for ${photos.length} photos`)
-    return NextResponse.json({ assignments: allAssignments })
+    return NextResponse.json({ assignments: allAssignments, errors: errors.length ? errors : undefined })
   } catch (error) {
     console.error('Photo organization error:', error)
     return NextResponse.json({ error: 'Failed to organize photos' }, { status: 500 })
