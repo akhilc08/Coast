@@ -112,6 +112,8 @@ Example:
   {"id":"def-456","reasoning":"Full-width dashboard in frame, shot from driver seat looking at instrument panel","slot_type":"dashboard","confidence":0.91}
 ]`
 
+export const maxDuration = 60
+
 interface PhotoInput {
   id: string
   url: string
@@ -121,23 +123,11 @@ type Assignment = { id: string; slot_type: string; confidence: number }
 
 const BATCH_SIZE = 8
 
-async function fetchImageAsBase64(url: string): Promise<{ data: string; mediaType: 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif' }> {
-  const res = await fetch(url)
-  if (!res.ok) throw new Error(`Failed to fetch image: ${res.status}`)
-  const buffer = await res.arrayBuffer()
-  const contentType = res.headers.get('content-type') ?? 'image/jpeg'
-  const mediaType = (['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(contentType)
-    ? contentType
-    : 'image/jpeg') as 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif'
-  return { data: Buffer.from(buffer).toString('base64'), mediaType }
-}
-
 async function classifyBatch(batch: PhotoInput[]): Promise<Assignment[]> {
   const content: Anthropic.MessageCreateParams['messages'][0]['content'] = []
 
   for (const photo of batch) {
-    const { data, mediaType } = await fetchImageAsBase64(photo.url)
-    content.push({ type: 'image' as const, source: { type: 'base64' as const, media_type: mediaType, data } })
+    content.push({ type: 'image' as const, source: { type: 'url' as const, url: photo.url } })
     content.push({ type: 'text' as const, text: `Photo ID: ${photo.id}` })
   }
 
