@@ -5,6 +5,7 @@ import { getListings } from '@/lib/queries/listings'
 import { getSellerStatsBulk } from '@/lib/queries/reviews'
 import { HeroSearch } from '@/components/storefront/HeroSearch'
 import { ListingCard } from '@/components/storefront/ListingCard'
+import { PHOTO_SLOT_ORDER } from '@/lib/photo-slots'
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -23,7 +24,7 @@ export default async function HomePage() {
 
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section
-        className="relative overflow-hidden px-4 sm:px-8 pb-20 pt-16 text-center"
+        className="relative overflow-hidden px-4 sm:px-8 pb-20 pt-16 text-center select-none"
         style={{ background: 'linear-gradient(160deg, #eff6ff 0%, #dbeafe 40%, #fff 100%)' }}
       >
         {/* Radial overlays */}
@@ -126,7 +127,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── HOW IT WORKS ─────────────────────────────────────── */}
-      <section id="how-it-works" className="bg-[#0f172a] px-8 py-[72px] text-center">
+      <section id="how-it-works" className="bg-[#0f172a] px-8 py-[72px] text-center select-none">
         <p className="mb-3 text-[12px] font-semibold uppercase tracking-[2px] text-[#3b82f6]">Simple process</p>
         <h2 className="mb-4 text-[40px] font-extrabold tracking-[-1.5px] text-white">From search to lot in days.</h2>
         <p className="mx-auto mb-14 max-w-[420px] text-[16px] leading-[1.6] text-[#94a3b8]">
@@ -162,7 +163,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── TRUST / WHY COAST ────────────────────────────────── */}
-      <section className="bg-[#f8fafc] px-8 py-16">
+      <section className="bg-[#f8fafc] px-8 py-16 select-none">
         <h2 className="mb-12 text-center text-[32px] font-extrabold tracking-[-1px] text-[#0f172a]">
           Why consumers choose Coast
         </h2>
