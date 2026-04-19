@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Camera, X, Loader2 } from 'lucide-react'
+import { Camera, X, Loader2, Plus } from 'lucide-react'
 import { PHOTO_SECTIONS, PHOTO_SLOT_ORDER } from '@/lib/photo-slots'
 import { buildStorageKey, getPhotoPublicUrl } from '@/lib/storage'
 import { createClient } from '@/lib/supabase/browser'
@@ -26,14 +26,17 @@ interface SlottedPhotoUploadProps {
   initialPhotos: InitialPhoto[]
 }
 
+let tempIdCounter = 0
+
 export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const damageInputRef = useRef<HTMLInputElement>(null)
   const pendingSlotRef = useRef<string | null>(null)
 
   const [slotPhotos, setSlotPhotos] = useState<Record<string, SlottedPhoto>>(() => {
     const map: Record<string, SlottedPhoto> = {}
     for (const p of initialPhotos) {
-      if (p.slot_type) {
+      if (p.slot_type && p.slot_type !== 'damage') {
         map[p.slot_type] = {
           id: p.id,
           storageKey: p.storage_key,
@@ -42,6 +45,13 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
       }
     }
     return map
+  })
+
+  const [damagePhotos, setDamagePhotos] = useState<SlottedPhoto[]>(() => {
+    const seen = new Set<string>()
+    return initialPhotos
+      .filter(p => p.slot_type === 'damage' && !seen.has(p.id) && seen.add(p.id))
+      .map(p => ({ id: p.id, storageKey: p.storage_key, url: getPhotoPublicUrl(p.storage_key) }))
   })
 
   const [dragOver, setDragOver] = useState<string | null>(null)
@@ -100,12 +110,53 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
     }
   }
 
+  async function uploadDamagePhoto(file: File) {
+    if (!file.type.startsWith('image/')) {
+      toast.error('Only image files are supported')
+      return
+    }
+
+    const storageKey = buildStorageKey(listingId, file.name)
+    const preview = URL.createObjectURL(file)
+    const tempId = `uploading-${++tempIdCounter}`
+
+    setDamagePhotos(prev => [...prev, { id: tempId, storageKey, url: preview, uploading: true }])
+
+    const supabase = createClient()
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('car-photos')
+        .upload(storageKey, file, { contentType: file.type, cacheControl: '3600', upsert: false })
+      if (uploadError) throw uploadError
+
+      const { data: row, error: dbError } = await supabase
+        .from('listing_photos')
+        .insert({ listing_id: listingId, storage_key: storageKey, position: 0, slot_type: 'damage' })
+        .select('id')
+        .single()
+      if (dbError) throw dbError
+
+      setDamagePhotos(prev =>
+        prev.map(p => p.id === tempId ? { id: row.id, storageKey, url: getPhotoPublicUrl(storageKey) } : p)
+      )
+    } catch {
+      toast.error('Failed to upload damage photo')
+      setDamagePhotos(prev => prev.filter(p => p.id !== tempId))
+    }
+  }
+
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     const slotId = pendingSlotRef.current
     if (!file || !slotId) return
     e.target.value = ''
     await uploadFileToSlot(file, slotId)
+  }
+
+  async function handleDamageFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? [])
+    e.target.value = ''
+    await Promise.allSettled(files.map(uploadDamagePhoto))
   }
 
   function handleDragOver(e: React.DragEvent, slotId: string) {
@@ -148,7 +199,19 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
     }
   }
 
-  const uploadedCount = Object.keys(slotPhotos).length
+  async function handleDeleteDamage(id: string, storageKey: string, e: React.MouseEvent) {
+    e.stopPropagation()
+    const supabase = createClient()
+    try {
+      await supabase.storage.from('car-photos').remove([storageKey])
+      await supabase.from('listing_photos').delete().eq('id', id)
+      setDamagePhotos(prev => prev.filter(p => p.id !== id))
+    } catch {
+      toast.error('Failed to delete photo')
+    }
+  }
+
+  const uploadedCount = Object.keys(slotPhotos).length + damagePhotos.length
 
   return (
     <div className="space-y-8">
@@ -159,34 +222,86 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
         className="hidden"
         onChange={handleFileChange}
       />
+      <input
+        ref={damageInputRef}
+        type="file"
+        multiple
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={handleDamageFileChange}
+      />
 
       {PHOTO_SECTIONS.map(section => {
-        const orderedSlots = [...section.slots].sort(
-          (a, b) => (PHOTO_SLOT_ORDER[a.id] ?? 999) - (PHOTO_SLOT_ORDER[b.id] ?? 999)
-        )
+        const orderedSlots = [...section.slots]
+          .filter(s => s.id !== 'damage')
+          .sort((a, b) => (PHOTO_SLOT_ORDER[a.id] ?? 999) - (PHOTO_SLOT_ORDER[b.id] ?? 999))
+
+        const hasDamage = section.slots.some(s => s.id === 'damage')
+
         return (
-        <div key={section.id}>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#a8a29e]">
-            {section.title}
-          </h3>
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-            {orderedSlots.map(slot => {
-              const photo = slotPhotos[slot.id]
-              const isOver = dragOver === slot.id
-              return (
-                <div key={slot.id} className="group">
-                  {photo ? (
-                    <div
-                      className="relative aspect-[4/3] overflow-hidden rounded-lg"
-                      onDragOver={(e) => handleDragOver(e, slot.id)}
-                      onDragLeave={handleDragLeave}
-                      onDrop={(e) => handleDrop(e, slot.id)}
-                    >
-                      <img
-                        src={photo.url}
-                        alt={slot.label}
-                        className="h-full w-full object-cover"
-                      />
+          <div key={section.id}>
+            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#a8a29e]">
+              {section.title}
+            </h3>
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {orderedSlots.map(slot => {
+                const photo = slotPhotos[slot.id]
+                const isOver = dragOver === slot.id
+                return (
+                  <div key={slot.id} className="group">
+                    {photo ? (
+                      <div
+                        className="relative aspect-[4/3] overflow-hidden rounded-lg"
+                        onDragOver={(e) => handleDragOver(e, slot.id)}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, slot.id)}
+                      >
+                        <img src={photo.url} alt={slot.label} className="h-full w-full object-cover" />
+                        {photo.uploading ? (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                            <Loader2 className="h-4 w-4 animate-spin text-white" />
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={(e) => handleDelete(slot.id, e)}
+                            className="absolute right-1 top-1 rounded-full bg-black/70 p-0.5 opacity-100"
+                            aria-label={`Remove ${slot.label}`}
+                          >
+                            <X className="h-3 w-3 text-white" />
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleSlotClick(slot.id)}
+                        onDragOver={(e) => handleDragOver(e, slot.id)}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, slot.id)}
+                        className={`flex aspect-[4/3] w-full flex-col items-center justify-center rounded-lg border border-dashed transition-colors ${
+                          isOver
+                            ? 'border-blue-400 bg-blue-50 text-blue-500'
+                            : 'border-[#e7e5e4] bg-[#faf9f6] text-[#a8a29e] hover:border-[#a8a29e] hover:text-[#78716c]'
+                        }`}
+                      >
+                        <Camera className="h-4 w-4" />
+                      </button>
+                    )}
+                    <p className="mt-1 truncate text-center text-[10px] text-[#a8a29e]">{slot.label}</p>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Damage multi-photo zone */}
+            {hasDamage && (
+              <div className="mt-4">
+                <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#a8a29e]">Damage Photos</p>
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                  {damagePhotos.map(photo => (
+                    <div key={photo.id} className="group relative aspect-[4/3] overflow-hidden rounded-lg">
+                      <img src={photo.url} alt="Damage" className="h-full w-full object-cover" />
                       {photo.uploading ? (
                         <div className="absolute inset-0 flex items-center justify-center bg-black/50">
                           <Loader2 className="h-4 w-4 animate-spin text-white" />
@@ -194,36 +309,27 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
                       ) : (
                         <button
                           type="button"
-                          onClick={(e) => handleDelete(slot.id, e)}
-                          className="absolute right-1 top-1 rounded-full bg-black/70 p-0.5 opacity-100"
-                          aria-label={`Remove ${slot.label}`}
+                          onClick={(e) => handleDeleteDamage(photo.id, photo.storageKey, e)}
+                          className="absolute right-1 top-1 rounded-full bg-black/70 p-0.5"
+                          aria-label="Remove damage photo"
                         >
                           <X className="h-3 w-3 text-white" />
                         </button>
                       )}
                     </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => handleSlotClick(slot.id)}
-                      onDragOver={(e) => handleDragOver(e, slot.id)}
-                      onDragLeave={handleDragLeave}
-                      onDrop={(e) => handleDrop(e, slot.id)}
-                      className={`flex aspect-[4/3] w-full flex-col items-center justify-center rounded-lg border border-dashed transition-colors ${
-                        isOver
-                          ? 'border-blue-400 bg-blue-50 text-blue-500'
-                          : 'border-[#e7e5e4] bg-[#faf9f6] text-[#a8a29e] hover:border-[#a8a29e] hover:text-[#78716c]'
-                      }`}
-                    >
-                      <Camera className="h-4 w-4" />
-                    </button>
-                  )}
-                  <p className="mt-1 truncate text-center text-[10px] text-[#a8a29e]">{slot.label}</p>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => damageInputRef.current?.click()}
+                    className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-[#e7e5e4] bg-[#faf9f6] text-[#a8a29e] hover:border-[#a8a29e] hover:text-[#78716c] transition-colors"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span className="text-[9px]">Add damage</span>
+                  </button>
                 </div>
-              )
-            })}
+              </div>
+            )}
           </div>
-        </div>
         )
       })}
 

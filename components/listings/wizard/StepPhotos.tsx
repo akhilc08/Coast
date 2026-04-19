@@ -171,7 +171,11 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
       position: 0,
       slot_type: finalMap[p.id] ?? null,
     }))
-    setPhotos(prev => [...prev.filter(p => !deletedIds.has(p.id)), ...newPhotos])
+    setPhotos(prev => {
+      const merged = [...prev.filter(p => !deletedIds.has(p.id)), ...newPhotos]
+      const seen = new Set<string>()
+      return merged.filter(p => !seen.has(p.id) && seen.add(p.id))
+    })
     setSlottedKey(k => k + 1)
     setUploading(false)
     setStatus('')
