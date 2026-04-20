@@ -88,15 +88,12 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
     const results = await Promise.allSettled(
       filesToUpload.map(async (file) => {
         // Convert HEIC if needed first, then build storage key from normalized name
-        const normalized = await normalizeFile(file).catch(err => {
-          console.error('[upload] HEIC conversion failed:', err)
-          throw err
-        })
+        const normalized = await normalizeFile(file)
         const storageKey = buildStorageKey(listingId, normalized.name)
 
-        // Resize for classification and upload in parallel
-        const [base64, uploadResult] = await Promise.all([
-          resizeToBase64(normalized),
+        // Resize for AI classification — may fail for unconvertible HEIC; upload still proceeds
+        const [base64Result, uploadResult] = await Promise.all([
+          resizeToBase64(normalized).then(b => b).catch(() => null),
           supabase.storage
             .from('car-photos')
             .upload(storageKey, normalized, { contentType: normalized.type, cacheControl: '3600', upsert: false }),
@@ -106,6 +103,8 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
           console.error('[upload] storage error:', uploadResult.error)
           throw uploadResult.error
         }
+
+        const base64 = base64Result
 
         const { data: row, error: dbError } = await supabase
           .from('listing_photos')
@@ -122,7 +121,7 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
       })
     )
 
-    const succeeded = results.filter(r => r.status === 'fulfilled') as PromiseFulfilledResult<{ id: string; url: string; base64: string }>[]
+    const succeeded = results.filter(r => r.status === 'fulfilled') as PromiseFulfilledResult<{ id: string; url: string; base64: string | null }>[]
     const failedResults = results.filter(r => r.status === 'rejected') as PromiseRejectedResult[]
     failedResults.forEach((r, i) => console.error(`[upload] file ${i} failed:`, r.reason))
 
@@ -139,7 +138,8 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
     const aiAssignments: Assignment[] = []
     try {
       for (let i = 0; i < uploadedPhotos.length; i += CLASSIFY_BATCH) {
-        const chunk = uploadedPhotos.slice(i, i + CLASSIFY_BATCH)
+        const chunk = uploadedPhotos.slice(i, i + CLASSIFY_BATCH).filter(p => p.base64 !== null)
+        if (!chunk.length) continue
         const res = await fetch('/api/listings/organize-photos', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
