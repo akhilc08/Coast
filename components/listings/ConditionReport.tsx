@@ -104,12 +104,6 @@ export function ConditionReport({ exterior, interior, mechanical, tires }: Condi
                 : <Dash />
               }
             </Row>
-            <Row label="Scratches, Dings & Dents">
-              {exterior ? (exterior.scratches_dings_dents || <NoneNoted />) : <Dash />}
-            </Row>
-            <Row label="Bumper / Fender Damage">
-              {exterior ? (exterior.bumper_fender_damage || <NoneNoted />) : <Dash />}
-            </Row>
           </div>
 
           <div className="border-t border-[#e7e5e4] bg-[#fafaf9] px-5 py-3">

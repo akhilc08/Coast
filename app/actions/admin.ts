@@ -295,6 +295,7 @@ export async function adminUpdateListingAction(
     condition_notes?: string
     pickup_zip?: string
     overall_grade?: string
+    seller_description?: string
   }
 ): Promise<{ success: true } | { error: string }> {
   try {

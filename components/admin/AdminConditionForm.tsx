@@ -118,13 +118,7 @@ export function AdminConditionForm({ listingId, initial }: AdminConditionFormPro
           <Field label="Body Defects">
             <StringList items={ext.body_defects} onChange={v => setExt(p => ({ ...p, body_defects: v }))} placeholder="e.g. Dent on quarter panel" />
           </Field>
-          <Field label="Scratches, Dings & Dents">
-            <TextArea value={ext.scratches_dings_dents} onChange={v => setExt(p => ({ ...p, scratches_dings_dents: v }))} placeholder="Describe…" />
-          </Field>
-          <Field label="Bumper / Fender Damage">
-            <TextArea value={ext.bumper_fender_damage} onChange={v => setExt(p => ({ ...p, bumper_fender_damage: v }))} placeholder="Describe…" />
-          </Field>
-          <Field label="Rust Areas">
+<Field label="Rust Areas">
             <StringList items={ext.rust_areas} onChange={v => setExt(p => ({ ...p, rust_areas: v }))} placeholder="e.g. Rear wheel arch" />
           </Field>
           <Field label="Glass Damage">

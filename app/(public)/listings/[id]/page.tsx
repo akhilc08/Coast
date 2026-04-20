@@ -217,6 +217,18 @@ export default async function ListingDetailPage({
 
             </div>
 
+            {/* Vehicle Description */}
+            {listing.seller_description && (
+              <div className="bg-white rounded-2xl border border-[#e7e5e4] px-4 sm:px-8 py-5 sm:py-7">
+                <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-[#a8a29e]">
+                  Vehicle Description
+                </h2>
+                <p className="text-sm leading-relaxed text-[#1c1917] whitespace-pre-line">
+                  {listing.seller_description}
+                </p>
+              </div>
+            )}
+
             {/* Seller Information */}
             {listing.seller_id && (
               <Link

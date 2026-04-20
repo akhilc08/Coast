@@ -15,7 +15,8 @@ export const detailsStepSchema = z.object({
   mileage:         z.number().int().min(0, 'Mileage cannot be negative'),
   price_cents:     z.number().int().positive('Price must be greater than zero'),
   color:           z.string().optional(),
-  condition_notes: z.string().optional(),
+  condition_notes:      z.string().optional(),
+  seller_description:   z.string().optional(),
   pickup_zip:      z.string().regex(/^\d{5}$/, 'Enter a 5-digit ZIP code'),
 })
 
