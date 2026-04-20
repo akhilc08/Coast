@@ -11,22 +11,21 @@ interface ListingCardProps {
   year: number | null
   mileage: number | null
   price_cents: number | null
-  grade: string | null
+  overall_grade: string | null
   heroStorageKey: string | null
   supabaseUrl: string
 }
 
 function gradeBadgeStyle(grade: string | null) {
-  switch (grade?.toUpperCase()) {
-    case 'A': return 'bg-[#dcfce7] text-[#15803d]'
-    case 'B': return 'bg-[#fef9c3] text-[#a16207]'
-    case 'C': return 'bg-[#fee2e2] text-[#b91c1c]'
-    default:  return 'bg-[#f1f5f9] text-[#64748b]'
-  }
+  if (!grade) return 'bg-[#f1f5f9] text-[#64748b]'
+  if (grade.startsWith('A')) return 'bg-[#dcfce7] text-[#15803d]'
+  if (grade.startsWith('B')) return 'bg-[#dbeafe] text-[#1d4ed8]'
+  if (grade.startsWith('C')) return 'bg-[#fef9c3] text-[#a16207]'
+  return 'bg-[#fee2e2] text-[#b91c1c]'
 }
 
 export function ListingCard({
-  id, make, model, year, mileage, price_cents, grade, heroStorageKey, supabaseUrl
+  id, make, model, year, mileage, price_cents, overall_grade, heroStorageKey, supabaseUrl
 }: ListingCardProps) {
   const heroUrl = heroStorageKey
     ? `${supabaseUrl}/storage/v1/object/public/car-photos/${heroStorageKey}`
@@ -55,9 +54,9 @@ export function ListingCard({
           )}
 
           {/* Grade badge */}
-          {grade && (
-            <span className={`absolute left-[10px] top-[10px] rounded-[6px] px-[10px] py-[4px] text-[11px] font-bold tracking-[0.3px] ${gradeBadgeStyle(grade)}`}>
-              Grade {grade.toUpperCase()}
+          {overall_grade && (
+            <span className={`absolute left-[10px] top-[10px] rounded-[6px] px-[10px] py-[4px] text-[11px] font-bold tracking-[0.3px] ${gradeBadgeStyle(overall_grade)}`}>
+              Grade {overall_grade}
             </span>
           )}
 

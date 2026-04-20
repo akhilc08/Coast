@@ -102,7 +102,7 @@ export default async function HomePage() {
                 year={listing.year}
                 mileage={listing.mileage}
                 price_cents={listing.price_cents}
-                grade={listing.grade}
+                overall_grade={listing.overall_grade}
                 heroStorageKey={heroPhoto?.storage_key ?? null}
                 supabaseUrl={supabaseUrl}
               />

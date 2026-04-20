@@ -211,15 +211,7 @@ export default async function ListingDetailPage({
                   </span>
                 )}
                 {listing.overall_grade && (
-                  <span className={`rounded-full border px-4 py-1.5 text-sm font-semibold ${
-                    listing.overall_grade === 'excellent' ? 'border-green-200 bg-green-50 text-green-700' :
-                    listing.overall_grade === 'good'      ? 'border-blue-200 bg-blue-50 text-blue-700' :
-                    listing.overall_grade === 'fair'      ? 'border-yellow-200 bg-yellow-50 text-yellow-700' :
-                    listing.overall_grade === 'poor'      ? 'border-red-200 bg-red-50 text-red-600' :
-                    'border-red-300 bg-red-100 text-red-700'
-                  }`}>
-                    {conditionLabel(listing.overall_grade)} Condition
-                  </span>
+                  <GradeBadge grade={listing.overall_grade} />
                 )}
               </div>
 
@@ -450,8 +442,8 @@ export default async function ListingDetailPage({
               <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-[#a8a29e]">
                 Condition Grade
               </p>
-              <GradeBadge grade={listing.grade} />
-              {!listing.grade && (
+              <GradeBadge grade={listing.overall_grade} />
+              {!listing.overall_grade && (
                 <p className="mt-2 text-xs text-[#a8a29e]">Grade pending analysis.</p>
               )}
             </div>

@@ -69,7 +69,7 @@ export default async function AdminListingsPage({
   const supabase = createAdminClient()
   let query = supabase
     .from('listings')
-    .select('id, vin, make, model, year, price_cents, status, grade, created_at, profiles!seller_id(company)')
+    .select('id, vin, make, model, year, price_cents, status, overall_grade, created_at, profiles!seller_id(company)')
     .order('created_at', { ascending: false })
 
   if (status !== 'all') {
@@ -159,7 +159,7 @@ export default async function AdminListingsPage({
                   </td>
                   <td className="px-4 py-3 text-[#1c1917]">{formatPrice(listing.price_cents)}</td>
                   <td className="px-4 py-3">
-                    <GradeBadge grade={listing.grade} />
+                    <GradeBadge grade={(listing as Record<string, unknown>).overall_grade as string ?? null} />
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={listing.status} />

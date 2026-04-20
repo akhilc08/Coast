@@ -10,7 +10,7 @@ interface Listing {
   year: number | null
   mileage: number | null
   price_cents: number | null
-  grade: string | null
+  overall_grade: string | null
   listing_photos: { storage_key: string; position: number; slot_type?: string | null }[]
 }
 
@@ -32,13 +32,13 @@ export function ListingGrid({ listings, supabaseUrl, sellerStatsMap }: ListingGr
   return (
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {listings.map(listing => {
-        const heroPhoto = listing.listing_photos
-          ?.slice()
-          .sort((a, b) => {
-            const ai = a.slot_type != null ? (PHOTO_SLOT_ORDER[a.slot_type] ?? 999) : a.position
-            const bi = b.slot_type != null ? (PHOTO_SLOT_ORDER[b.slot_type] ?? 999) : b.position
-            return ai - bi
-          })[0]
+        const photos = listing.listing_photos ?? []
+        const preferred = photos.find(p => p.slot_type === 'front_left_corner')
+        const heroPhoto = preferred ?? photos.slice().sort((a, b) => {
+          const ai = a.slot_type != null ? (PHOTO_SLOT_ORDER[a.slot_type] ?? 999) : a.position
+          const bi = b.slot_type != null ? (PHOTO_SLOT_ORDER[b.slot_type] ?? 999) : b.position
+          return ai - bi
+        })[0]
 
         return (
           <ListingCard
@@ -51,7 +51,7 @@ export function ListingGrid({ listings, supabaseUrl, sellerStatsMap }: ListingGr
             year={listing.year}
             mileage={listing.mileage}
             price_cents={listing.price_cents}
-            grade={listing.grade}
+            overall_grade={listing.overall_grade}
             heroStorageKey={heroPhoto?.storage_key ?? null}
             supabaseUrl={supabaseUrl}
           />
