@@ -112,12 +112,16 @@ export function AdminListingEditForm({ listingId, initialData }: AdminListingEdi
 
       <div>
         <label className={labelClass}>Grade</label>
-        <input
+        <select
           className={inputClass}
-          placeholder="e.g. 3.5, 4.2"
           value={fields.overall_grade}
           onChange={e => setFields(f => ({ ...f, overall_grade: e.target.value }))}
-        />
+        >
+          <option value="">— Not set —</option>
+          {['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'].map(g => (
+            <option key={g} value={g}>{g}</option>
+          ))}
+        </select>
       </div>
 
       <div>
