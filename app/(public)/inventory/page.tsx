@@ -57,7 +57,29 @@ export default async function StorefrontPage({
         .select('make')
         .eq('status', 'active')
         .not('make', 'is', null)
-      return [...new Set((data ?? []).map(r => r.make as string))].sort()
+      const MAKE_DISPLAY: Record<string, string> = {
+        'acura': 'Acura', 'alfa romeo': 'Alfa Romeo', 'aston martin': 'Aston Martin',
+        'audi': 'Audi', 'bentley': 'Bentley', 'bmw': 'BMW', 'buick': 'Buick',
+        'cadillac': 'Cadillac', 'chevrolet': 'Chevrolet', 'chevy': 'Chevrolet',
+        'chrysler': 'Chrysler', 'dodge': 'Dodge', 'ferrari': 'Ferrari', 'fiat': 'Fiat',
+        'ford': 'Ford', 'genesis': 'Genesis', 'gmc': 'GMC', 'honda': 'Honda',
+        'hyundai': 'Hyundai', 'infiniti': 'Infiniti', 'jaguar': 'Jaguar', 'jeep': 'Jeep',
+        'kia': 'Kia', 'lamborghini': 'Lamborghini', 'land rover': 'Land Rover',
+        'lexus': 'Lexus', 'lincoln': 'Lincoln', 'maserati': 'Maserati', 'mazda': 'Mazda',
+        'mclaren': 'McLaren', 'mercedes': 'Mercedes-Benz', 'mercedes-benz': 'Mercedes-Benz',
+        'mini': 'MINI', 'mitsubishi': 'Mitsubishi', 'nissan': 'Nissan', 'porsche': 'Porsche',
+        'ram': 'Ram', 'rolls-royce': 'Rolls-Royce', 'rolls royce': 'Rolls-Royce',
+        'subaru': 'Subaru', 'tesla': 'Tesla', 'toyota': 'Toyota', 'volkswagen': 'Volkswagen',
+        'vw': 'Volkswagen', 'volvo': 'Volvo',
+      }
+      const seen = new Map<string, string>()
+      for (const r of data ?? []) {
+        const raw = (r.make as string).trim()
+        const key = raw.toLowerCase()
+        const display = MAKE_DISPLAY[key] ?? raw.split(/[\s-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+        if (!seen.has(key)) seen.set(key, display)
+      }
+      return [...seen.values()].sort((a, b) => a.localeCompare(b))
     })(),
   ])
 
