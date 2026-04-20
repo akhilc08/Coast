@@ -81,10 +81,14 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
 
     const results = await Promise.allSettled(
       filesToUpload.map(async (file) => {
-        const storageKey = buildStorageKey(listingId, file.name)
+        // Convert HEIC if needed first, then build storage key from normalized name
+        const normalized = await normalizeFile(file).catch(err => {
+          console.error('[upload] HEIC conversion failed:', err)
+          throw err
+        })
+        const storageKey = buildStorageKey(listingId, normalized.name)
 
-        // Convert HEIC if needed, then resize for classification and upload in parallel
-        const normalized = await normalizeFile(file)
+        // Resize for classification and upload in parallel
         const [base64, uploadResult] = await Promise.all([
           resizeToBase64(normalized),
           supabase.storage
@@ -92,7 +96,10 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
             .upload(storageKey, normalized, { contentType: normalized.type, cacheControl: '3600', upsert: false }),
         ])
 
-        if (uploadResult.error) throw uploadResult.error
+        if (uploadResult.error) {
+          console.error('[upload] storage error:', uploadResult.error)
+          throw uploadResult.error
+        }
 
         const { data: row, error: dbError } = await supabase
           .from('listing_photos')
@@ -110,9 +117,10 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
     )
 
     const succeeded = results.filter(r => r.status === 'fulfilled') as PromiseFulfilledResult<{ id: string; url: string; base64: string }>[]
-    const failed = results.filter(r => r.status === 'rejected').length
+    const failedResults = results.filter(r => r.status === 'rejected') as PromiseRejectedResult[]
+    failedResults.forEach((r, i) => console.error(`[upload] file ${i} failed:`, r.reason))
 
-    if (failed > 0) toast.error(`${failed} photo${failed > 1 ? 's' : ''} failed to upload.`)
+    if (failedResults.length > 0) toast.error(`${failedResults.length} photo${failedResults.length > 1 ? 's' : ''} failed to upload.`)
     if (!succeeded.length) return
 
     const uploadedPhotos = succeeded.map(r => r.value)
