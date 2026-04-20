@@ -6,7 +6,8 @@ import { AdminConditionForm } from '@/components/admin/AdminConditionForm'
 import { AdminApproveButton } from '@/components/admin/AdminApproveButton'
 import { ApproveListingButton } from '@/components/admin/ApproveListingButton'
 import { AdminListingEditForm } from '@/components/admin/AdminListingEditForm'
-import type { AiConditionData } from '@/lib/types/condition'
+import type { AiConditionData, ConditionRating } from '@/lib/types/condition'
+import { ratingLabel } from '@/lib/types/condition'
 
 function formatPrice(cents: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(cents / 100)
@@ -40,6 +41,23 @@ export default async function AdminListingDetailPage({ params }: { params: Promi
   }
 
   const canApprove = listing.status === 'pending_inspection'
+
+  const ratingOrder: ConditionRating[] = ['excellent', 'good', 'average', 'bad']
+  const sectionRatings = [
+    (listing as Record<string, unknown>).ai_condition_exterior,
+    (listing as Record<string, unknown>).ai_condition_interior,
+    (listing as Record<string, unknown>).ai_condition_mechanical,
+    (listing as Record<string, unknown>).ai_condition_tires,
+  ]
+    .filter(Boolean)
+    .map((s) => (s as { rating: ConditionRating }).rating)
+  const worstRating = sectionRatings.length > 0
+    ? sectionRatings.sort((a, b) => ratingOrder.indexOf(b) - ratingOrder.indexOf(a))[0]
+    : null
+
+  const LEGACY_GRADES = new Set(['fair', 'good', 'excellent', 'poor'])
+  const rawGrade = (listing as Record<string, unknown>).overall_grade as string | null | undefined
+  const letterGrade = rawGrade && !LEGACY_GRADES.has(rawGrade) ? rawGrade : null
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const photos = ((listing as Record<string, unknown>).listing_photos as { id: string; storage_key: string; position: number; slot_type: string | null }[] ?? [])
@@ -127,7 +145,8 @@ export default async function AdminListingDetailPage({ params }: { params: Promi
             ['Seller Tier', sellerTier ?? '—'],
             ['Price', formatPrice(listing.price_cents)],
             ['Status', statusLabel[listing.status] ?? listing.status],
-            ['Grade', (listing as Record<string, unknown>).overall_grade as string ?? 'Not set'],
+            ['Grade', letterGrade ?? 'Not set'],
+            ['Condition', worstRating ? ratingLabel(worstRating) : 'Not set'],
             ['Inspection Report', listing.condition_locked ? 'Locked' : 'Not uploaded'],
           ].map(([label, value]) => (
             <div key={label} className="flex justify-between text-sm border-b border-[#f5f5f4] pb-3 last:border-0 last:pb-0">

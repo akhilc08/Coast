@@ -92,7 +92,6 @@ export async function adminSaveAiConditionAction(
       ai_condition_tires:      data.tires,
       condition_locked:        true,
       condition_pdf_key:       pdfStorageKey,
-      overall_grade:           overallGrade,
       updated_at:              new Date().toISOString(),
     })
     .eq('id', listingId)

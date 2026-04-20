@@ -84,8 +84,13 @@ export default async function HomePage() {
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {featured.map(listing => {
-            const heroPhoto = listing.listing_photos
-              ?.sort((a: { position: number }, b: { position: number }) => a.position - b.position)[0]
+            const photos = listing.listing_photos ?? []
+            const preferred = photos.find((p: { slot_type: string | null }) => p.slot_type === 'front_left_corner')
+            const heroPhoto = preferred ?? photos.slice().sort((a: { slot_type: string | null; position: number }, b: { slot_type: string | null; position: number }) => {
+              const ai = a.slot_type != null ? (PHOTO_SLOT_ORDER[a.slot_type] ?? 999) : a.position
+              const bi = b.slot_type != null ? (PHOTO_SLOT_ORDER[b.slot_type] ?? 999) : b.position
+              return ai - bi
+            })[0]
             return (
               <ListingCard
                 key={listing.id}

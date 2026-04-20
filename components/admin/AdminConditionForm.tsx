@@ -38,7 +38,7 @@ function RatingSelect({ value, onChange }: { value: ConditionRating; onChange: (
   return (
     <select value={value} onChange={e => onChange(e.target.value as ConditionRating)}
       className="w-full rounded-lg border border-[#e7e5e4] bg-white px-3 py-2 text-sm text-[#1c1917] focus:outline-none focus:ring-2 focus:ring-blue-500">
-      {RATINGS.map(r => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
+      {RATINGS.map(r => <option key={r} value={r}>{r === 'average' ? 'Fair' : r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
     </select>
   )
 }

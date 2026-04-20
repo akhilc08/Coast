@@ -100,7 +100,7 @@ export function ratingLabel(r: ConditionRating | null | undefined): string {
   switch (r) {
     case 'excellent': return 'Excellent'
     case 'good':      return 'Good'
-    case 'average':   return 'Average'
+    case 'average':   return 'Fair'
     case 'bad':       return 'Bad'
     default:          return 'Not rated'
   }
