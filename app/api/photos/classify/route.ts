@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { createClient } from '@/lib/supabase/server'
 
 const anthropic = new Anthropic()
 
@@ -19,7 +20,7 @@ const VALID_SLOT_TYPES = [
 
 const SYSTEM_PROMPT = `You are an expert vehicle inspection photo classifier used by automotive wholesalers. Your job is to assign each photo to exactly one slot from a fixed taxonomy. Be precise — wrong classifications cause real workflow problems for inspectors.`
 
-const PROMPT_SUFFIX = `For EACH photo above (labeled with its Photo ID before the image), follow this two-step process:
+const CLASSIFICATION_PROMPT = `For EACH photo above (labeled with its Photo ID before the image), follow this two-step process:
 1. Briefly describe what you see: camera angle, distance, what fills the frame, and whether it is exterior/interior/mechanical.
 2. Based on that description, assign the single best slot_type from the list below.
 
@@ -112,34 +113,32 @@ Example:
   {"id":"def-456","reasoning":"Full-width dashboard in frame, shot from driver seat looking at instrument panel","slot_type":"dashboard","confidence":0.91}
 ]`
 
-export const maxDuration = 120
+export async function POST(req: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-interface PhotoInput {
-  id: string
-  base64: string
-  mediaType?: 'image/jpeg' | 'image/png' | 'image/webp'
-}
+  const { photos } = await req.json() as { photos: { id: string; url: string }[] }
 
-type Assignment = { id: string; slot_type: string; confidence: number }
-
-const BATCH_SIZE = 6
-
-async function classifyBatch(batch: PhotoInput[]): Promise<Assignment[]> {
-  const content: Anthropic.MessageCreateParams['messages'][0]['content'] = []
-
-  for (const photo of batch) {
-    content.push({ type: 'text' as const, text: `Photo ID: ${photo.id}` })
-    content.push({
-      type: 'image' as const,
-      source: { type: 'base64' as const, media_type: photo.mediaType ?? 'image/jpeg', data: photo.base64 },
-    })
+  if (!photos?.length) {
+    return NextResponse.json({ assignments: [] })
   }
 
-  content.push({ type: 'text' as const, text: PROMPT_SUFFIX })
+  const content: Anthropic.MessageParam['content'] = []
+
+  for (const photo of photos) {
+    content.push({ type: 'text', text: `Photo ID: ${photo.id}` })
+    content.push({
+      type: 'image',
+      source: { type: 'url', url: photo.url },
+    } as Anthropic.ImageBlockParam)
+  }
+
+  content.push({ type: 'text', text: CLASSIFICATION_PROMPT })
 
   const message = await anthropic.messages.create({
-    model: 'claude-opus-4-7',
-    max_tokens: 4096,
+    model: 'claude-sonnet-4-6',
+    max_tokens: 2048,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content }],
   })
@@ -149,69 +148,26 @@ async function classifyBatch(batch: PhotoInput[]): Promise<Assignment[]> {
     .map(block => block.text)
     .join('')
 
-  console.log('[organize-photos] raw response:', responseText.slice(0, 800))
-
-  // Extract JSON array from anywhere in the response — handles markdown fences and preamble text
   const start = responseText.indexOf('[')
   const end = responseText.lastIndexOf(']')
   if (start === -1 || end === -1 || end < start) {
-    throw new Error(`No JSON array found in response. Response was: ${responseText.slice(0, 200)}`)
+    return NextResponse.json({ error: 'Failed to parse classification' }, { status: 500 })
   }
-  const jsonText = responseText.slice(start, end + 1)
-  const parsed = JSON.parse(jsonText) as { id: string; slot_type: string; confidence?: number }[]
 
-  return parsed.map(item => ({
+  let parsed: { id: string; slot_type: string; confidence?: number }[] = []
+  try {
+    parsed = JSON.parse(responseText.slice(start, end + 1))
+  } catch {
+    return NextResponse.json({ error: 'Failed to parse classification' }, { status: 500 })
+  }
+
+  const assignments = parsed.map(item => ({
     id: item.id,
     slot_type: VALID_SLOT_TYPES.includes(item.slot_type as typeof VALID_SLOT_TYPES[number])
       ? item.slot_type
       : 'damage',
     confidence: typeof item.confidence === 'number' ? item.confidence : 0.5,
   }))
-}
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
-    const photos = body.photos as PhotoInput[]
-    console.log(`[organize-photos] received ${photos?.length ?? 0} photos, first has base64: ${!!(photos?.[0]?.base64)}`)
-
-    if (!photos || !Array.isArray(photos) || photos.length === 0) {
-      return NextResponse.json({ error: 'No photos provided' }, { status: 400 })
-    }
-
-    const batches: PhotoInput[][] = []
-    for (let i = 0; i < photos.length; i += BATCH_SIZE) {
-      batches.push(photos.slice(i, i + BATCH_SIZE))
-    }
-
-    console.log(`[organize-photos] ${photos.length} photos → ${batches.length} batches`)
-
-    // Run all batches in parallel for speed
-    const batchResults = await Promise.allSettled(
-      batches.map((batch, i) =>
-        classifyBatch(batch).then(results => {
-          console.log(`[organize-photos] batch ${i + 1}/${batches.length}: ${results.length} classified`)
-          return results
-        })
-      )
-    )
-
-    const allAssignments: Assignment[] = []
-    const errors: string[] = []
-    for (const result of batchResults) {
-      if (result.status === 'fulfilled') {
-        allAssignments.push(...result.value)
-      } else {
-        const msg = result.reason instanceof Error ? result.reason.message : String(result.reason)
-        console.error('[organize-photos] batch failed:', msg)
-        errors.push(msg)
-      }
-    }
-
-    console.log(`[organize-photos] total: ${allAssignments.length} assignments for ${photos.length} photos`)
-    return NextResponse.json({ assignments: allAssignments, errors: errors.length ? errors : undefined })
-  } catch (error) {
-    console.error('Photo organization error:', error)
-    return NextResponse.json({ error: 'Failed to organize photos' }, { status: 500 })
-  }
+  return NextResponse.json({ assignments })
 }
