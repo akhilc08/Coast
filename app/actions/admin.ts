@@ -295,6 +295,7 @@ export async function adminUpdateListingAction(
     color?: string
     condition_notes?: string
     pickup_zip?: string
+    overall_grade?: string
   }
 ): Promise<{ success: true } | { error: string }> {
   try {

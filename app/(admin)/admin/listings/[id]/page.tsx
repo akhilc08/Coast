@@ -112,6 +112,7 @@ export default async function AdminListingDetailPage({ params }: { params: Promi
                 color: listing.color ?? null,
                 condition_notes: listing.condition_notes ?? null,
                 pickup_zip: listing.pickup_zip ?? null,
+                overall_grade: (listing as Record<string, unknown>).overall_grade as string ?? null,
               }}
             />
           </div>

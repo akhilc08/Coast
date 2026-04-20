@@ -15,6 +15,7 @@ interface AdminListingEditFormProps {
     color: string | null
     condition_notes: string | null
     pickup_zip: string | null
+    overall_grade: string | null
   }
 }
 
@@ -33,6 +34,7 @@ export function AdminListingEditForm({ listingId, initialData }: AdminListingEdi
     color: initialData.color ?? '',
     condition_notes: initialData.condition_notes ?? '',
     pickup_zip: initialData.pickup_zip ?? '',
+    overall_grade: initialData.overall_grade ?? '',
   })
 
   async function handleSave() {
@@ -53,6 +55,7 @@ export function AdminListingEditForm({ listingId, initialData }: AdminListingEdi
       color: fields.color || undefined,
       condition_notes: fields.condition_notes || undefined,
       pickup_zip: fields.pickup_zip || undefined,
+      overall_grade: fields.overall_grade || undefined,
     })
 
     setSaving(false)
@@ -105,6 +108,16 @@ export function AdminListingEditForm({ listingId, initialData }: AdminListingEdi
       <div>
         <label className={labelClass}>Pickup ZIP</label>
         <input className={inputClass} maxLength={5} value={fields.pickup_zip} onChange={e => setFields(f => ({ ...f, pickup_zip: e.target.value }))} />
+      </div>
+
+      <div>
+        <label className={labelClass}>Grade</label>
+        <input
+          className={inputClass}
+          placeholder="e.g. 3.5, 4.2"
+          value={fields.overall_grade}
+          onChange={e => setFields(f => ({ ...f, overall_grade: e.target.value }))}
+        />
       </div>
 
       <div>
