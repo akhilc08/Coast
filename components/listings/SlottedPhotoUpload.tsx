@@ -2,6 +2,15 @@
 
 import { useState, useRef } from 'react'
 import { Camera, X, Loader2, Plus } from 'lucide-react'
+
+async function normalizeFile(file: File): Promise<File> {
+  if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
+    const heic2any = (await import('heic2any')).default
+    const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 }) as Blob
+    return new File([blob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), { type: 'image/jpeg' })
+  }
+  return file
+}
 import { PHOTO_SECTIONS, PHOTO_SLOT_ORDER } from '@/lib/photo-slots'
 import { buildStorageKey, getPhotoPublicUrl } from '@/lib/storage'
 import { createClient } from '@/lib/supabase/browser'
@@ -61,12 +70,13 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
     fileInputRef.current?.click()
   }
 
-  async function uploadFileToSlot(file: File, slotId: string) {
-    if (!file.type.startsWith('image/')) {
+  async function uploadFileToSlot(rawFile: File, slotId: string) {
+    if (!rawFile.type.startsWith('image/') && !rawFile.name.toLowerCase().match(/\.(heic|heif)$/)) {
       toast.error('Only image files are supported')
       return
     }
 
+    const file = await normalizeFile(rawFile)
     const storageKey = buildStorageKey(listingId, file.name)
     const existingPhoto = slotPhotos[slotId]
     const preview = URL.createObjectURL(file)
@@ -110,12 +120,13 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
     }
   }
 
-  async function uploadDamagePhoto(file: File) {
-    if (!file.type.startsWith('image/')) {
+  async function uploadDamagePhoto(rawFile: File) {
+    if (!rawFile.type.startsWith('image/') && !rawFile.name.toLowerCase().match(/\.(heic|heif)$/)) {
       toast.error('Only image files are supported')
       return
     }
 
+    const file = await normalizeFile(rawFile)
     const storageKey = buildStorageKey(listingId, file.name)
     const preview = URL.createObjectURL(file)
     const tempId = `uploading-${++tempIdCounter}`
@@ -218,7 +229,7 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
         className="hidden"
         onChange={handleFileChange}
       />
@@ -226,7 +237,7 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
         ref={damageInputRef}
         type="file"
         multiple
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
         className="hidden"
         onChange={handleDamageFileChange}
       />

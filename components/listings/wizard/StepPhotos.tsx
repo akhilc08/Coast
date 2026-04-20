@@ -16,6 +16,16 @@ interface StepPhotosProps {
   onBack?: () => void
 }
 
+// Convert HEIC/HEIF to a JPEG Blob if needed, otherwise return as-is
+async function normalizeFile(file: File): Promise<File> {
+  if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
+    const heic2any = (await import('heic2any')).default
+    const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 }) as Blob
+    return new File([blob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), { type: 'image/jpeg' })
+  }
+  return file
+}
+
 // Resize a File to max 1024px on longest side, JPEG at 80% quality — small enough for API payloads
 function resizeToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -69,12 +79,13 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
       filesToUpload.map(async (file) => {
         const storageKey = buildStorageKey(listingId, file.name)
 
-        // Resize for classification and upload original in parallel
+        // Convert HEIC if needed, then resize for classification and upload in parallel
+        const normalized = await normalizeFile(file)
         const [base64, uploadResult] = await Promise.all([
-          resizeToBase64(file),
+          resizeToBase64(normalized),
           supabase.storage
             .from('car-photos')
-            .upload(storageKey, file, { contentType: file.type, cacheControl: '3600', upsert: false }),
+            .upload(storageKey, normalized, { contentType: normalized.type, cacheControl: '3600', upsert: false }),
         ])
 
         if (uploadResult.error) throw uploadResult.error
@@ -201,7 +212,7 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
           ref={bulkInputRef}
           type="file"
           multiple
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
           className="hidden"
           onChange={handleBulkUpload}
         />
