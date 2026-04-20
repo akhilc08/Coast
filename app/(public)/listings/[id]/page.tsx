@@ -217,18 +217,6 @@ export default async function ListingDetailPage({
 
             </div>
 
-            {/* Vehicle Description */}
-            {listing.seller_description && (
-              <div className="bg-white rounded-2xl border border-[#e7e5e4] px-4 sm:px-8 py-5 sm:py-7">
-                <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-[#a8a29e]">
-                  Vehicle Description
-                </h2>
-                <p className="text-sm leading-relaxed text-[#1c1917] whitespace-pre-line">
-                  {listing.seller_description}
-                </p>
-              </div>
-            )}
-
             {/* Seller Information */}
             {listing.seller_id && (
               <Link
@@ -269,6 +257,20 @@ export default async function ListingDetailPage({
                 </div>
               </Link>
             )}
+
+            {/* Vehicle Description */}
+            <div className="bg-white rounded-2xl border border-[#e7e5e4] px-4 sm:px-8 py-5 sm:py-7">
+              <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-[#a8a29e]">
+                Vehicle Description
+              </h2>
+              {listing.seller_description ? (
+                <p className="text-sm leading-relaxed text-[#1c1917] whitespace-pre-line">
+                  {listing.seller_description}
+                </p>
+              ) : (
+                <p className="text-sm text-[#a8a29e]">No description provided.</p>
+              )}
+            </div>
 
             {/* AI Summarized Report (legacy fields) */}
             {hasLegacyCondition && (
@@ -354,34 +356,6 @@ export default async function ListingDetailPage({
                     ))}
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Documents */}
-            {listing.listing_documents && listing.listing_documents.length > 0 && (
-              <div className="rounded-2xl border border-[#e7e5e4] bg-white px-4 sm:px-8 py-5 sm:py-7">
-                <h2 className="mb-5 text-[11px] font-bold uppercase tracking-widest text-[#1c1917]">
-                  Documents
-                </h2>
-                <ul className="space-y-3">
-                  {listing.listing_documents.map((doc: { id: string; file_name: string | null; document_type: string }) => (
-                    <li
-                      key={doc.id}
-                      className="flex items-center justify-between rounded-xl border border-[#e7e5e4] px-5 py-4"
-                    >
-                      <span className="text-sm font-medium text-[#1c1917] capitalize">
-                        {doc.file_name ?? doc.document_type.replace(/_/g, ' ')}
-                      </span>
-                      {user ? (
-                        <span className="text-xs text-[#a8a29e]">Available after purchase</span>
-                      ) : (
-                        <Link href="/login" className="text-xs text-blue-600 hover:text-blue-500 transition-colors">
-                          Log in to access
-                        </Link>
-                      )}
-                    </li>
-                  ))}
-                </ul>
               </div>
             )}
 
