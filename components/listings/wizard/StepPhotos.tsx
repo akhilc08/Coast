@@ -18,10 +18,14 @@ interface StepPhotosProps {
 
 // Convert HEIC/HEIF to a JPEG Blob if needed, otherwise return as-is
 async function normalizeFile(file: File): Promise<File> {
-  if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
+  const name = file.name.toLowerCase()
+  const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || name.endsWith('.heic') || name.endsWith('.heif')
+  if (isHeic) {
     const heic2any = (await import('heic2any')).default
-    const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 }) as Blob
-    return new File([blob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), { type: 'image/jpeg' })
+    const result = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 })
+    const blob = Array.isArray(result) ? result[0] : result
+    const newName = file.name.replace(/\.(heic|heif)$/i, '.jpg')
+    return new File([blob], newName, { type: 'image/jpeg' })
   }
   return file
 }
