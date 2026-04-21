@@ -3,23 +3,7 @@
 import { useState, useRef } from 'react'
 import { Camera, X, Loader2, Plus } from 'lucide-react'
 
-async function normalizeFile(file: File): Promise<File> {
-  const name = file.name.toLowerCase()
-  const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || name.endsWith('.heic') || name.endsWith('.heif')
-  if (isHeic) {
-    try {
-      const heic2any = (await import('heic2any')).default
-      const result = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 })
-      const blob = Array.isArray(result) ? result[0] : result
-      const newName = file.name.replace(/\.(heic|heif)$/i, '.jpg')
-      return new File([blob], newName, { type: 'image/jpeg' })
-    } catch {
-      console.warn('[upload] heic2any failed, attempting upload as-is:', file.name)
-      return new File([file], file.name.replace(/\.(heic|heif)$/i, '.jpg'), { type: 'image/jpeg' })
-    }
-  }
-  return file
-}
+import { normalizeImage } from '@/lib/normalize-image'
 import { PHOTO_SECTIONS, PHOTO_SLOT_ORDER } from '@/lib/photo-slots'
 import { buildStorageKey, getPhotoPublicUrl } from '@/lib/storage'
 import { createClient } from '@/lib/supabase/browser'
@@ -85,7 +69,7 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
       return
     }
 
-    const file = await normalizeFile(rawFile)
+    const file = await normalizeImage(rawFile)
     const storageKey = buildStorageKey(listingId, file.name)
     const existingPhoto = slotPhotos[slotId]
     const preview = URL.createObjectURL(file)
@@ -135,7 +119,7 @@ export function SlottedPhotoUpload({ listingId, initialPhotos }: SlottedPhotoUpl
       return
     }
 
-    const file = await normalizeFile(rawFile)
+    const file = await normalizeImage(rawFile)
     const storageKey = buildStorageKey(listingId, file.name)
     const preview = URL.createObjectURL(file)
     const tempId = `uploading-${++tempIdCounter}`
