@@ -28,6 +28,17 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   title: 'Coast — Wholesale Vehicle Marketplace',
   description: 'Buy and sell wholesale vehicles entirely online.',
+  openGraph: {
+    title: 'Coast — Wholesale Vehicle Marketplace',
+    description: 'Buy and sell wholesale vehicles entirely online.',
+    siteName: 'Coast',
+    images: [{ url: '/opengraph-image', width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Coast — Wholesale Vehicle Marketplace',
+    images: ['/opengraph-image'],
+  },
 }
 
 export default function RootLayout({
