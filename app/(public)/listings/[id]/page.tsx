@@ -20,9 +20,22 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const listing = await getListing(id)
   if (!listing) return {}
 
-  const title = [listing.year, listing.make, listing.model].filter(Boolean).join(' ')
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const baseUrl = process.env.NEXT_PUBLIC_URL ?? 'https://drivewithcoast.com'
-  const ogImageUrl = `${baseUrl}/listings/${id}/opengraph-image`
+  const photos = (listing.listing_photos ?? []) as { storage_key: string; position: number; slot_type?: string | null }[]
+  const preferred = photos.find(p => p.slot_type === 'front_left_corner')
+  const hero = preferred ?? photos.slice().sort((a, b) => {
+    const ai = a.slot_type != null ? (PHOTO_SLOT_ORDER[a.slot_type] ?? 999) : a.position
+    const bi = b.slot_type != null ? (PHOTO_SLOT_ORDER[b.slot_type] ?? 999) : b.position
+    return ai - bi
+  })[0]
+
+  const title = [listing.year, listing.make, listing.model].filter(Boolean).join(' ')
+
+  // Route through Next.js image optimizer which applies EXIF rotation via sharp
+  const ogImageUrl = hero
+    ? `${baseUrl}/_next/image?url=${encodeURIComponent(`${supabaseUrl}/storage/v1/object/public/car-photos/${hero.storage_key}`)}&w=1200&q=90`
+    : `${baseUrl}/opengraph-image`
 
   return {
     title: `${title} — Coast`,
