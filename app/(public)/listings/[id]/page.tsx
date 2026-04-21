@@ -20,32 +20,21 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const listing = await getListing(id)
   if (!listing) return {}
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const photos = (listing.listing_photos ?? []) as { storage_key: string; position: number; slot_type?: string | null }[]
-  const preferred = photos.find(p => p.slot_type === 'front_left_corner')
-  const hero = preferred ?? photos.slice().sort((a, b) => {
-    const ai = a.slot_type != null ? (PHOTO_SLOT_ORDER[a.slot_type] ?? 999) : a.position
-    const bi = b.slot_type != null ? (PHOTO_SLOT_ORDER[b.slot_type] ?? 999) : b.position
-    return ai - bi
-  })[0]
-
-  // Use Supabase's image transform endpoint — applies EXIF rotation server-side
-  const heroUrl = hero
-    ? `${supabaseUrl}/storage/v1/render/image/public/car-photos/${hero.storage_key}?width=1200&height=630&fit=cover&rotate=auto`
-    : undefined
   const title = [listing.year, listing.make, listing.model].filter(Boolean).join(' ')
+  const baseUrl = process.env.NEXT_PUBLIC_URL ?? 'https://drivewithcoast.com'
+  const ogImageUrl = `${baseUrl}/listings/${id}/opengraph-image`
 
   return {
     title: `${title} — Coast`,
     openGraph: {
       title: `${title} — Coast`,
       description: listing.seller_description ?? `${title} available on Coast Wholesale Marketplace.`,
-      images: heroUrl ? [{ url: heroUrl, width: 1200, height: 630, alt: title }] : [],
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: title }],
     },
     twitter: {
       card: 'summary_large_image',
       title: `${title} — Coast`,
-      images: heroUrl ? [heroUrl] : [],
+      images: [ogImageUrl],
     },
   }
 }
