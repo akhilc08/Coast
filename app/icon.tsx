@@ -17,9 +17,8 @@ export default async function Icon() {
   return new ImageResponse(
     (
       <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', fontFamily: 'Geist Sans' }}>
-        <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#ffffff', display: 'flex', alignItems: 'baseline', justifyContent: 'center', paddingTop: 4 }}>
-          <span style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: '-1px' }}>C</span>
-          <span style={{ fontSize: 22, fontWeight: 800, color: '#2563eb' }}>.</span>
+        <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <span style={{ fontSize: 20, fontWeight: 800, color: '#2563eb' }}>C</span>
         </div>
       </div>
     ),
