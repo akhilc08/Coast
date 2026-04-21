@@ -29,7 +29,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     return ai - bi
   })[0]
 
-  const heroUrl = hero ? `${supabaseUrl}/storage/v1/object/public/car-photos/${hero.storage_key}` : undefined
+  // Use Supabase's image transform endpoint — applies EXIF rotation server-side
+  const heroUrl = hero
+    ? `${supabaseUrl}/storage/v1/render/image/public/car-photos/${hero.storage_key}?width=1200&height=630&fit=cover&rotate=auto`
+    : undefined
   const title = [listing.year, listing.make, listing.model].filter(Boolean).join(' ')
 
   return {
