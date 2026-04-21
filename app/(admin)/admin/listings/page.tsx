@@ -53,7 +53,7 @@ interface Listing {
   year: number
   price_cents: number
   status: string
-  grade: string | null
+  overall_grade: string | null
   created_at: string
   profiles: { company: string | null } | null
 }
@@ -159,7 +159,7 @@ export default async function AdminListingsPage({
                   </td>
                   <td className="px-4 py-3 text-[#1c1917]">{formatPrice(listing.price_cents)}</td>
                   <td className="px-4 py-3">
-                    <GradeBadge grade={(listing as Record<string, unknown>).overall_grade as string ?? null} />
+                    <GradeBadge grade={listing.overall_grade} />
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={listing.status} />
