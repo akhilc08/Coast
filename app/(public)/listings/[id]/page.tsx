@@ -14,30 +14,6 @@ import { PHOTO_SLOT_ORDER } from '@/lib/photo-slots'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function conditionColor(v: string | null | undefined) {
-  switch (v) {
-    case 'excellent': return 'text-green-600'
-    case 'good':      return 'text-blue-600'
-    case 'fair':      return 'text-yellow-600'
-    case 'poor':      return 'text-red-500'
-    case 'salvage':   return 'text-red-700'
-    default:          return 'text-[#78716c]'
-  }
-}
-
-function conditionLabel(v: string | null | undefined) {
-  return v ? v.charAt(0).toUpperCase() + v.slice(1) : null
-}
-
-// A single row inside a condition card
-function ConditionRow({ label, value, color }: { label: string; value: string; color: string }) {
-  return (
-    <div className="flex items-center justify-between py-3 border-b border-[#f5f5f4] last:border-0">
-      <span className="text-sm text-[#78716c]">{label}</span>
-      <span className={`text-sm font-semibold ${color}`}>{value}</span>
-    </div>
-  )
-}
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
@@ -98,28 +74,6 @@ export default async function ListingDetailPage({
         tires:      listing.ai_condition_tires,
       }
     : null
-
-  // ── Legacy condition sub-sections (fallback for older listings) ────────────
-  const exteriorItems = [
-    { label: 'Paint', value: conditionLabel(listing.paint_condition), color: conditionColor(listing.paint_condition) },
-    { label: 'Body',  value: conditionLabel(listing.body_condition),  color: conditionColor(listing.body_condition) },
-    { label: 'Glass', value: conditionLabel(listing.glass_condition), color: conditionColor(listing.glass_condition) },
-  ].filter(i => i.value) as { label: string; value: string; color: string }[]
-
-  const interiorItems = [
-    { label: 'Seats',     value: conditionLabel(listing.seat_condition),      color: conditionColor(listing.seat_condition) },
-    { label: 'Dashboard', value: conditionLabel(listing.dashboard_condition), color: conditionColor(listing.dashboard_condition) },
-    { label: 'Carpet',    value: conditionLabel(listing.carpet_condition),    color: conditionColor(listing.carpet_condition) },
-  ].filter(i => i.value) as { label: string; value: string; color: string }[]
-
-  const mechanicalItems = [
-    { label: 'Engine',       value: conditionLabel(listing.engine_condition),       color: conditionColor(listing.engine_condition) },
-    { label: 'Transmission', value: conditionLabel(listing.transmission_condition), color: conditionColor(listing.transmission_condition) },
-    { label: 'Brakes',       value: conditionLabel(listing.brake_condition),        color: conditionColor(listing.brake_condition) },
-    { label: 'Tires',        value: conditionLabel(listing.tire_condition),         color: conditionColor(listing.tire_condition) },
-  ].filter(i => i.value) as { label: string; value: string; color: string }[]
-
-  const hasLegacyCondition = !aiCondition && (exteriorItems.length > 0 || interiorItems.length > 0 || mechanicalItems.length > 0)
 
   // ── Vehicle details table ──────────────────────────────────────────────────
   const vehicleDetails: [string, string | number][] = ([
@@ -272,65 +226,7 @@ export default async function ListingDetailPage({
               )}
             </div>
 
-            {/* AI Summarized Report (legacy fields) */}
-            {hasLegacyCondition && (
-              <div className="rounded-2xl border border-[#e7e5e4] bg-white px-4 sm:px-8 py-5 sm:py-7">
-                <h2 className="mb-6 text-[11px] font-bold uppercase tracking-widest text-[#1c1917]">
-                  AI Summarized Report
-                </h2>
 
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-                  {exteriorItems.length > 0 && (
-                    <div className="rounded-xl border border-[#e7e5e4] p-5">
-                      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-[#a8a29e]">Exterior</p>
-                      <p className="mb-4 text-[11px] text-[#a8a29e]">{exteriorItems.length} items assessed</p>
-                      {exteriorItems.map(item => (
-                        <ConditionRow key={item.label} label={item.label} value={item.value} color={item.color} />
-                      ))}
-                      {listing.exterior_notes && (
-                        <p className="mt-4 text-xs leading-relaxed text-[#a8a29e]">{listing.exterior_notes}</p>
-                      )}
-                    </div>
-                  )}
-                  {interiorItems.length > 0 && (
-                    <div className="rounded-xl border border-[#e7e5e4] p-5">
-                      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-[#a8a29e]">Interior</p>
-                      <p className="mb-4 text-[11px] text-[#a8a29e]">{interiorItems.length} items assessed</p>
-                      {interiorItems.map(item => (
-                        <ConditionRow key={item.label} label={item.label} value={item.value} color={item.color} />
-                      ))}
-                      {listing.interior_notes && (
-                        <p className="mt-4 text-xs leading-relaxed text-[#a8a29e]">{listing.interior_notes}</p>
-                      )}
-                    </div>
-                  )}
-                  {mechanicalItems.length > 0 && (
-                    <div className="rounded-xl border border-[#e7e5e4] p-5">
-                      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-[#a8a29e]">Mechanicals</p>
-                      <p className="mb-4 text-[11px] text-[#a8a29e]">{mechanicalItems.length} items assessed</p>
-                      {mechanicalItems.map(item => (
-                        <ConditionRow key={item.label} label={item.label} value={item.value} color={item.color} />
-                      ))}
-                      {listing.mechanical_notes && (
-                        <p className="mt-4 text-xs leading-relaxed text-[#a8a29e]">{listing.mechanical_notes}</p>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {listing.tire_tread_depth != null && (
-                  <div className="mt-5 flex items-center justify-between rounded-xl border border-[#e7e5e4] px-5 py-4">
-                    <span className="text-sm font-medium text-[#78716c]">Tire Tread Depth</span>
-                    <span className="text-sm font-bold text-[#1c1917]">
-                      {listing.tire_tread_depth}/32&quot;
-                      <span className="ml-2 text-xs font-normal text-[#a8a29e]">
-                        {listing.tire_tread_depth >= 6 ? '(Good)' : listing.tire_tread_depth >= 4 ? '(Acceptable)' : '(Low)'}
-                      </span>
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
 
             {/* ANNOUNCEMENTS */}
             {hasAnnouncements && (
