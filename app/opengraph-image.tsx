@@ -15,16 +15,16 @@ export default function OgImage() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #1d4ed8 0%, #4f46e5 100%)',
+          background: '#ffffff',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-          <span style={{ fontSize: 96, fontWeight: 800, color: 'white', letterSpacing: '-4px' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline' }}>
+          <span style={{ fontSize: 120, fontWeight: 800, color: '#0f172a', letterSpacing: '-5px' }}>
             Coast
           </span>
-          <span style={{ fontSize: 96, fontWeight: 800, color: '#93c5fd' }}>.</span>
+          <span style={{ fontSize: 120, fontWeight: 800, color: '#2563eb' }}>.</span>
         </div>
-        <p style={{ fontSize: 28, color: 'rgba(255,255,255,0.75)', marginTop: 16, letterSpacing: '0.5px' }}>
+        <p style={{ fontSize: 26, color: '#94a3b8', marginTop: 8, letterSpacing: '0.5px' }}>
           Wholesale Vehicle Marketplace
         </p>
       </div>
