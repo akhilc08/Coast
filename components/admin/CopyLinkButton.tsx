@@ -7,7 +7,7 @@ const FORM_BASE = 'https://docs.google.com/forms/d/e/1FAIpQLSdDMHRwk81mOkjj7L5YV
 export function CopyLinkButton({ vin }: { vin: string }) {
   const [copied, setCopied] = useState(false)
 
-  const url = `${FORM_BASE}?usp=pp_url&entry.1357367560=${encodeURIComponent(vin)}&entry.1870065493=${encodeURIComponent(vin)}`
+  const url = `${FORM_BASE}?usp=pp_url&entry.1357367560=${encodeURIComponent(vin)}`
 
   async function handleCopy() {
     await navigator.clipboard.writeText(url)
