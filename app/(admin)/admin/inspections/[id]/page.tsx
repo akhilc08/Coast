@@ -5,6 +5,7 @@ import { AdminConditionUpload } from '@/components/admin/AdminConditionUpload'
 import { AdminConditionForm } from '@/components/admin/AdminConditionForm'
 import { AdminApproveButton } from '@/components/admin/AdminApproveButton'
 import { CopyLinkButton } from '@/components/admin/CopyLinkButton'
+import { CopyText } from '@/components/admin/CopyText'
 import type { AiConditionData } from '@/lib/types/condition'
 
 export default async function InspectionDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -51,7 +52,10 @@ export default async function InspectionDetailPage({ params }: { params: Promise
           <h1 className="text-2xl font-bold text-[#1c1917]">
             {listing.year} {listing.make} {listing.model}
           </h1>
-          <p className="mt-1 font-mono text-sm text-[#78716c]">{listing.vin}</p>
+          <p className="mt-1 flex items-center font-mono text-sm text-[#78716c]">
+            {listing.vin}
+            <CopyText text={listing.vin} />
+          </p>
           {(profile?.company ?? profile?.full_name) && (
             <p className="mt-0.5 text-sm text-[#a8a29e]">{profile?.company ?? profile?.full_name}</p>
           )}
