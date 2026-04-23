@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { AdminConditionUpload } from '@/components/admin/AdminConditionUpload'
 import { AdminConditionForm } from '@/components/admin/AdminConditionForm'
 import { AdminApproveButton } from '@/components/admin/AdminApproveButton'
+import { CopyLinkButton } from '@/components/admin/CopyLinkButton'
 import type { AiConditionData } from '@/lib/types/condition'
 
 export default async function InspectionDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -70,6 +71,29 @@ export default async function InspectionDetailPage({ params }: { params: Promise
       )}
 
       <div className="mt-6 space-y-8">
+
+        {/* Submit inspection */}
+        <div>
+          <h2 className="mb-4 text-lg font-semibold text-[#1c1917]">Submit Inspection</h2>
+          <div className="rounded-lg border border-[#e7e5e4] bg-white p-5 space-y-4">
+            <div>
+              <p className="text-sm font-medium text-[#1c1917] mb-1">Fill out yourself</p>
+              <p className="text-xs text-[#a8a29e] mb-3">Submit the condition report directly from this admin panel.</p>
+              <Link
+                href="/admin/inspections/submit"
+                className="inline-block rounded-lg bg-[#1d4ed8] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1e40af] transition-colors"
+              >
+                Open Inspection Form
+              </Link>
+            </div>
+            <div className="border-t border-[#e7e5e4] pt-4">
+              <p className="text-sm font-medium text-[#1c1917] mb-1">Share with inspector</p>
+              <p className="text-xs text-[#a8a29e] mb-3">Send this link to your inspector — they fill it out externally and the data is saved automatically.</p>
+              <CopyLinkButton />
+            </div>
+          </div>
+        </div>
+
         <div>
           <h2 className="mb-4 text-lg font-semibold text-[#1c1917]">Inspection Report</h2>
           <AdminConditionUpload listingId={listing.id} alreadyLocked={!!listing.condition_locked} />
