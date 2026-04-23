@@ -103,7 +103,15 @@ export default async function AdminInspectionsPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-[#1c1917]">Inspections</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-[#1c1917]">Inspections</h1>
+        <Link
+          href="/admin/inspections/submit"
+          className="rounded-lg bg-[#1d4ed8] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1e40af] transition-colors"
+        >
+          + Submit Inspection
+        </Link>
+      </div>
 
       {/* Summary strip */}
       <div className="mt-4 flex gap-4">
