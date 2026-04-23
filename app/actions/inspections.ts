@@ -108,64 +108,90 @@ export async function submitInspectionAction(
 
   const toNum = (s: string) => { const n = parseFloat(s); return isNaN(n) ? null : n }
 
-  const updatePayload: Record<string, unknown> = {
-    ai_condition_exterior: {
-      rating: extRating,
-      rating_reason: '',
-      body_defects: [...parseList(data.minorBodyDefects), ...parseList(data.majorBodyDefects)],
-      scratches_dings_dents: '',
-      bumper_fender_damage: '',
-      paint_meter_readings: paintReadings,
-      rust_areas: [],
-      glass_damage: parseList(data.glassDamage),
-      glass_inspector_notes: '',
-    },
-    ai_condition_interior: {
-      rating: intRating,
-      rating_reason: '',
-      seat_wear_degraded: seatWear.degraded,
-      seat_wear_severity: seatWear.severity,
-      odor: parseOdor(data.odor),
-      odor_notes: '',
-      climate_control_working: data.climateControl,
-      missing_or_broken: [],
-      trim_damage_summary: data.interiorDamage,
-      cosmetic_defects: '',
-    },
-    ai_condition_mechanical: {
-      rating: mechRating,
-      rating_reason: '',
-      obdii_codes: obdiiList,
-      engine_noise_db: null,
-      engine_abnormalities: data.engineNoises,
-      fluid_leaks: fluidLeakList,
-      drive_notes: data.driveNotes,
-    },
-    ai_condition_tires: {
-      rating: tiresRating,
-      rating_reason: '',
-      tread_fl: toNum(data.treadFl),
-      tread_fr: toNum(data.treadFr),
-      tread_rl: toNum(data.treadRl),
-      tread_rr: toNum(data.treadRr),
-      wheel_rim_damage: data.wheelDamage,
-    },
-    condition_locked: true,
-    overall_grade: worstRatingToGrade([extRating, intRating, mechRating, tiresRating]),
-    updated_at: new Date().toISOString(),
+  const exterior = {
+    rating: extRating,
+    rating_reason: '',
+    body_defects: [...parseList(data.minorBodyDefects), ...parseList(data.majorBodyDefects)],
+    scratches_dings_dents: '',
+    bumper_fender_damage: '',
+    paint_meter_readings: paintReadings,
+    rust_areas: [],
+    glass_damage: parseList(data.glassDamage),
+    glass_inspector_notes: '',
   }
 
-  if (data.mileage) {
-    const parsed = parseInt(data.mileage.replace(/[^0-9]/g, ''), 10)
-    if (!isNaN(parsed)) updatePayload.mileage = parsed
+  const interior = {
+    rating: intRating,
+    rating_reason: '',
+    seat_wear_degraded: seatWear.degraded,
+    seat_wear_severity: seatWear.severity,
+    odor: parseOdor(data.odor),
+    odor_notes: '',
+    climate_control_working: data.climateControl,
+    missing_or_broken: [],
+    trim_damage_summary: data.interiorDamage,
+    cosmetic_defects: '',
   }
+
+  const mechanical = {
+    rating: mechRating,
+    rating_reason: '',
+    obdii_codes: obdiiList,
+    engine_noise_db: null,
+    engine_abnormalities: data.engineNoises,
+    fluid_leaks: fluidLeakList,
+    drive_notes: data.driveNotes,
+  }
+
+  const tires = {
+    rating: tiresRating,
+    rating_reason: '',
+    tread_fl: toNum(data.treadFl),
+    tread_fr: toNum(data.treadFr),
+    tread_rl: toNum(data.treadRl),
+    tread_rr: toNum(data.treadRr),
+    wheel_rim_damage: data.wheelDamage,
+  }
+
+  const overall_grade = worstRatingToGrade([extRating, intRating, mechRating, tiresRating])
+  const mileage = data.mileage ? parseInt(data.mileage.replace(/[^0-9]/g, ''), 10) || null : null
+
+  // Insert into inspections table (permanent record)
+  const { error: insertError } = await admin
+    .from('inspections')
+    .insert({
+      listing_id:            listing.id,
+      inspection_date:       data.inspectionDate || null,
+      inspector_name:        data.inspectionProvider || null,
+      mileage_at_inspection: mileage,
+      exterior,
+      interior,
+      mechanical,
+      tires,
+      overall_grade,
+      submitted_by:          user.id,
+    })
+
+  if (insertError) return { error: `Failed to save inspection record: ${insertError.message}` }
+
+  // Update listing with latest condition data
+  const listingUpdate: Record<string, unknown> = {
+    ai_condition_exterior:   exterior,
+    ai_condition_interior:   interior,
+    ai_condition_mechanical: mechanical,
+    ai_condition_tires:      tires,
+    condition_locked:        true,
+    overall_grade,
+    updated_at:              new Date().toISOString(),
+  }
+  if (mileage) listingUpdate.mileage = mileage
 
   const { error: updateError } = await admin
     .from('listings')
-    .update(updatePayload)
+    .update(listingUpdate)
     .eq('id', listing.id)
 
-  if (updateError) return { error: `Failed to save: ${updateError.message}` }
+  if (updateError) return { error: `Failed to update listing: ${updateError.message}` }
 
   return { success: true, listing_id: listing.id }
 }
