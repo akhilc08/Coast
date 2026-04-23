@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { InspectionForm } from '@/components/admin/InspectionForm'
 
-const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdDMHRwk81mOkjj7L5YVmrTaRcu6tDe20cy9dfjXMC4boRGVQ/viewform'
 
 export default function SubmitInspectionPage() {
   return (
@@ -23,18 +22,16 @@ export default function SubmitInspectionPage() {
           </span>
         </div>
 
-        <a
-          href={GOOGLE_FORM_URL}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href="/admin/inspections/submit/google-form"
           className="rounded-xl border-2 border-[#e7e5e4] bg-white p-5 hover:border-[#a8a29e] transition-colors block"
         >
           <p className="text-sm font-semibold text-[#1c1917] mb-1">Use Google Form</p>
-          <p className="text-xs text-[#78716c] mb-4">Opens in a new tab. Data is saved automatically via webhook.</p>
+          <p className="text-xs text-[#78716c] mb-4">Select a vehicle and get a pre-filled link to send to your inspector.</p>
           <span className="inline-block rounded-lg border border-[#e7e5e4] bg-[#faf9f6] px-3 py-1.5 text-xs font-medium text-[#78716c]">
-            Open Google Form ↗
+            Select Vehicle →
           </span>
-        </a>
+        </Link>
       </div>
 
       {/* Native form */}
