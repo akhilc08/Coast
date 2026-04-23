@@ -52,9 +52,9 @@ export default async function InspectionDetailPage({ params }: { params: Promise
           <h1 className="text-2xl font-bold text-[#1c1917]">
             {listing.year} {listing.make} {listing.model}
           </h1>
-          <p className="mt-1 flex items-center font-mono text-sm text-[#78716c]">
+          <p className="mt-1 flex items-center gap-2 font-mono text-sm text-[#78716c]">
             {listing.vin}
-            <CopyText text={listing.vin} />
+            <CopyText text={listing.vin} label="Copy VIN" />
           </p>
           {(profile?.company ?? profile?.full_name) && (
             <p className="mt-0.5 text-sm text-[#a8a29e]">{profile?.company ?? profile?.full_name}</p>
