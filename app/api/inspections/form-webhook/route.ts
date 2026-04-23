@@ -165,6 +165,30 @@ export async function POST(req: NextRequest) {
 
     const overall_grade = worstRatingToGrade([extRating, intRating, mechRating, tiresRating])
 
+    const parsedMileage = mileage
+      ? parseInt(String(mileage).replace(/[^0-9]/g, ''), 10) || null
+      : null
+
+    // Insert into inspections history table
+    const { error: insertError } = await admin
+      .from('inspections')
+      .insert({
+        listing_id:            listing.id,
+        inspection_date:       body.inspection_date || null,
+        inspector_name:        body.inspection_provider || null,
+        mileage_at_inspection: parsedMileage,
+        exterior:              ai_condition_exterior,
+        interior:              ai_condition_interior,
+        mechanical:            ai_condition_mechanical,
+        tires:                 ai_condition_tires,
+        overall_grade,
+      })
+
+    if (insertError) {
+      return NextResponse.json({ error: `Failed to save inspection record: ${insertError.message}` }, { status: 500 })
+    }
+
+    // Update listing with latest condition data
     const updatePayload: Record<string, unknown> = {
       ai_condition_exterior,
       ai_condition_interior,
@@ -175,10 +199,7 @@ export async function POST(req: NextRequest) {
       updated_at: new Date().toISOString(),
     }
 
-    if (mileage) {
-      const parsed = parseInt(String(mileage).replace(/[^0-9]/g, ''), 10)
-      if (!isNaN(parsed)) updatePayload.mileage = parsed
-    }
+    if (parsedMileage) updatePayload.mileage = parsedMileage
 
     const { error: updateError } = await admin
       .from('listings')
