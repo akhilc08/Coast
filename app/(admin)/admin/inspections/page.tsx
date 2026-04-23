@@ -103,15 +103,7 @@ export default async function AdminInspectionsPage({
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[#1c1917]">Inspections</h1>
-        <Link
-          href="/admin/inspections/submit"
-          className="rounded-lg bg-[#1d4ed8] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1e40af] transition-colors"
-        >
-          + Submit Inspection
-        </Link>
-      </div>
+      <h1 className="text-2xl font-bold text-[#1c1917]">Inspections</h1>
 
       {/* Summary strip */}
       <div className="mt-4 flex gap-4">
@@ -145,8 +137,23 @@ export default async function AdminInspectionsPage({
         })}
       </div>
 
+      {/* Inspection form */}
+      <div className="mt-8">
+        <h2 className="mb-4 text-lg font-semibold text-[#1c1917]">Submit Inspection Report</h2>
+        <div className="overflow-hidden rounded-lg border border-[#e7e5e4] bg-white">
+          <iframe
+            src="https://docs.google.com/forms/d/e/1FAIpQLSdDMHRwk81mOkjj7L5YVmrTaRcu6tDe20cy9dfjXMC4boRGVQ/viewform?embedded=true"
+            width="100%"
+            height="900"
+            frameBorder="0"
+          >
+            Loading…
+          </iframe>
+        </div>
+      </div>
+
       {/* Table */}
-      <div className="mt-4 overflow-hidden rounded-lg border border-[#e7e5e4] bg-white">
+      <div className="mt-8 overflow-hidden rounded-lg border border-[#e7e5e4] bg-white">
         {rows.length === 0 ? (
           <p className="px-6 py-8 text-center text-sm text-[#a8a29e]">No listings found.</p>
         ) : (
