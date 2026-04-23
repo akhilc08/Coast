@@ -2,13 +2,15 @@
 
 import { useState } from 'react'
 
-const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdDMHRwk81mOkjj7L5YVmrTaRcu6tDe20cy9dfjXMC4boRGVQ/viewform'
+const FORM_BASE = 'https://docs.google.com/forms/d/e/1FAIpQLSdDMHRwk81mOkjj7L5YVmrTaRcu6tDe20cy9dfjXMC4boRGVQ/viewform'
 
-export function CopyLinkButton() {
+export function CopyLinkButton({ vin }: { vin: string }) {
   const [copied, setCopied] = useState(false)
 
+  const url = `${FORM_BASE}?usp=pp_url&entry.1357367560=${encodeURIComponent(vin)}`
+
   async function handleCopy() {
-    await navigator.clipboard.writeText(FORM_URL)
+    await navigator.clipboard.writeText(url)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -16,7 +18,7 @@ export function CopyLinkButton() {
   return (
     <div className="flex items-center gap-2">
       <code className="flex-1 rounded-lg bg-[#f5f4f0] px-3 py-2 text-xs text-[#78716c] truncate select-all">
-        {FORM_URL}
+        {url}
       </code>
       <button
         type="button"

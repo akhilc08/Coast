@@ -93,7 +93,7 @@ export default async function InspectionDetailPage({ params }: { params: Promise
             <div className="border-t border-[#e7e5e4] pt-4">
               <p className="text-sm font-medium text-[#1c1917] mb-1">Share with inspector</p>
               <p className="text-xs text-[#a8a29e] mb-3">Send this link to your inspector — they fill it out externally and the data is saved automatically.</p>
-              <CopyLinkButton />
+              <CopyLinkButton vin={listing.vin} />
             </div>
           </div>
         </div>
