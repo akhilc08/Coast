@@ -27,7 +27,7 @@ export function GoogleFormPicker({ listings }: { listings: Listing[] }) {
   })
 
   const formUrl = selected
-    ? `${FORM_BASE}?usp=pp_url&entry.1357367560=${encodeURIComponent(selected.vin)}`
+    ? `${FORM_BASE}?usp=pp_url&entry.1357367560=${encodeURIComponent(selected.vin)}&entry.1870065493=${encodeURIComponent(selected.vin)}`
     : null
 
   async function handleCopy() {
