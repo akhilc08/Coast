@@ -105,12 +105,20 @@ export default async function AdminInspectionsPage({
     <div>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-[#1c1917]">Inspections</h1>
-        <Link
-          href="/admin/inspections/submit"
-          className="rounded-lg bg-[#1d4ed8] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1e40af] transition-colors"
-        >
-          + Submit Inspection
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/inspections/history"
+            className="rounded-lg border border-[#e7e5e4] bg-white px-4 py-2 text-sm font-medium text-[#78716c] hover:bg-[#faf9f6] transition-colors"
+          >
+            View History
+          </Link>
+          <Link
+            href="/admin/inspections/submit"
+            className="rounded-lg bg-[#1d4ed8] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1e40af] transition-colors"
+          >
+            + Submit Inspection
+          </Link>
+        </div>
       </div>
 
       {/* Summary strip */}
