@@ -332,3 +332,20 @@ export async function deleteListingAction(
   if (error) return { error: error.message }
   return { success: true }
 }
+
+export async function deleteBulkListingsAction(
+  listingIds: string[]
+): Promise<{ success: true; count: number } | { error: string }> {
+  try {
+    await requireAdmin()
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Unauthorized' }
+  }
+
+  if (!listingIds.length) return { error: 'No listings selected' }
+
+  const admin = createAdminClient()
+  const { error } = await admin.from('listings').delete().in('id', listingIds)
+  if (error) return { error: error.message }
+  return { success: true, count: listingIds.length }
+}
