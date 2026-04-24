@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
 import { deleteListingAction } from '@/app/actions/admin'
 
 interface Props {
@@ -11,7 +10,6 @@ interface Props {
 }
 
 export function DeleteListingButton({ listingId, listingName, redirectAfter }: Props) {
-  const router = useRouter()
   const [confirming, setConfirming] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -24,8 +22,7 @@ export function DeleteListingButton({ listingId, listingName, redirectAfter }: P
         setError(result.error)
         setConfirming(false)
       } else {
-        router.push(redirectAfter ?? '/admin/listings')
-        router.refresh()
+        window.location.href = redirectAfter ?? '/admin/listings'
       }
     })
   }
