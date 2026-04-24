@@ -317,3 +317,18 @@ export async function adminUpdateListingAction(
   if (error) return { error: error.message }
   return { success: true }
 }
+
+export async function deleteListingAction(
+  listingId: string
+): Promise<{ success: true } | { error: string }> {
+  try {
+    await requireAdmin()
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Unauthorized' }
+  }
+
+  const admin = createAdminClient()
+  const { error } = await admin.from('listings').delete().eq('id', listingId)
+  if (error) return { error: error.message }
+  return { success: true }
+}

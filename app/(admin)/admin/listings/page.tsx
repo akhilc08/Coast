@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { GradeBadge } from '@/components/ui/GradeBadge'
+import { DeleteListingRowButton } from '@/components/admin/DeleteListingRowButton'
 
 const STATUS_TABS = [
   { label: 'All', value: 'all' },
@@ -137,6 +138,7 @@ export default async function AdminListingsPage({
                 <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
                   Created
                 </th>
+                <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e7e5e4] text-sm">
@@ -165,6 +167,9 @@ export default async function AdminListingsPage({
                     <StatusBadge status={listing.status} />
                   </td>
                   <td className="px-4 py-3 text-[#78716c]">{formatDate(listing.created_at)}</td>
+                  <td className="px-4 py-3">
+                    <DeleteListingRowButton listingId={listing.id} />
+                  </td>
                 </tr>
               ))}
             </tbody>

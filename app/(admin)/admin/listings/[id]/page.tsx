@@ -6,6 +6,7 @@ import { AdminConditionForm } from '@/components/admin/AdminConditionForm'
 import { AdminApproveButton } from '@/components/admin/AdminApproveButton'
 import { ApproveListingButton } from '@/components/admin/ApproveListingButton'
 import { AdminListingEditForm } from '@/components/admin/AdminListingEditForm'
+import { DeleteListingButton } from '@/components/admin/DeleteListingButton'
 import type { AiConditionData, ConditionRating } from '@/lib/types/condition'
 import { ratingLabel } from '@/lib/types/condition'
 
@@ -98,9 +99,16 @@ export default async function AdminListingDetailPage({ params }: { params: Promi
           <p className="mt-1 font-mono text-sm text-[#78716c]">{listing.vin}</p>
         </div>
 
-        {listing.status === 'pending_inspection' && (
-          <AdminApproveButton listingId={listing.id} />
-        )}
+        <div className="flex items-center gap-3">
+          {listing.status === 'pending_inspection' && (
+            <AdminApproveButton listingId={listing.id} />
+          )}
+          <DeleteListingButton
+            listingId={listing.id}
+            listingName={`${listing.year} ${listing.make} ${listing.model}`}
+            redirectAfter="/admin/listings"
+          />
+        </div>
       </div>
 
       {/* Status banner for pending inspection */}
