@@ -295,6 +295,7 @@ export async function adminUpdateListingAction(
     condition_notes?: string
     pickup_zip?: string
     overall_grade?: string
+    seller_description?: string
   }
 ): Promise<{ success: true } | { error: string }> {
   try {
@@ -315,4 +316,36 @@ export async function adminUpdateListingAction(
 
   if (error) return { error: error.message }
   return { success: true }
+}
+
+export async function deleteListingAction(
+  listingId: string
+): Promise<{ success: true } | { error: string }> {
+  try {
+    await requireAdmin()
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Unauthorized' }
+  }
+
+  const admin = createAdminClient()
+  const { error } = await admin.from('listings').delete().eq('id', listingId)
+  if (error) return { error: error.message }
+  return { success: true }
+}
+
+export async function deleteBulkListingsAction(
+  listingIds: string[]
+): Promise<{ success: true; count: number } | { error: string }> {
+  try {
+    await requireAdmin()
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Unauthorized' }
+  }
+
+  if (!listingIds.length) return { error: 'No listings selected' }
+
+  const admin = createAdminClient()
+  const { error } = await admin.from('listings').delete().in('id', listingIds)
+  if (error) return { error: error.message }
+  return { success: true, count: listingIds.length }
 }

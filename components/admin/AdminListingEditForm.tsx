@@ -16,6 +16,7 @@ interface AdminListingEditFormProps {
     condition_notes: string | null
     pickup_zip: string | null
     overall_grade: string | null
+    seller_description: string | null
   }
 }
 
@@ -33,6 +34,7 @@ export function AdminListingEditForm({ listingId, initialData }: AdminListingEdi
     price: initialData.price_cents ? String(initialData.price_cents / 100) : '',
     color: initialData.color ?? '',
     condition_notes: initialData.condition_notes ?? '',
+    seller_description: initialData.seller_description ?? '',
     pickup_zip: initialData.pickup_zip ?? '',
     overall_grade: initialData.overall_grade ?? '',
   })
@@ -54,6 +56,7 @@ export function AdminListingEditForm({ listingId, initialData }: AdminListingEdi
       price_cents: isNaN(price) ? undefined : Math.round(price * 100),
       color: fields.color || undefined,
       condition_notes: fields.condition_notes || undefined,
+      seller_description: fields.seller_description || undefined,
       pickup_zip: fields.pickup_zip || undefined,
       overall_grade: fields.overall_grade || undefined,
     })
@@ -122,6 +125,16 @@ export function AdminListingEditForm({ listingId, initialData }: AdminListingEdi
             <option key={g} value={g}>{g}</option>
           ))}
         </select>
+      </div>
+
+      <div>
+        <label className={labelClass}>Vehicle Description</label>
+        <textarea
+          className={`${inputClass} min-h-[100px]`}
+          value={fields.seller_description}
+          onChange={e => setFields(f => ({ ...f, seller_description: e.target.value }))}
+          placeholder="Visible to buyers on the listing page..."
+        />
       </div>
 
       <div>

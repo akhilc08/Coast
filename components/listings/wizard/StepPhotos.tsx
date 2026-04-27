@@ -17,25 +17,7 @@ interface StepPhotosProps {
   onBack?: () => void
 }
 
-// Convert HEIC/HEIF to a JPEG Blob if needed, otherwise return as-is
-async function normalizeFile(file: File): Promise<File> {
-  const name = file.name.toLowerCase()
-  const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || name.endsWith('.heic') || name.endsWith('.heif')
-  if (isHeic) {
-    try {
-      const heic2any = (await import('heic2any')).default
-      const result = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 })
-      const blob = Array.isArray(result) ? result[0] : result
-      const newName = file.name.replace(/\.(heic|heif)$/i, '.jpg')
-      return new File([blob], newName, { type: 'image/jpeg' })
-    } catch {
-      // heic2any failed — file may already be JPEG-compatible despite the extension
-      console.warn('[upload] heic2any failed, attempting upload as-is:', file.name)
-      return new File([file], file.name.replace(/\.(heic|heif)$/i, '.jpg'), { type: 'image/jpeg' })
-    }
-  }
-  return file
-}
+import { normalizeImage } from '@/lib/normalize-image'
 
 // Resize a File to max 1024px on longest side, JPEG at 80% quality — small enough for API payloads
 function resizeToBase64(file: File): Promise<string> {
@@ -84,7 +66,7 @@ export function StepPhotos({ listingId, initialPhotos, onSave, onBack }: StepPho
     const results = await Promise.allSettled(
       filesToUpload.map(async (file) => {
         // Convert HEIC if needed first, then build storage key from normalized name
-        const normalized = await normalizeFile(file)
+        const normalized = await normalizeImage(file)
         const storageKey = buildStorageKey(listingId, normalized.name)
 
         // Resize for AI classification — may fail for unconvertible HEIC; upload still proceeds

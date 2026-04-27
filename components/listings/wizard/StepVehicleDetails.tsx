@@ -32,7 +32,8 @@ export function StepVehicleDetails({ listingId, initialData, listingStatus, onSa
       mileage:         (initialData?.mileage as number) ?? 0,
       price:           initialData?.price_cents ? (initialData.price_cents as number) / 100 : undefined,
       color:           (initialData?.color as string) ?? '',
-      condition_notes: (initialData?.condition_notes as string) ?? '',
+      condition_notes:    (initialData?.condition_notes as string) ?? '',
+      seller_description: (initialData?.seller_description as string) ?? '',
       pickup_zip:      (initialData?.pickup_zip as string) ?? '',
     },
   })
@@ -113,6 +114,21 @@ export function StepVehicleDetails({ listingId, initialData, listingStatus, onSa
               </FormItem>
             )} />
           </div>
+
+          <FormField control={form.control} name={"seller_description" as never} render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-[#78716c]">Vehicle Description</FormLabel>
+              <FormControl>
+                <textarea
+                  className="min-h-[120px] w-full rounded-md border border-[#e7e5e4] bg-white px-3 py-2 text-sm text-[#1c1917] placeholder:text-[#a8a29e] focus:border-blue-600 focus:outline-none"
+                  placeholder="Describe the vehicle — history, features, known issues, anything buyers should know..."
+                  {...field}
+                />
+              </FormControl>
+              <p className="text-xs text-[#a8a29e] mt-1">This will be shown to buyers on the listing page.</p>
+              <FormMessage className="text-red-500" />
+            </FormItem>
+          )} />
 
           <FormField control={form.control} name="condition_notes" render={({ field }) => (
             <FormItem>

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { GradeBadge } from '@/components/ui/GradeBadge'
+import { ListingsTable } from '@/components/admin/ListingsTable'
 
 const STATUS_TABS = [
   { label: 'All', value: 'all' },
@@ -10,41 +10,6 @@ const STATUS_TABS = [
   { label: 'Sold', value: 'sold' },
 ]
 
-function formatPrice(cents: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(cents / 100)
-}
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    draft: 'border-[#e7e5e4] bg-[#f5f4f0] text-[#78716c]',
-    active: 'border-green-200 bg-green-50 text-green-700',
-    sold: 'border-amber-200 bg-amber-50 text-amber-700',
-    paused: 'border-orange-200 bg-orange-50 text-orange-700',
-    pending_inspection: 'border-yellow-200 bg-yellow-50 text-yellow-700',
-  }
-  const cls = styles[status] ?? 'border-[#e7e5e4] bg-[#f5f4f0] text-[#78716c]'
-  return (
-    <span
-      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium capitalize ${cls}`}
-    >
-      {status}
-    </span>
-  )
-}
-
 interface Listing {
   id: string
   vin: string
@@ -53,7 +18,7 @@ interface Listing {
   year: number
   price_cents: number
   status: string
-  grade: string | null
+  overall_grade: string | null
   created_at: string
   profiles: { company: string | null } | null
 }
@@ -77,10 +42,7 @@ export default async function AdminListingsPage({
   }
 
   const { data: listings, error } = await query
-
-  if (error) {
-    throw new Error(`Failed to fetch listings: ${error.message}`)
-  }
+  if (error) throw new Error(`Failed to fetch listings: ${error.message}`)
 
   const rows = (listings ?? []) as unknown as Listing[]
 
@@ -108,68 +70,8 @@ export default async function AdminListingsPage({
         })}
       </div>
 
-      {/* Table */}
-      <div className="mt-4 overflow-hidden rounded-lg border border-[#e7e5e4] bg-white">
-        {rows.length === 0 ? (
-          <p className="px-6 py-8 text-center text-sm text-[#a8a29e]">No listings found.</p>
-        ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-[#e7e5e4] text-left bg-[#faf9f6]">
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
-                  Vehicle
-                </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
-                  VIN
-                </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
-                  Seller
-                </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
-                  Price
-                </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
-                  Grade
-                </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-[#78716c]">
-                  Created
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#e7e5e4] text-sm">
-              {rows.map((listing) => (
-                <tr
-                  key={listing.id}
-                  className="cursor-pointer transition-colors hover:bg-[#faf9f6]"
-                >
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/admin/listings/${listing.id}`}
-                      className="block text-[#1c1917] font-medium hover:underline"
-                    >
-                      {listing.year} {listing.make} {listing.model}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 font-mono text-xs text-[#78716c]">{listing.vin}</td>
-                  <td className="px-4 py-3 text-[#78716c]">
-                    {listing.profiles?.company ?? '—'}
-                  </td>
-                  <td className="px-4 py-3 text-[#1c1917]">{formatPrice(listing.price_cents)}</td>
-                  <td className="px-4 py-3">
-                    <GradeBadge grade={(listing as unknown as Record<string, unknown>).overall_grade as string ?? null} />
-                  </td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={listing.status} />
-                  </td>
-                  <td className="px-4 py-3 text-[#78716c]">{formatDate(listing.created_at)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+      <div className="mt-4">
+        <ListingsTable rows={rows} />
       </div>
     </div>
   )
